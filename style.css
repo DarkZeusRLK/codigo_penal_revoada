@@ -1,0 +1,472 @@
+/* ESTILOS GERAIS */
+:root {
+  --bg-main: #14141d;
+  --bg-card: #1c1c28;
+  --bg-header-category: #252535;
+  --text-primary: #f0f0f0;
+  --text-secondary: #9090a0;
+  --color-revoada: #8a2be2;
+  --color-danger: #e74c3c;
+  --color-success: #27ae60;
+  --color-info: #3498db;
+  --border-color: #333345;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Arial", sans-serif;
+}
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  padding: 20px;
+  font-size: 14px;
+}
+.container {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* HEADER */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 20px;
+}
+.logo-area {
+  display: flex;
+  align-items: center;
+}
+.logo-revoada {
+  height: 40px;
+  margin-right: 15px;
+}
+header h1 {
+  font-size: 1.8em;
+  color: var(--color-revoada);
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+header p {
+  margin-left: 15px;
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+.badge-area {
+  display: flex;
+  gap: 10px;
+}
+.badge {
+  height: 40px;
+}
+
+/* CARDS E INPUTS */
+.card {
+  background-color: var(--bg-card);
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.card-header {
+  font-size: 1em;
+  font-weight: bold;
+  color: var(--text-primary);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  text-transform: uppercase;
+}
+.card-header i {
+  color: var(--color-revoada);
+  margin-right: 8px;
+}
+.input-group {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+.input-group label {
+  font-size: 0.9em;
+  color: var(--text-secondary);
+  align-self: center;
+  text-align: right;
+  width: 100px;
+}
+input[type="text"],
+textarea,
+select,
+input[type="number"] {
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  min-height: 35px;
+}
+input[type="text"]::placeholder,
+textarea::placeholder,
+input[type="number"]::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+/* DADOS DO PRESO */
+.dados-preso {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 5px;
+}
+.dados-preso > * {
+  flex-basis: 33%;
+}
+.dados-preso .card-header {
+  display: block;
+}
+.dados-preso .input-group {
+  grid-template-columns: auto 1fr;
+}
+
+/* LAYOUT */
+.main-content {
+  display: flex;
+  gap: 20px;
+}
+.crimes-aplicados {
+  flex: 2;
+  padding: 0;
+}
+.resumo-sentenca {
+  flex: 1;
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+/* CRIMES */
+.crimes-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding: 0 15px 15px 15px;
+}
+.category-title {
+  background: linear-gradient(90deg, #2a2a3d 0%, var(--bg-card) 100%);
+  border-left: 4px solid var(--color-revoada);
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 15px;
+  font-weight: bold;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.95em;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.crime-column .category-title:first-child {
+  margin-top: 0;
+}
+.category-content {
+  display: block;
+  visibility: visible;
+  opacity: 1;
+  padding: 0;
+  background-color: transparent;
+}
+.crime-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid #2a2a35;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.2s;
+}
+.crime-item:hover {
+  background-color: #2e2e40;
+}
+.crime-item:last-child {
+  border-bottom: none;
+}
+.crime-item.selected {
+  background-color: rgba(138, 43, 226, 0.15);
+  border-left: 3px solid var(--color-revoada);
+}
+.btn-info {
+  background-color: var(--color-info);
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 0.7em;
+  font-weight: bold;
+  cursor: default;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* RESUMO */
+.resumo-section {
+  margin-bottom: 15px;
+  padding: 0 5px;
+}
+.section-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: var(--text-primary);
+}
+.section-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.8em;
+  margin-bottom: 10px;
+}
+hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 15px 0;
+}
+.output-list {
+  min-height: 50px;
+  padding: 10px;
+  background-color: var(--bg-main);
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  max-height: 250px;
+  overflow-y: auto;
+}
+.crime-output-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  font-size: 0.9em;
+  border-bottom: 1px dashed #333;
+}
+.crime-output-item button {
+  background: none;
+  border: none;
+  color: var(--color-danger);
+  font-size: 1.1em;
+  cursor: pointer;
+}
+.pena-multa .section-title {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  font-size: 1.1em;
+}
+#pena-total {
+  color: var(--color-danger);
+  font-weight: bold;
+}
+#multa-total {
+  color: var(--color-success);
+  font-weight: bold;
+}
+
+/* ATENUANTES E RADIOS */
+.atenuante-item {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+.atenuante-item label {
+  margin-left: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.atenuante-item input[type="checkbox"] {
+  accent-color: var(--color-revoada);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+.calculated-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+.calculated-row input {
+  width: 40%;
+  text-align: right;
+  padding: 5px;
+  background-color: #252535;
+  border: 1px solid #444;
+  color: #ccc;
+}
+.calculated-row label {
+  font-size: 0.9em;
+  color: var(--text-secondary);
+}
+
+/* ESTILOS RADIO BUTTONS */
+.calculated-row-radio {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding: 5px 0;
+  border-bottom: 1px dotted #333;
+}
+.calculated-row-radio label {
+  font-size: 0.9em;
+  color: var(--text-secondary);
+}
+.radio-group {
+  display: flex;
+  gap: 15px;
+}
+.radio-label {
+  margin-left: 5px !important;
+  color: var(--text-primary) !important;
+  cursor: pointer;
+}
+input[type="radio"] {
+  accent-color: var(--color-revoada);
+  cursor: pointer;
+  transform: scale(1.2);
+}
+#hp-minutos {
+  width: 40%;
+  text-align: right;
+  background-color: var(--bg-main);
+  border: 1px solid var(--color-info);
+  color: var(--text-primary);
+}
+
+/* BOTOES */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.btn-action {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  font-size: 0.9em;
+}
+#btn-copiar {
+  background-color: var(--color-revoada);
+  color: white;
+}
+#btn-copiar:hover {
+  background-color: #9c45e5;
+  box-shadow: 0 0 10px rgba(138, 43, 226, 0.4);
+}
+.btn-limpar {
+  background-color: var(--bg-header-category);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+.btn-limpar:hover {
+  background-color: #e74c3c;
+  border-color: #e74c3c;
+  color: white;
+}
+
+/* MEDIA QUERY */
+@media (max-width: 1000px) {
+  .main-content {
+    flex-direction: column;
+  }
+  .crimes-list {
+    grid-template-columns: 1fr;
+  }
+  .dados-preso {
+    flex-direction: column;
+  }
+  .dados-preso > * {
+    flex-basis: 100%;
+    margin-bottom: 10px;
+  }
+}
+
+/* UTILS */
+.hidden {
+  display: none !important;
+}
+#input-dinheiro-sujo {
+  font-weight: bold;
+  color: var(--color-success);
+}
+
+/* ALERTA */
+.custom-alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  padding: 15px 20px;
+  border-radius: 4px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 9999;
+  min-width: 300px;
+  border-left: 5px solid;
+  opacity: 0;
+  transform: translateX(50px);
+  animation: slideIn 0.3s forwards, fadeOut 0.5s forwards 3.5s;
+  font-size: 0.95em;
+}
+.custom-alert.error {
+  border-color: var(--color-danger);
+}
+.custom-alert.error i {
+  color: var(--color-danger);
+  font-size: 1.2em;
+}
+.custom-alert.success {
+  border-color: var(--color-success);
+}
+.custom-alert.success i {
+  color: var(--color-success);
+  font-size: 1.2em;
+}
+.custom-alert .alert-content {
+  display: flex;
+  flex-direction: column;
+}
+.custom-alert .alert-title {
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  margin-bottom: 2px;
+  color: #fff;
+}
+.custom-alert .alert-msg {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
