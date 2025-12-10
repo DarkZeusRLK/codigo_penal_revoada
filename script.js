@@ -1,135 +1,232 @@
-document.addEventListener("DOMContentLoaded", () => {
-  // --- CONFIGURAÇÃO DE VALORES ---
-  const PORCENTAGEM_MULTA_SUJO = 0.5; // 50%
-  const MULTIPLIER_FIANCA = 10;
+document.addEventListener("DOMContentLoaded", function () {
+  // --- 1. CONFIGURAÇÕES ---
+  var PORCENTAGEM_MULTA_SUJO = 0.5; // 50%
+  // var MULTIPLIER_FIANCA = 10; // Fiança agora é igual a Multa
+  var PENA_MAXIMA_SERVER = 150; // Teto de 150 meses
 
-  // Lista de ARTIGOS que obrigam o preenchimento dos Itens Apreendidos
-  // Adicione ou remova números aqui conforme a necessidade do servidor
-  const ARTIGOS_COM_ITENS = [
+  // Lista de crimes que exigem itens apreendidos
+  var ARTIGOS_COM_ITENS = [
     "121",
     "122",
     "123",
     "124",
     "125",
-    "126", // Armas e suprimentos
+    "126",
     "128",
     "129",
     "130",
-    "131", // Munições, coletes, facas
+    "131",
     "132",
     "133",
     "134",
     "135",
-    "136", // Drogas e itens ilegais
+    "136",
   ];
-  // --- FIM DA CONFIGURAÇÃO ---
 
-  // Referências aos elementos
-  const crimeItems = document.querySelectorAll(".crime-item");
-  const checkboxes = document.querySelectorAll(
+  // --- 2. SELETORES GERAIS ---
+  var crimeItems = document.querySelectorAll(".crime-item");
+  var checkboxes = document.querySelectorAll(
     '.atenuantes input[type="checkbox"]'
   );
-  const btnLimpar = document.getElementById("btn-limpar");
-  const btnCopiar = document.getElementById("btn-copiar");
 
-  // Inputs de Texto
-  const nomeInput = document.getElementById("nome");
-  const rgInput = document.getElementById("rg");
-  const advogadoInput = document.getElementById("advogado");
-  const checkboxAdvogado = document.getElementById("atenuante-advogado");
-  const itensApreendidosInput = document.querySelector(
+  var btnLimpar = document.getElementById("btn-limpar");
+  var btnCopiar = document.getElementById("btn-copiar");
+
+  var nomeInput = document.getElementById("nome");
+  var rgInput = document.getElementById("rg");
+  var advogadoInput = document.getElementById("advogado");
+  var checkboxAdvogado = document.getElementById("atenuante-advogado");
+  var itensApreendidosInput = document.querySelector(
     ".itens-apreendidos textarea"
-  ); // Nova referência direta
+  );
 
-  // Outputs
-  const crimesListOutput = document.getElementById("crimes-list-output");
-  const penaTotalEl = document.getElementById("pena-total");
-  const multaTotalEl = document.getElementById("multa-total");
-  const fiancaOutputEl = document.getElementById("fianca-output");
+  // SELETORES ESPECÍFICOS (HP e PORTE)
+  var hpSimBtn = document.getElementById("hp-sim");
+  var hpNaoBtn = document.getElementById("hp-nao");
+  var containerHpMinutos = document.getElementById("container-hp-minutos");
+  var inputHpMinutos = document.getElementById("hp-minutos");
+  var radiosPorte = document.getElementsByName("porte-arma");
 
-  // Dinheiro Sujo
-  const containerDinheiroSujo = document.getElementById(
+  // SELETORES DINHEIRO SUJO
+  var containerDinheiroSujo = document.getElementById(
     "container-dinheiro-sujo"
   );
-  const inputDinheiroSujo = document.getElementById("input-dinheiro-sujo");
+  var inputDinheiroSujo = document.getElementById("input-dinheiro-sujo");
 
-  let selectedCrimes = [];
+  // OUTPUTS e ALERTA
+  var crimesListOutput = document.getElementById("crimes-list-output");
+  var penaTotalEl = document.getElementById("pena-total");
+  var multaTotalEl = document.getElementById("multa-total");
+  var fiancaOutputEl = document.getElementById("fianca-output");
+  var alertaPenaMaxima = document.getElementById("alerta-pena-maxima");
 
-  // --- FUNÇÃO DE ALERTA PERSONALIZADO ---
-  const mostrarAlerta = (mensagem, tipo = "error") => {
-    const div = document.createElement("div");
-    div.className = `custom-alert ${tipo}`;
+  // OUTPUTS DIVISÃO DE FIANÇA
+  var fiancaBreakdown = document.getElementById("fianca-breakdown");
+  var valPolicial = document.getElementById("valor-policial");
+  var valPainel = document.getElementById("valor-painel");
+  var valAdvogado = document.getElementById("valor-advogado");
 
-    const icone =
+  var selectedCrimes = [];
+
+  // --- 3. FUNÇÃO DE ALERTA ---
+  function mostrarAlerta(mensagem, tipo) {
+    if (!tipo) tipo = "error";
+    var div = document.createElement("div");
+    div.className = "custom-alert " + tipo;
+
+    var icone =
       tipo === "success" ? "fa-circle-check" : "fa-triangle-exclamation";
-    const titulo =
-      tipo === "success" ? "OPERAÇÃO CONCLUÍDA" : "ATENÇÃO - CAMPO OBRIGATÓRIO";
+    var titulo = tipo === "success" ? "SUCESSO" : "ATENÇÃO";
 
-    div.innerHTML = `
-            <i class="fa-solid ${icone}"></i>
-            <div class="alert-content">
-                <span class="alert-title">${titulo}</span>
-                <span class="alert-msg">${mensagem}</span>
-            </div>
-        `;
+    div.innerHTML =
+      '<i class="fa-solid ' +
+      icone +
+      '"></i>' +
+      '<div class="alert-content">' +
+      '<span class="alert-title">' +
+      titulo +
+      "</span>" +
+      '<span class="alert-msg">' +
+      mensagem +
+      "</span>" +
+      "</div>";
 
     document.body.appendChild(div);
-    setTimeout(() => {
-      div.remove();
+    setTimeout(function () {
+      if (div.parentNode) div.parentNode.removeChild(div);
     }, 4000);
-  };
+  }
 
-  // --- FORMATAÇÃO E LÓGICA ---
-  inputDinheiroSujo.addEventListener("input", (e) => {
-    let value = e.target.value;
-    value = value.replace(/\D/g, "");
-    value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
-    e.target.value = value;
+  // --- 4. LÓGICA DO INPUT HP (DIRETA) ---
+  function toggleHpInput() {
+    if (hpSimBtn.checked) {
+      containerHpMinutos.classList.remove("hidden");
+      inputHpMinutos.focus();
+    } else {
+      containerHpMinutos.classList.add("hidden");
+      inputHpMinutos.value = "";
+    }
     calculateSentence();
-  });
+  }
 
-  const calculateSentence = () => {
-    let totalPenaBase = selectedCrimes.reduce(
-      (sum, crime) => sum + crime.pena,
-      0
-    );
-    let totalMulta = selectedCrimes.reduce(
-      (sum, crime) => sum + crime.multa,
-      0
-    );
+  if (hpSimBtn && hpNaoBtn) {
+    hpSimBtn.addEventListener("change", toggleHpInput);
+    hpNaoBtn.addEventListener("change", toggleHpInput);
+  }
 
-    let valorSujoString = inputDinheiroSujo.value.replace(/\./g, "");
-    let valorSujo = parseFloat(valorSujoString) || 0;
+  if (inputHpMinutos) {
+    inputHpMinutos.addEventListener("input", calculateSentence);
+    inputHpMinutos.addEventListener("keyup", calculateSentence);
+  }
 
-    if (!containerDinheiroSujo.classList.contains("hidden")) {
+  // --- 5. LÓGICA DE CÁLCULO ---
+  function calculateSentence() {
+    var totalPenaBase = 0;
+    var totalMulta = 0;
+
+    // Soma básica
+    for (var i = 0; i < selectedCrimes.length; i++) {
+      totalPenaBase += selectedCrimes[i].pena;
+      totalMulta += selectedCrimes[i].multa;
+    }
+
+    // Dinheiro Sujo
+    var valorSujo = 0;
+    if (
+      inputDinheiroSujo &&
+      containerDinheiroSujo &&
+      !containerDinheiroSujo.classList.contains("hidden")
+    ) {
+      var valorSujoString = inputDinheiroSujo.value.replace(/\./g, "");
+      valorSujo = parseFloat(valorSujoString) || 0;
       totalMulta += valorSujo * PORCENTAGEM_MULTA_SUJO;
     }
 
-    let descontoTotal = 0;
-    let isInfiancavel = selectedCrimes.some((crime) => crime.infiancavel);
+    // Atenuantes (%)
+    var descontoTotal = 0;
+    var isInfiancavel = false;
 
-    checkboxes.forEach((checkbox) => {
-      if (checkbox.checked) {
-        const percent = parseFloat(checkbox.dataset.percent) / 100;
-        descontoTotal += percent;
-      }
-    });
-
-    let totalPenaFinal = Math.max(0, totalPenaBase * (1 + descontoTotal));
-
-    let fianca = 0;
-    if (!isInfiancavel && totalPenaFinal > 0) {
-      fianca = Math.round(totalPenaFinal * MULTIPLIER_FIANCA);
+    for (var j = 0; j < selectedCrimes.length; j++) {
+      if (selectedCrimes[j].infiancavel) isInfiancavel = true;
     }
 
-    penaTotalEl.textContent = `${Math.round(totalPenaFinal)} meses`;
-    multaTotalEl.textContent = `R$${totalMulta.toLocaleString("pt-BR")}`;
-    fiancaOutputEl.value = `R$ ${fianca.toLocaleString("pt-BR")}`;
+    for (var k = 0; k < checkboxes.length; k++) {
+      if (checkboxes[k].checked) {
+        descontoTotal += parseFloat(checkboxes[k].dataset.percent) / 100;
+      }
+    }
+
+    // Aplica % na Pena
+    var totalPenaFinal = Math.max(0, totalPenaBase * (1 + descontoTotal));
+
+    // --- LÓGICA HP (SUBTRAÇÃO) ---
+    var hpReduction = 0;
+    var hpMarcado = false;
+    if (hpSimBtn && hpSimBtn.checked) hpMarcado = true;
+
+    if (hpMarcado && inputHpMinutos) {
+      var val = parseInt(inputHpMinutos.value);
+      if (!isNaN(val)) {
+        hpReduction = val;
+      }
+    }
+
+    // Subtrai os minutos
+    totalPenaFinal = Math.max(0, totalPenaFinal - hpReduction);
+
+    // --- LÓGICA TETO MÁXIMO 150 MESES ---
+    if (totalPenaFinal >= PENA_MAXIMA_SERVER) {
+      totalPenaFinal = PENA_MAXIMA_SERVER;
+      if (alertaPenaMaxima) alertaPenaMaxima.classList.remove("hidden");
+    } else {
+      if (alertaPenaMaxima) alertaPenaMaxima.classList.add("hidden");
+    }
+
+    // --- CÁLCULO DA FIANÇA ---
+    var fianca = 0;
+    if (!isInfiancavel) {
+      fianca = totalMulta;
+    }
+
+    // --- CÁLCULO DA DIVISÃO DA FIANÇA (ADVOGADO) ---
+    if (checkboxAdvogado && checkboxAdvogado.checked && fianca > 0) {
+      if (fiancaBreakdown) fiancaBreakdown.classList.remove("hidden");
+      // Cálculos: 35% Policial, 35% Painel, 30% Advogado
+      var partePolicial = fianca * 0.35;
+      var partePainel = fianca * 0.35;
+      var parteAdvogado = fianca * 0.3;
+
+      if (valPolicial)
+        valPolicial.textContent =
+          "R$ " +
+          partePolicial.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
+      if (valPainel)
+        valPainel.textContent =
+          "R$ " +
+          partePainel.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
+      if (valAdvogado)
+        valAdvogado.textContent =
+          "R$ " +
+          parteAdvogado.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
+    } else {
+      if (fiancaBreakdown) fiancaBreakdown.classList.add("hidden");
+    }
+
+    // Atualiza HTML
+    if (penaTotalEl)
+      penaTotalEl.textContent = Math.round(totalPenaFinal) + " meses";
+    if (multaTotalEl)
+      multaTotalEl.textContent = "R$" + totalMulta.toLocaleString("pt-BR");
+    if (fiancaOutputEl)
+      fiancaOutputEl.value = "R$ " + fianca.toLocaleString("pt-BR");
 
     updateCrimesOutput();
-  };
+  }
 
-  const updateCrimesOutput = () => {
+  // --- 6. ATUALIZAR LISTA VISUAL ---
+  function updateCrimesOutput() {
+    if (!crimesListOutput) return;
+
     crimesListOutput.innerHTML = "";
     if (selectedCrimes.length === 0) {
       crimesListOutput.innerHTML =
@@ -137,236 +234,339 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    selectedCrimes.forEach((crime, index) => {
-      const crimeDiv = document.createElement("div");
+    selectedCrimes.forEach(function (crime, index) {
+      var crimeDiv = document.createElement("div");
       crimeDiv.className = "crime-output-item";
-      const isInfiancavelText = crime.infiancavel ? " (INF)" : "";
+      var isInfiancavelText = crime.infiancavel ? " (INF)" : "";
 
-      crimeDiv.innerHTML = `
-                <span>${crime.artigo} - ${crime.nome.replace(
-        /\*\*/g,
-        ""
-      )}${isInfiancavelText}</span>
-                <button data-index="${index}" title="Remover"><i class="fa-solid fa-xmark"></i></button>
-            `;
+      // Remove duplicação do nome se existir e limpa asteriscos
+      var nomeExibicao = crime.nome.replace(/\*\*/g, "").trim();
+
+      crimeDiv.innerHTML =
+        "<span>" +
+        nomeExibicao +
+        isInfiancavelText +
+        "</span>" +
+        '<button data-index="' +
+        index +
+        '" title="Remover"><i class="fa-solid fa-xmark"></i></button>';
+
       crimesListOutput.appendChild(crimeDiv);
     });
 
-    crimesListOutput.querySelectorAll("button").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        const indexToRemove = parseInt(e.currentTarget.dataset.index);
-        const crimeToRemove = selectedCrimes[indexToRemove];
+    var removeBtns = crimesListOutput.querySelectorAll("button");
+    for (var i = 0; i < removeBtns.length; i++) {
+      removeBtns[i].addEventListener("click", function (e) {
+        var idx = parseInt(e.currentTarget.dataset.index);
+        var crimeToRemove = selectedCrimes[idx];
 
-        if (crimeToRemove.artigo === "137") {
+        if (crimeToRemove.artigo === "137" && containerDinheiroSujo) {
           containerDinheiroSujo.classList.add("hidden");
-          inputDinheiroSujo.value = "";
+          if (inputDinheiroSujo) inputDinheiroSujo.value = "";
         }
 
-        selectedCrimes.splice(indexToRemove, 1);
+        selectedCrimes.splice(idx, 1);
 
-        const originalItem = document.querySelector(
-          `.crime-item[data-artigo="${crimeToRemove.artigo}"]`
+        var originalItem = document.querySelector(
+          '.crime-item[data-artigo="' + crimeToRemove.artigo + '"]'
         );
         if (originalItem) {
           originalItem.classList.remove("selected");
         }
-
         calculateSentence();
       });
-    });
-  };
+    }
+  }
 
-  crimeItems.forEach((item) => {
-    item.addEventListener("click", () => {
-      const artigo = item.dataset.artigo;
-      const nome = item.querySelector(".crime-name").textContent.trim();
-      const pena = parseInt(item.dataset.pena);
-      const multa = parseInt(item.dataset.multa);
-      const infiancavel = item.dataset.infiancavel === "true";
+  // --- 7. EVENTOS GERAIS ---
 
-      const index = selectedCrimes.findIndex(
-        (crime) => crime.artigo === artigo
-      );
+  // Seleção de Crimes
+  for (var i = 0; i < crimeItems.length; i++) {
+    crimeItems[i].addEventListener("click", function () {
+      var el = this;
+      var artigo = el.dataset.artigo;
+      // Pegamos o texto completo do HTML, ex: "Art. 101 - Azaralhamento..."
+      var nomeElement = el.querySelector(".crime-name");
+      var nome = nomeElement ? nomeElement.firstChild.textContent.trim() : ""; // Pega só o texto antes do span .crime-condition
 
-      if (index === -1) {
-        selectedCrimes.push({ artigo, nome, pena, multa, infiancavel });
-        item.classList.add("selected");
-        if (artigo === "137") {
+      // Se tiver condição (span), pega o texto completo incluindo ela, mas limpando espaços
+      if (nomeElement) nome = nomeElement.innerText.trim();
+
+      var pena = parseInt(el.dataset.pena);
+      var multa = parseInt(el.dataset.multa);
+      var infiancavel = el.dataset.infiancavel === "true";
+
+      var existeIndex = -1;
+      for (var k = 0; k < selectedCrimes.length; k++) {
+        if (selectedCrimes[k].artigo === artigo) {
+          existeIndex = k;
+          break;
+        }
+      }
+
+      if (existeIndex === -1) {
+        selectedCrimes.push({
+          artigo: artigo,
+          nome: nome,
+          pena: pena,
+          multa: multa,
+          infiancavel: infiancavel,
+        });
+        el.classList.add("selected");
+
+        if (artigo === "137" && containerDinheiroSujo) {
           containerDinheiroSujo.classList.remove("hidden");
-          inputDinheiroSujo.focus();
+          if (inputDinheiroSujo) inputDinheiroSujo.focus();
         }
       } else {
-        selectedCrimes.splice(index, 1);
-        item.classList.remove("selected");
-        if (artigo === "137") {
+        selectedCrimes.splice(existeIndex, 1);
+        el.classList.remove("selected");
+
+        if (artigo === "137" && containerDinheiroSujo) {
           containerDinheiroSujo.classList.add("hidden");
-          inputDinheiroSujo.value = "";
+          if (inputDinheiroSujo) inputDinheiroSujo.value = "";
         }
       }
       calculateSentence();
     });
-  });
+  }
 
-  checkboxes.forEach((checkbox) => {
-    checkbox.addEventListener("change", calculateSentence);
-  });
-
-  btnLimpar.addEventListener("click", () => {
-    if (confirm("Tem certeza que deseja limpar todos os dados?")) {
-      selectedCrimes = [];
-      document.querySelectorAll(".crime-item.selected").forEach((item) => {
-        item.classList.remove("selected");
-      });
-      checkboxes.forEach((checkbox) => {
-        checkbox.checked = false;
-      });
-
-      nomeInput.value = "";
-      rgInput.value = "";
-      advogadoInput.value = "";
-      itensApreendidosInput.value = "";
-
-      containerDinheiroSujo.classList.add("hidden");
-      inputDinheiroSujo.value = "";
-
+  // Input Dinheiro Sujo
+  if (inputDinheiroSujo) {
+    inputDinheiroSujo.addEventListener("input", function (e) {
+      var val = e.target.value.replace(/\D/g, "");
+      val = val.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+      e.target.value = val;
       calculateSentence();
-    }
-  });
+    });
+  }
 
-  // --- BOTÃO COPIAR COM TODAS AS VALIDAÇÕES ---
-  btnCopiar.addEventListener("click", () => {
-    // 1. Validação Nome
-    if (nomeInput.value.trim() === "") {
-      mostrarAlerta("O campo 'Nome' do preso deve ser preenchido.", "error");
-      nomeInput.focus();
-      return;
-    }
+  // Checkboxes
+  for (var c = 0; c < checkboxes.length; c++) {
+    checkboxes[c].addEventListener("change", calculateSentence);
+  }
 
-    // 2. Validação RG
-    if (rgInput.value.trim() === "") {
-      mostrarAlerta("O campo 'RG' do preso deve ser preenchido.", "error");
-      rgInput.focus();
-      return;
-    }
+  // Botão Limpar
+  if (btnLimpar) {
+    btnLimpar.addEventListener("click", function () {
+      if (confirm("Tem certeza que deseja limpar todos os dados?")) {
+        selectedCrimes = [];
+        var selectedItens = document.querySelectorAll(".crime-item.selected");
+        for (var s = 0; s < selectedItens.length; s++) {
+          selectedItens[s].classList.remove("selected");
+        }
 
-    // 3. Validação Advogado
-    if (checkboxAdvogado.checked && advogadoInput.value.trim() === "") {
-      mostrarAlerta(
-        "Informe o RG do advogado ou desmarque a atenuante.",
-        "error"
-      );
-      advogadoInput.focus();
-      return;
-    }
+        for (var cb = 0; cb < checkboxes.length; cb++)
+          checkboxes[cb].checked = false;
 
-    // 4. NOVA VALIDAÇÃO: ITENS APREENDIDOS
-    // Verifica se algum crime selecionado está na lista ARTIGOS_COM_ITENS
-    const possuiCrimeComItens = selectedCrimes.some((crime) =>
-      ARTIGOS_COM_ITENS.includes(crime.artigo)
-    );
+        if (nomeInput) nomeInput.value = "";
+        if (rgInput) rgInput.value = "";
+        if (advogadoInput) advogadoInput.value = "";
+        if (itensApreendidosInput) itensApreendidosInput.value = "";
 
-    // Se tiver crime material E o campo de texto estiver vazio
-    if (possuiCrimeComItens && itensApreendidosInput.value.trim() === "") {
-      mostrarAlerta(
-        "Crimes de porte/tráfico identificados. Descreva os itens apreendidos.",
-        "error"
-      );
-      itensApreendidosInput.focus(); // Foca na caixa de texto
-      // Adiciona uma borda vermelha temporária para destacar
-      itensApreendidosInput.style.borderColor = "var(--color-danger)";
-      setTimeout(() => {
-        itensApreendidosInput.style.borderColor = "var(--border-color)";
-      }, 3000);
-      return;
-    }
+        if (containerDinheiroSujo)
+          containerDinheiroSujo.classList.add("hidden");
+        if (inputDinheiroSujo) inputDinheiroSujo.value = "";
 
-    // --- DADOS PARA O RELATÓRIO ---
-    const nome = nomeInput.value;
-    const rg = rgInput.value;
-    const advogado = advogadoInput.value || "Nenhum";
-    const pena = penaTotalEl.textContent;
-    const multa = multaTotalEl.textContent;
-    const fianca = fiancaOutputEl.value;
-    const itensApreendidos =
-      itensApreendidosInput.value || "Nenhum item apreendido.";
-    const valorDinheiroSujo = !containerDinheiroSujo.classList.contains(
-      "hidden"
-    )
-      ? inputDinheiroSujo.value
-      : null;
+        // Resetar HP e Porte
+        if (hpNaoBtn) hpNaoBtn.checked = true;
+        if (document.getElementById("porte-nao"))
+          document.getElementById("porte-nao").checked = true;
+        if (containerHpMinutos) containerHpMinutos.classList.add("hidden");
+        if (inputHpMinutos) inputHpMinutos.value = "";
 
-    const crimesList =
-      selectedCrimes
-        .map((c) => {
-          const isInfiancavel = c.infiancavel ? " (INF)" : "";
-          return `- ${c.artigo} - ${c.nome.replace(
-            /\*\*/g,
-            ""
-          )}${isInfiancavel}`;
-        })
-        .join("\n") || "Nenhum crime aplicado.";
-
-    let atenuantesList = "";
-    checkboxes.forEach((checkbox) => {
-      if (checkbox.checked) {
-        const label = document
-          .querySelector(`label[for="${checkbox.id}"]`)
-          .textContent.trim();
-        atenuantesList += `- ${label}\n`;
+        calculateSentence();
       }
     });
-    if (atenuantesList === "") atenuantesList = "Nenhum atenuante aplicado.";
+  }
 
-    const dinheiroSujoLine = valorDinheiroSujo
-      ? `\n**DINHEIRO SUJO APREENDIDO:**\n- Valor: R$ ${valorDinheiroSujo} (Multa adicional aplicada)`
-      : "";
+  // --- 8. GERAR RELATÓRIO (FORMATO MD) ---
+  if (btnCopiar) {
+    btnCopiar.addEventListener("click", function () {
+      // Validações básicas
+      if (nomeInput && nomeInput.value.trim() === "") {
+        mostrarAlerta("Preencha o NOME do preso.", "error");
+        nomeInput.focus();
+        return;
+      }
+      if (rgInput && rgInput.value.trim() === "") {
+        mostrarAlerta("Preencha o RG do preso.", "error");
+        rgInput.focus();
+        return;
+      }
 
-    const relatorio = `
-**[ 📝 RELATÓRIO DE PRISÃO - REVOADA RJ ]**
----
+      // Validação Advogado (somente se marcado)
+      if (
+        checkboxAdvogado &&
+        checkboxAdvogado.checked &&
+        advogadoInput &&
+        advogadoInput.value.trim() === ""
+      ) {
+        mostrarAlerta("Preencha o RG do Advogado.", "error");
+        advogadoInput.focus();
+        return;
+      }
 
-**DADOS DO PRESO:**
-Nome: ${nome}
-RG: ${rg}
-Advogado: ${advogado}
+      var possuiItem = false;
+      for (var x = 0; x < selectedCrimes.length; x++) {
+        if (ARTIGOS_COM_ITENS.indexOf(selectedCrimes[x].artigo) > -1) {
+          possuiItem = true;
+          break;
+        }
+      }
+      if (
+        possuiItem &&
+        itensApreendidosInput &&
+        itensApreendidosInput.value.trim() === ""
+      ) {
+        mostrarAlerta("Descreva os itens apreendidos.", "error");
+        itensApreendidosInput.focus();
+        return;
+      }
 
----
+      // --- Coleta de Dados para o Relatório ---
+      var nome = nomeInput.value;
+      var rg = rgInput.value;
+      var advogado = advogadoInput.value || "Nenhum";
+      var penaStr = penaTotalEl ? penaTotalEl.textContent : "0 meses";
+      var multaStr = multaTotalEl ? multaTotalEl.textContent : "R$0";
+      var itens = itensApreendidosInput
+        ? itensApreendidosInput.value || "Nenhum item apreendido"
+        : "Nenhum item apreendido";
+      var valorSujo =
+        inputDinheiroSujo && !containerDinheiroSujo.classList.contains("hidden")
+          ? inputDinheiroSujo.value
+          : null;
 
-**CRIMES APLICADOS:**
-${crimesList}
+      // Data e Hora Atual
+      var now = new Date();
+      var dataHora =
+        now.toLocaleDateString("pt-BR") +
+        " - " +
+        now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
----
+      // Status Porte e HP
+      var porteTexto = "Não";
+      for (var p = 0; p < radiosPorte.length; p++) {
+        if (radiosPorte[p].checked && radiosPorte[p].value === "sim")
+          porteTexto = "Sim";
+      }
+      var hpSim = hpSimBtn && hpSimBtn.checked;
 
-**RESUMO DA SENTENÇA:**
-Pena Total: ${pena}
-Multa Total: ${multa}
-Fiança: ${fianca}
+      // Cálculo das Porcentagens Finais para exibição
+      var totalDiscountPercent = 0;
+      for (var cb = 0; cb < checkboxes.length; cb++) {
+        if (checkboxes[cb].checked)
+          totalDiscountPercent += parseFloat(checkboxes[cb].dataset.percent);
+      }
+      var penaFinalPercent = 100 + totalDiscountPercent;
+      var multaPercent = 100;
 
-**ATENUANTES:**
-${atenuantesList}
+      // Formatação da lista de Crimes
+      var crimesText = "";
+      if (selectedCrimes.length === 0) {
+        crimesText = "Nenhum crime aplicado.";
+      } else {
+        var arr = selectedCrimes.map(function (c) {
+          var inf = c.infiancavel ? "**" : "";
+          // Usa o nome completo capturado, mas garante que não tenha duplicidade de "Art. X"
+          // A lógica abaixo remove "Art. X -" se já vier do HTML e re-adiciona limpo
+          var cleanName = c.nome.replace(/\*\*/g, "").trim();
+          // Se o nome já começa com "Art.", usa ele, senão adiciona
+          if (!cleanName.startsWith("Art.")) {
+            cleanName = "Art. " + c.artigo + " - " + cleanName;
+          }
+          return cleanName + inf;
+        });
+        crimesText = arr.join("\n");
+      }
 
----
+      // Formatação da lista de Atenuantes
+      var atenuantesText = "";
+      for (var cb = 0; cb < checkboxes.length; cb++) {
+        if (checkboxes[cb].checked) {
+          var lbl = document
+            .querySelector('label[for="' + checkboxes[cb].id + '"]')
+            .textContent.trim();
+          var parts = lbl.split("(");
+          var name = parts[0].trim();
+          var percent = parts[1]
+            ? parts[1].replace(")", "").replace("-", "")
+            : "";
+          atenuantesText +=
+            "* 🔹 " + name + ": Redução de " + percent + " na pena total.\n";
+        }
+      }
+      if (hpSim && inputHpMinutos && inputHpMinutos.value > 0) {
+        atenuantesText +=
+          "* 🔹 Reanimado no HP: Redução de " +
+          inputHpMinutos.value +
+          " minutos.\n";
+      }
+      if (atenuantesText === "") atenuantesText = "Nenhum atenuante aplicado.";
 
-**ITENS APREENDIDOS:**
-${itensApreendidos}
-${dinheiroSujoLine}
+      var sujoLine = valorSujo ? "\n**DINHEIRO SUJO:** R$ " + valorSujo : "";
 
----
-        `.trim();
+      // --- MONTAGEM DO RELATÓRIO ---
+      var relatorio =
+        "```md\n" +
+        "# INFORMAÇÕES DO PRESO:\n" +
+        "* NOME: " +
+        nome +
+        "\n" +
+        "* RG: " +
+        rg +
+        "\n" +
+        (advogado !== "Nenhum" ? "* ADVOGADO: " + advogado + "\n" : "") +
+        "\n" +
+        "# PENA TOTAL: " +
+        penaStr +
+        " (" +
+        penaFinalPercent +
+        "%)\n" +
+        "# MULTA: " +
+        multaStr +
+        " (" +
+        multaPercent +
+        "%)\n" +
+        "\n" +
+        "# CRIMES:\n" +
+        crimesText +
+        "\n" +
+        "\n" +
+        "# ITENS APREENDIDOS\n" +
+        itens +
+        "\n" +
+        sujoLine +
+        "\n" +
+        "\n" +
+        "# ATENUANTES:\n" +
+        atenuantesText +
+        "\n" +
+        "\n" +
+        "# 📋 PORTE DE ARMA: " +
+        porteTexto +
+        "\n" +
+        "# 🏥 REANIMADO NO HP: " +
+        (hpSim ? "Sim" : "Não") +
+        "\n" +
+        "* DATA: " +
+        dataHora +
+        "\n" +
+        "```";
 
-    navigator.clipboard
-      .writeText(relatorio)
-      .then(() => {
-        mostrarAlerta(
-          "Relatório copiado para a área de transferência.",
-          "success"
-        );
-      })
-      .catch((err) => {
-        console.error(err);
-        mostrarAlerta("Houve um erro ao tentar copiar o relatório.", "error");
-      });
-  });
+      navigator.clipboard
+        .writeText(relatorio)
+        .then(function () {
+          mostrarAlerta("Relatório copiado (formato MD)!", "success");
+        })
+        .catch(function (err) {
+          console.error(err);
+          mostrarAlerta("Erro ao copiar.", "error");
+        });
+    });
+  }
 
+  // Inicializa
   calculateSentence();
 });
