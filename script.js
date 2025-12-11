@@ -595,7 +595,7 @@ document.addEventListener("DOMContentLoaded", function () {
       participantesSelecionados.forEach((p) => {
         participantesStr += "<@" + p.id + "> ";
       });
-      if (participantesStr === "") participantesStr = "Nenhum adicional.";
+      if (participantesStr === "") participantesStr = ".";
 
       var qraContent = "**QRA:** <@" + officerId + "> " + participantesStr;
       var crimesText =
