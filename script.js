@@ -1,9 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // --- 1. CONFIGURAÇÕES ---
-  var PORCENTAGEM_MULTA_SUJO = 0.5; // 50%
+  // --- CONFIGURAÇÃO ---
+  var PORCENTAGEM_MULTA_SUJO = 0.5;
   var PENA_MAXIMA_SERVER = 150;
 
-  // COLOQUE SEU WEBHOOK AQUI PARA NÃO PRECISAR COLAR TODA VEZ
   var WEBHOOK_URL_FIXA = "";
 
   var ARTIGOS_COM_ITENS = [
@@ -24,80 +23,58 @@ document.addEventListener("DOMContentLoaded", function () {
     "136",
   ];
 
-  // --- 2. SELETORES GERAIS ---
+  // --- SELETORES LOGIN ---
   var loginScreen = document.getElementById("login-screen");
   var btnLoginSimulado = document.getElementById("btn-login-simulado");
   var appContent = document.getElementById("app-content");
   var userNameSpan = document.getElementById("user-name");
   var userAvatarImg = document.getElementById("user-avatar");
 
-  // --- LÓGICA DE LOGIN (CORRIGIDA) ---
-
-  // Função que libera a tela
-  function liberarAcesso(username, avatarUrl) {
-    if (loginScreen) loginScreen.style.display = "none";
-    if (appContent) appContent.classList.remove("hidden");
-
-    if (userNameSpan) userNameSpan.textContent = username;
-    if (avatarUrl && userAvatarImg) {
+  // --- LÓGICA LOGIN ---
+  function doLogin(username, avatarUrl) {
+    loginScreen.style.display = "none";
+    appContent.classList.remove("hidden");
+    userNameSpan.textContent = username;
+    if (avatarUrl) {
       userAvatarImg.src = avatarUrl;
       userAvatarImg.classList.remove("hidden");
     }
   }
 
-  // 1. Verifica se o usuário voltou do Discord com o Token na URL
-  // O Discord retorna algo como: site.com/#access_token=...
-  var urlHash = window.location.hash;
-  if (urlHash.includes("access_token")) {
-    // Extrai o token da URL
-    var params = new URLSearchParams(urlHash.substring(1));
-    var accessToken = params.get("access_token");
-
-    if (accessToken) {
-      // Busca os dados do usuário no Discord
-      fetch("https://discord.com/api/users/@me", {
-        headers: { authorization: `Bearer ${accessToken}` },
-      })
-        .then((result) => result.json())
-        .then((response) => {
-          // Monta a URL do Avatar
-          var avatar = null;
-          if (response.avatar) {
-            avatar = `https://cdn.discordapp.com/avatars/${response.id}/${response.avatar}.png`;
-          }
-          // Libera o acesso
-          liberarAcesso(response.username, avatar);
-
-          // (Opcional) Limpa a URL para não ficar aquele monte de código
-          history.pushState(
-            "",
-            document.title,
-            window.location.pathname + window.location.search
-          );
-        })
-        .catch((err) => {
-          console.error("Erro ao pegar dados do Discord:", err);
-          alert("Erro ao validar login. Tente novamente.");
-        });
-    }
-  }
-
-  // 2. Botão de Login Simulado (Para testes sem Discord)
+  // Login Simulado
   if (btnLoginSimulado) {
     btnLoginSimulado.addEventListener("click", function () {
-      liberarAcesso("Oficial. Padrao", "Imagens/image.png");
+      doLogin("Oficial. Padrao", "Imagens/image.png");
     });
   }
 
-  // --- RESTANTE DO CÓDIGO DA CALCULADORA ---
+  // OAuth2 Discord
+  var fragment = new URLSearchParams(window.location.hash.slice(1));
+  var accessToken = fragment.get("access_token");
+  if (accessToken) {
+    fetch("https://discord.com/api/users/@me", {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+      .then((result) => result.json())
+      .then((response) => {
+        var avatar = `https://cdn.discordapp.com/avatars/${response.id}/${response.avatar}.png`;
+        doLogin(response.username + "#" + response.discriminator, avatar);
+        history.pushState(
+          "",
+          document.title,
+          window.location.pathname + window.location.search
+        );
+      })
+      .catch(console.error);
+  }
 
+  // --- SELETORES GERAIS ---
   var crimeItems = document.querySelectorAll(".crime-item");
   var checkboxes = document.querySelectorAll(
     '.atenuantes input[type="checkbox"]'
   );
-
   var btnLimpar = document.getElementById("btn-limpar");
-  var btnEnviar = document.getElementById("btn-enviar"); // Botão de Enviar Webhook
+  var btnEnviar = document.getElementById("btn-enviar");
 
   var webhookInput = document.getElementById("webhook-url");
   if (WEBHOOK_URL_FIXA && webhookInput) webhookInput.value = WEBHOOK_URL_FIXA;
@@ -110,9 +87,11 @@ document.addEventListener("DOMContentLoaded", function () {
     ".itens-apreendidos textarea"
   );
 
-  // UPLOAD DE FOTO (Arquivo local)
-  var fileInput = document.getElementById("preso-foto-upload"); // Input type="file" que criamos no HTML anterior
-  var fileNameDisplay = document.getElementById("file-name-display");
+  // UPLOADS
+  var inputPreso = document.getElementById("upload-preso");
+  var imgPreviewPreso = document.getElementById("img-preview-preso");
+  var inputMochila = document.getElementById("upload-mochila");
+  var imgPreviewMochila = document.getElementById("img-preview-mochila");
 
   // PARTICIPANTES
   var btnAddPart = document.getElementById("btn-add-participante");
@@ -158,37 +137,42 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 4000);
   }
 
-  // --- LOGICA PARTICIPANTES ---
+  // --- LOGICA UPLOADS E PREVIEW ---
+  function handlePreview(input, imgElement) {
+    if (input && input.files && input.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        imgElement.src = e.target.result;
+        imgElement.classList.remove("hidden");
+      };
+      reader.readAsDataURL(input.files[0]);
+    } else {
+      imgElement.src = "";
+      imgElement.classList.add("hidden");
+    }
+  }
+
+  if (inputPreso)
+    inputPreso.addEventListener("change", function () {
+      handlePreview(this, imgPreviewPreso);
+    });
+  if (inputMochila)
+    inputMochila.addEventListener("change", function () {
+      handlePreview(this, imgPreviewMochila);
+    });
+
+  // --- PARTICIPANTES ---
   if (btnAddPart) {
     btnAddPart.addEventListener("click", function () {
       var div = document.createElement("div");
       div.className = "participante-row";
-      div.innerHTML = `
-            <input type="text" placeholder="ID do Oficial" class="part-id" style="width: 150px;">
-            <button class="btn-remove-part"><i class="fa-solid fa-minus"></i></button>
-          `;
+      div.innerHTML = `<input type="text" placeholder="ID do Oficial" class="part-id" style="width: 150px;"><button class="btn-remove-part"><i class="fa-solid fa-minus"></i></button>`;
       partContainer.appendChild(div);
-
       div
         .querySelector(".btn-remove-part")
         .addEventListener("click", function () {
           div.remove();
         });
-    });
-  }
-
-  // --- LOGICA UPLOAD FOTO (Visualização do nome) ---
-  // No HTML anterior, eu sugeri usar <input type="file" id="preso-foto-upload">
-  // Se você ainda não tem esse input no HTML, o JS não vai achar, mas não vai quebrar.
-  if (fileInput) {
-    fileInput.addEventListener("change", function () {
-      if (this.files && this.files[0]) {
-        if (fileNameDisplay)
-          fileNameDisplay.textContent =
-            "Imagem selecionada: " + this.files[0].name;
-      } else {
-        if (fileNameDisplay) fileNameDisplay.textContent = "";
-      }
     });
   }
 
@@ -410,10 +394,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (advogadoInput) advogadoInput.value = "";
         if (itensApreendidosInput) itensApreendidosInput.value = "";
 
-        if (fileInput) fileInput.value = ""; // Limpa input file
-        if (fileNameDisplay) fileNameDisplay.textContent = "";
-        if (partContainer) partContainer.innerHTML = "";
-
         if (containerDinheiroSujo)
           containerDinheiroSujo.classList.add("hidden");
         if (inputDinheiroSujo) inputDinheiroSujo.value = "";
@@ -422,12 +402,19 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById("porte-nao").checked = true;
         if (containerHpMinutos) containerHpMinutos.classList.add("hidden");
         if (inputHpMinutos) inputHpMinutos.value = "";
+
+        if (inputPreso) inputPreso.value = "";
+        if (imgPreviewPreso) imgPreviewPreso.classList.add("hidden");
+        if (inputMochila) inputMochila.value = "";
+        if (imgPreviewMochila) imgPreviewMochila.classList.add("hidden");
+        if (partContainer) partContainer.innerHTML = "";
+
         calculateSentence();
       }
     });
   }
 
-  // --- ENVIAR PARA DISCORD (COM ARQUIVO LOCAL) ---
+  // --- ENVIAR PARA DISCORD (COM FORMDATA - 2 IMAGENS) ---
   if (btnEnviar) {
     btnEnviar.addEventListener("click", function (e) {
       e.preventDefault();
@@ -460,6 +447,17 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
+      // Validação dos Arquivos Obrigatórios
+      if (!inputPreso.files[0]) {
+        mostrarAlerta("Falta a foto do PRESO.", "error");
+        return;
+      }
+      if (!inputMochila.files[0]) {
+        mostrarAlerta("Falta a foto do INVENTÁRIO.", "error");
+        return;
+      }
+
+      // Validação Itens
       var possuiItem = false;
       for (var x = 0; x < selectedCrimes.length; x++) {
         if (ARTIGOS_COM_ITENS.indexOf(selectedCrimes[x].artigo) > -1) {
@@ -489,7 +487,6 @@ document.addEventListener("DOMContentLoaded", function () {
         : "Nenhum";
       var oficial = userNameSpan.textContent;
 
-      // PARTICIPANTES
       var participantesStr = "";
       if (partContainer) {
         var partInputs = partContainer.querySelectorAll(".part-id");
@@ -534,53 +531,65 @@ document.addEventListener("DOMContentLoaded", function () {
           porteTexto = "Sim";
       }
 
-      // --- FORMDATA PARA ENVIAR ARQUIVO ---
+      // --- MONTAR FORMDATA (MULTIPART) ---
       var formData = new FormData();
 
-      var embed = {
-        title: "📑 RELATÓRIO DE PRISÃO - REVOADA RJ",
-        color: 3447003,
-        fields: [
-          { name: "👮 OFICIAL RESPONSÁVEL", value: oficial, inline: false },
-          { name: "👮‍♂️ PARTICIPANTES", value: participantesStr, inline: false },
-          {
-            name: "👤 PRESO",
-            value: "**Nome:** " + nome + "\n**RG:** " + rg,
-            inline: true,
-          },
-          {
-            name: "⚖️ SENTENÇA",
-            value: "**Pena:** " + penaStr + "\n**Multa:** " + multaStr,
-            inline: true,
-          },
-          { name: "🛡️ ADVOGADO", value: advogado, inline: true },
-          { name: "📜 CRIMES", value: "```\n" + crimesText + "\n```" },
-          { name: "📦 ITENS APREENDIDOS", value: itens },
-          {
-            name: "🔻 ATENUANTES / STATUS",
-            value:
-              atenuantesText +
-              "\n**Porte:** " +
-              porteTexto +
-              "\n**Dinheiro Sujo:** " +
-              valorSujo,
-          },
-        ],
-        footer: {
-          text:
-            "Sistema Policial Revoada • " + new Date().toLocaleString("pt-BR"),
+      // Anexando Arquivos
+      formData.append("file1", inputPreso.files[0]);
+      formData.append("file2", inputMochila.files[0]);
+
+      // Montando 2 Embeds
+      var embeds = [
+        {
+          title: "📑 RELATÓRIO DE PRISÃO - REVOADA RJ",
+          color: 3447003,
+          image: { url: "attachment://" + inputPreso.files[0].name }, // Referencia a imagem 1
+          fields: [
+            { name: "👮 OFICIAL RESPONSÁVEL", value: oficial, inline: false },
+            {
+              name: "👮‍♂️ PARTICIPANTES",
+              value: participantesStr,
+              inline: false,
+            },
+            {
+              name: "👤 PRESO",
+              value: "**Nome:** " + nome + "\n**RG:** " + rg,
+              inline: true,
+            },
+            {
+              name: "⚖️ SENTENÇA",
+              value: "**Pena:** " + penaStr + "\n**Multa:** " + multaStr,
+              inline: true,
+            },
+            { name: "🛡️ ADVOGADO", value: advogado, inline: true },
+            { name: "📜 CRIMES", value: "```\n" + crimesText + "\n```" },
+            {
+              name: "🔻 ATENUANTES / STATUS",
+              value:
+                atenuantesText +
+                "\n**Porte:** " +
+                porteTexto +
+                "\n**Dinheiro Sujo:** " +
+                valorSujo,
+            },
+          ],
         },
-      };
+        {
+          title: "📦 ITENS APREENDIDOS (INVENTÁRIO)",
+          color: 3447003,
+          description: itens,
+          image: { url: "attachment://" + inputMochila.files[0].name }, // Referencia a imagem 2
+          footer: {
+            text:
+              "Sistema Policial Revoada • " +
+              new Date().toLocaleString("pt-BR"),
+          },
+        },
+      ];
 
-      // Se tiver arquivo selecionado, anexa
-      if (fileInput && fileInput.files[0]) {
-        formData.append("file", fileInput.files[0]);
-        embed.image = { url: "attachment://" + fileInput.files[0].name };
-      }
+      formData.append("payload_json", JSON.stringify({ embeds: embeds }));
 
-      formData.append("payload_json", JSON.stringify({ embeds: [embed] }));
-
-      // ENVIA
+      // ENVIAR
       fetch(webhookURL, {
         method: "POST",
         body: formData,
@@ -597,6 +606,5 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Inicializa
   calculateSentence();
 });
