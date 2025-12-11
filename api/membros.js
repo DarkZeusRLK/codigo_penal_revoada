@@ -1,6 +1,6 @@
 export default async function handler(request, response) {
   const botToken = process.env.Discord_Bot_Token;
-  const guildId = process.env.Discord_Guild_Token;
+  const guildId = process.env.Discord_Guild_ID;
 
   if (!botToken || !guildId) {
     return response
