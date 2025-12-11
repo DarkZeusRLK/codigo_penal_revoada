@@ -3,7 +3,8 @@ document.addEventListener("DOMContentLoaded", function () {
   var PORCENTAGEM_MULTA_SUJO = 0.5;
   var PENA_MAXIMA_SERVER = 150;
 
-  var WEBHOOK_URL_FIXA = "";
+  var WEBHOOK_URL_FIXA =
+    "https://discord.com/api/webhooks/1448692300266868767/xfqk-pLh49481dceQHNg2W9VwWfVuvMIcHdKfaDa1QGwlzfHDePExBMIwuFWRZUUo1EY";
 
   var ARTIGOS_COM_ITENS = [
     "121",
