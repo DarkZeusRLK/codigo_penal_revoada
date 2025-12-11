@@ -1,10 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
   // --- 1. CONFIGURAÇÕES ---
   var PORCENTAGEM_MULTA_SUJO = 0.5; // 50%
-  // var MULTIPLIER_FIANCA = 10; // Fiança agora é igual a Multa
   var PENA_MAXIMA_SERVER = 150; // Teto de 150 meses
 
-  // Lista de crimes que exigem itens apreendidos
   var ARTIGOS_COM_ITENS = [
     "121",
     "122",
@@ -40,27 +38,25 @@ document.addEventListener("DOMContentLoaded", function () {
     ".itens-apreendidos textarea"
   );
 
-  // SELETORES ESPECÍFICOS (HP e PORTE)
+  // SELETORES ESPECÍFICOS
   var hpSimBtn = document.getElementById("hp-sim");
   var hpNaoBtn = document.getElementById("hp-nao");
   var containerHpMinutos = document.getElementById("container-hp-minutos");
   var inputHpMinutos = document.getElementById("hp-minutos");
   var radiosPorte = document.getElementsByName("porte-arma");
 
-  // SELETORES DINHEIRO SUJO
   var containerDinheiroSujo = document.getElementById(
     "container-dinheiro-sujo"
   );
   var inputDinheiroSujo = document.getElementById("input-dinheiro-sujo");
 
-  // OUTPUTS e ALERTA
+  // OUTPUTS
   var crimesListOutput = document.getElementById("crimes-list-output");
   var penaTotalEl = document.getElementById("pena-total");
   var multaTotalEl = document.getElementById("multa-total");
   var fiancaOutputEl = document.getElementById("fianca-output");
   var alertaPenaMaxima = document.getElementById("alerta-pena-maxima");
 
-  // OUTPUTS DIVISÃO DE FIANÇA
   var fiancaBreakdown = document.getElementById("fianca-breakdown");
   var valPolicial = document.getElementById("valor-policial");
   var valPainel = document.getElementById("valor-painel");
@@ -97,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 4000);
   }
 
-  // --- 4. LÓGICA DO INPUT HP (DIRETA) ---
+  // --- 4. FUNÇÕES DE INTERFACE ---
   function toggleHpInput() {
     if (hpSimBtn.checked) {
       containerHpMinutos.classList.remove("hidden");
@@ -121,12 +117,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // --- 5. LÓGICA DE CÁLCULO ---
   function calculateSentence() {
-    var totalPenaBase = 0;
+    var totalPenaRaw = 0; // Pena bruta sem limites
     var totalMulta = 0;
 
     // Soma básica
     for (var i = 0; i < selectedCrimes.length; i++) {
-      totalPenaBase += selectedCrimes[i].pena;
+      totalPenaRaw += selectedCrimes[i].pena;
       totalMulta += selectedCrimes[i].multa;
     }
 
@@ -142,7 +138,17 @@ document.addEventListener("DOMContentLoaded", function () {
       totalMulta += valorSujo * PORCENTAGEM_MULTA_SUJO;
     }
 
-    // Atenuantes (%)
+    // LÓGICA CORRIGIDA: TRAVA A BASE EM 150 ANTES DOS DESCONTOS
+    var penaBaseCalculo = totalPenaRaw;
+    if (penaBaseCalculo > PENA_MAXIMA_SERVER) {
+      penaBaseCalculo = PENA_MAXIMA_SERVER;
+      // Mostra o alerta se a pena bruta passou do teto
+      if (alertaPenaMaxima) alertaPenaMaxima.classList.remove("hidden");
+    } else {
+      if (alertaPenaMaxima) alertaPenaMaxima.classList.add("hidden");
+    }
+
+    // Cálculo dos Atenuantes
     var descontoTotal = 0;
     var isInfiancavel = false;
 
@@ -156,10 +162,10 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    // Aplica % na Pena
-    var totalPenaFinal = Math.max(0, totalPenaBase * (1 + descontoTotal));
+    // Aplica o desconto sobre a base travada (ex: 150 * (1 - 0.10) = 135)
+    var totalPenaFinal = Math.max(0, penaBaseCalculo * (1 + descontoTotal)); // descontoTotal é negativo ex: -0.1
 
-    // --- LÓGICA HP (SUBTRAÇÃO) ---
+    // Subtração HP (Minutos)
     var hpReduction = 0;
     var hpMarcado = false;
     if (hpSimBtn && hpSimBtn.checked) hpMarcado = true;
@@ -171,27 +177,18 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    // Subtrai os minutos
+    // Subtrai os minutos do valor já descontado
     totalPenaFinal = Math.max(0, totalPenaFinal - hpReduction);
 
-    // --- LÓGICA TETO MÁXIMO 150 MESES ---
-    if (totalPenaFinal >= PENA_MAXIMA_SERVER) {
-      totalPenaFinal = PENA_MAXIMA_SERVER;
-      if (alertaPenaMaxima) alertaPenaMaxima.classList.remove("hidden");
-    } else {
-      if (alertaPenaMaxima) alertaPenaMaxima.classList.add("hidden");
-    }
-
-    // --- CÁLCULO DA FIANÇA ---
+    // Fiança
     var fianca = 0;
     if (!isInfiancavel) {
       fianca = totalMulta;
     }
 
-    // --- CÁLCULO DA DIVISÃO DA FIANÇA (ADVOGADO) ---
+    // Divisão Advogado
     if (checkboxAdvogado && checkboxAdvogado.checked && fianca > 0) {
       if (fiancaBreakdown) fiancaBreakdown.classList.remove("hidden");
-      // Cálculos: 35% Policial, 35% Painel, 30% Advogado
       var partePolicial = fianca * 0.35;
       var partePainel = fianca * 0.35;
       var parteAdvogado = fianca * 0.3;
@@ -238,8 +235,6 @@ document.addEventListener("DOMContentLoaded", function () {
       var crimeDiv = document.createElement("div");
       crimeDiv.className = "crime-output-item";
       var isInfiancavelText = crime.infiancavel ? " (INF)" : "";
-
-      // Remove duplicação do nome se existir e limpa asteriscos
       var nomeExibicao = crime.nome.replace(/\*\*/g, "").trim();
 
       crimeDiv.innerHTML =
@@ -279,18 +274,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // --- 7. EVENTOS GERAIS ---
-
-  // Seleção de Crimes
   for (var i = 0; i < crimeItems.length; i++) {
     crimeItems[i].addEventListener("click", function () {
       var el = this;
       var artigo = el.dataset.artigo;
-      // Pegamos o texto completo do HTML, ex: "Art. 101 - Azaralhamento..."
       var nomeElement = el.querySelector(".crime-name");
-      var nome = nomeElement ? nomeElement.firstChild.textContent.trim() : ""; // Pega só o texto antes do span .crime-condition
-
-      // Se tiver condição (span), pega o texto completo incluindo ela, mas limpando espaços
-      if (nomeElement) nome = nomeElement.innerText.trim();
+      var nome = nomeElement ? nomeElement.innerText.trim() : "";
 
       var pena = parseInt(el.dataset.pena);
       var multa = parseInt(el.dataset.multa);
@@ -313,7 +302,6 @@ document.addEventListener("DOMContentLoaded", function () {
           infiancavel: infiancavel,
         });
         el.classList.add("selected");
-
         if (artigo === "137" && containerDinheiroSujo) {
           containerDinheiroSujo.classList.remove("hidden");
           if (inputDinheiroSujo) inputDinheiroSujo.focus();
@@ -321,7 +309,6 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         selectedCrimes.splice(existeIndex, 1);
         el.classList.remove("selected");
-
         if (artigo === "137" && containerDinheiroSujo) {
           containerDinheiroSujo.classList.add("hidden");
           if (inputDinheiroSujo) inputDinheiroSujo.value = "";
@@ -331,7 +318,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Input Dinheiro Sujo
   if (inputDinheiroSujo) {
     inputDinheiroSujo.addEventListener("input", function (e) {
       var val = e.target.value.replace(/\D/g, "");
@@ -341,12 +327,10 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Checkboxes
   for (var c = 0; c < checkboxes.length; c++) {
     checkboxes[c].addEventListener("change", calculateSentence);
   }
 
-  // Botão Limpar
   if (btnLimpar) {
     btnLimpar.addEventListener("click", function () {
       if (confirm("Tem certeza que deseja limpar todos os dados?")) {
@@ -355,7 +339,6 @@ document.addEventListener("DOMContentLoaded", function () {
         for (var s = 0; s < selectedItens.length; s++) {
           selectedItens[s].classList.remove("selected");
         }
-
         for (var cb = 0; cb < checkboxes.length; cb++)
           checkboxes[cb].checked = false;
 
@@ -363,12 +346,16 @@ document.addEventListener("DOMContentLoaded", function () {
         if (rgInput) rgInput.value = "";
         if (advogadoInput) advogadoInput.value = "";
         if (itensApreendidosInput) itensApreendidosInput.value = "";
+        if (fotoUrlInput) {
+          fotoUrlInput.value = "";
+          imgPreview.src = "";
+          imgPreview.classList.add("hidden");
+        }
 
         if (containerDinheiroSujo)
           containerDinheiroSujo.classList.add("hidden");
         if (inputDinheiroSujo) inputDinheiroSujo.value = "";
 
-        // Resetar HP e Porte
         if (hpNaoBtn) hpNaoBtn.checked = true;
         if (document.getElementById("porte-nao"))
           document.getElementById("porte-nao").checked = true;
@@ -383,7 +370,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // --- 8. GERAR RELATÓRIO (FORMATO MD) ---
   if (btnCopiar) {
     btnCopiar.addEventListener("click", function () {
-      // Validações básicas
       if (nomeInput && nomeInput.value.trim() === "") {
         mostrarAlerta("Preencha o NOME do preso.", "error");
         nomeInput.focus();
@@ -395,7 +381,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // Validação Advogado (somente se marcado)
       if (
         checkboxAdvogado &&
         checkboxAdvogado.checked &&
@@ -424,7 +409,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // --- Coleta de Dados para o Relatório ---
       var nome = nomeInput.value;
       var rg = rgInput.value;
       var advogado = advogadoInput.value || "Nenhum";
@@ -438,14 +422,21 @@ document.addEventListener("DOMContentLoaded", function () {
           ? inputDinheiroSujo.value
           : null;
 
-      // Data e Hora Atual
+      var fotoUrl = "Sem registro";
+      if (fotoUrlInput && fotoUrlInput.value.trim() !== "") {
+        if (fotoUrlInput.value.includes("[Imagem")) {
+          fotoUrl = "[Imagem Anexada Localmente]";
+        } else {
+          fotoUrl = "[Ver Imagem](" + fotoUrlInput.value + ")";
+        }
+      }
+
       var now = new Date();
       var dataHora =
         now.toLocaleDateString("pt-BR") +
         " - " +
         now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
-      // Status Porte e HP
       var porteTexto = "Não";
       for (var p = 0; p < radiosPorte.length; p++) {
         if (radiosPorte[p].checked && radiosPorte[p].value === "sim")
@@ -453,7 +444,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       var hpSim = hpSimBtn && hpSimBtn.checked;
 
-      // Cálculo das Porcentagens Finais para exibição
       var totalDiscountPercent = 0;
       for (var cb = 0; cb < checkboxes.length; cb++) {
         if (checkboxes[cb].checked)
@@ -462,17 +452,13 @@ document.addEventListener("DOMContentLoaded", function () {
       var penaFinalPercent = 100 + totalDiscountPercent;
       var multaPercent = 100;
 
-      // Formatação da lista de Crimes
       var crimesText = "";
       if (selectedCrimes.length === 0) {
         crimesText = "Nenhum crime aplicado.";
       } else {
         var arr = selectedCrimes.map(function (c) {
           var inf = c.infiancavel ? "**" : "";
-          // Usa o nome completo capturado, mas garante que não tenha duplicidade de "Art. X"
-          // A lógica abaixo remove "Art. X -" se já vier do HTML e re-adiciona limpo
           var cleanName = c.nome.replace(/\*\*/g, "").trim();
-          // Se o nome já começa com "Art.", usa ele, senão adiciona
           if (!cleanName.startsWith("Art.")) {
             cleanName = "Art. " + c.artigo + " - " + cleanName;
           }
@@ -481,7 +467,6 @@ document.addEventListener("DOMContentLoaded", function () {
         crimesText = arr.join("\n");
       }
 
-      // Formatação da lista de Atenuantes
       var atenuantesText = "";
       for (var cb = 0; cb < checkboxes.length; cb++) {
         if (checkboxes[cb].checked) {
@@ -507,7 +492,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       var sujoLine = valorSujo ? "\n**DINHEIRO SUJO:** R$ " + valorSujo : "";
 
-      // --- MONTAGEM DO RELATÓRIO ---
       var relatorio =
         "```md\n" +
         "# INFORMAÇÕES DO PRESO:\n" +
@@ -549,6 +533,9 @@ document.addEventListener("DOMContentLoaded", function () {
         "\n" +
         "# 🏥 REANIMADO NO HP: " +
         (hpSim ? "Sim" : "Não") +
+        "\n" +
+        "* FOTO: " +
+        fotoUrl +
         "\n" +
         "* DATA: " +
         dataHora +
