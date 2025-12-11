@@ -31,6 +31,14 @@
   </div>
 
   <div class="container hidden" id="app-content">
+    <audio id="bg-music" loop>
+      <source src="Música/FusionRj.mp4" type="audio/mpeg">
+      Seu navegador não suporta áudio.
+    </audio>
+
+    <button id="btn-music-toggle" class="music-btn" title="Pausar/Tocar Música">
+      <i class="fa-solid fa-volume-high"></i>
+    </button>
     <header>
       <div class="badge-area">
         <img src="Imagens/Brasão_da_Polícia_Civil_do_Estado_do_Rio_de_Janeiro (1).png" alt="Emblema 1" class="badge">
@@ -42,7 +50,7 @@
         <img src="Imagens/image.png" alt="REVOADA Logo" class="logo-revoada" style="height: 50px;">
         <div class="header-text">
           <h1>CALCULADORA PENAL</h1>
-          <p class="titulo"><b>Polícia Revoada - Sistema de Sentenciamento</b></p>
+          <p class="titulo"><b>Polícia Revoada - Sistema de Sentenciamento (Developed by Dark Tenebras)</b></p>
         </div>
       </div>
 
@@ -59,7 +67,7 @@
     <section class="card config-bot">
       <div class="input-group">
         <label for="webhook-url"><i class="fa-brands fa-discord"></i> URL do Webhook:</label>
-        <input type="password" id="webhook-url" placeholder="Cole a URL do Webhook aqui...">
+        <input type="password" id="webhook-url" placeholder="Cole a URL do Webhook aqui..." readonly>
       </div>
     </section>
 

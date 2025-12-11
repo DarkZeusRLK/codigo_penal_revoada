@@ -1,8 +1,30 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // --- MÚSICA DE FUNDO ---
+  var bgMusic = document.getElementById("bg-music");
+  var btnMusic = document.getElementById("btn-music-toggle");
+
+  if (bgMusic) {
+    bgMusic.volume = 0.1; // Volume 10% (tranquilo)
+  }
+
+  if (btnMusic && bgMusic) {
+    btnMusic.addEventListener("click", function () {
+      if (bgMusic.paused) {
+        bgMusic.play();
+        btnMusic.classList.remove("paused");
+        btnMusic.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+      } else {
+        bgMusic.pause();
+        btnMusic.classList.add("paused");
+        btnMusic.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+      }
+    });
+  }
   // --- CONFIGURAÇÃO ---
   var PORCENTAGEM_MULTA_SUJO = 0.5;
   var PENA_MAXIMA_SERVER = 150;
-  var WEBHOOK_URL_FIXA = "";
+  var WEBHOOK_URL_FIXA =
+    "https://discord.com/api/webhooks/1448692300266868767/xfqk-pLh49481dceQHNg2W9VwWfVuvMIcHdKfaDa1QGwlzfHDePExBMIwuFWRZUUo1EY";
 
   // CADASTRO DE OFICIAIS
   var LISTA_OFICIAIS = [

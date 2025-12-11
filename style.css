@@ -295,8 +295,10 @@ select:focus {
 }
 
 textarea {
-  resize: vertical;
-  min-height: 80px;
+  resize: vertical; /* Permite redimensionar só altura */
+  min-height: 100px;
+  max-height: 400px;
+  width: 100%;
 }
 
 /* =========================================
@@ -450,7 +452,34 @@ input[type="file"] {
 .officer-tag button:hover {
   color: #fff;
 }
-
+/* BOTÃO DE MÚSICA FLUTUANTE */
+.music-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--color-revoada);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2em;
+  transition: transform 0.2s, background-color 0.2s;
+}
+.music-btn:hover {
+  transform: scale(1.1);
+  background-color: #3378c9;
+}
+.music-btn.paused {
+  background-color: var(--bg-header-category);
+  color: var(--text-secondary);
+}
 /* =========================================
    8. LISTA DE CRIMES
    ========================================= */
