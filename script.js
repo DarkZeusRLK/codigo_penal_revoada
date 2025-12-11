@@ -466,6 +466,7 @@ document.addEventListener("DOMContentLoaded", function () {
       var sujoLine = valorSujo ? "\n**DINHEIRO SUJO:** R$ " + valorSujo : "";
 
       var relatorio =
+        "QRA:\n" +
         "```md\n" +
         "# INFORMAÇÕES DO PRESO:\n" +
         "* NOME: " +
