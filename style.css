@@ -1,35 +1,48 @@
-/* ESTILOS GERAIS */
+/* =========================================
+   1. VARIÁVEIS E RESET GERAL
+   ========================================= */
 :root {
-  --bg-main: #0a0e14;
-  --bg-card: #131b26;
-  --bg-header-category: #0d1620;
-  --text-primary: #f0f2f5;
-  --text-secondary: #8b9bb4;
-  --color-revoada: #0056b3;
-  --color-danger: #d32f2f;
-  --color-success: #2e7d32;
-  --color-info: #0288d1;
-  --border-color: #1f2d40;
+  /* Paleta Policial RJ (Tático/Noturno) */
+  --bg-main: #0a0e14; /* Fundo da página */
+  --bg-card: #131b26; /* Fundo dos cartões */
+  --bg-header-category: #0d1620; /* Cabeçalhos de categorias */
+
+  --text-primary: #f0f2f5; /* Texto principal (quase branco) */
+  --text-secondary: #8b9bb4; /* Texto secundário (cinza azulado) */
+
+  --color-revoada: #0056b3; /* Azul Real (Destaque principal) */
+  --color-revoada-light: #3378c9; /* Azul mais claro para hovers */
+
+  --color-danger: #d32f2f; /* Vermelho (Infiançável/Erro) */
+  --color-success: #2e7d32; /* Verde (Sucesso/Dinheiro) */
+  --color-info: #0288d1; /* Azul Info */
+
+  --border-color: #1f2d40; /* Bordas sutis */
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: "Arial", sans-serif;
+  font-family: "Segoe UI", "Roboto", "Arial", sans-serif; /* Fonte mais moderna */
 }
+
 body {
   background-color: var(--bg-main);
   color: var(--text-primary);
   padding: 20px;
   font-size: 14px;
+  line-height: 1.5;
 }
+
 .container {
   max-width: 1600px;
   margin: 0 auto;
 }
 
-/* TELA DE LOGIN */
+/* =========================================
+   2. TELA DE LOGIN
+   ========================================= */
 .login-overlay {
   position: fixed;
   top: 0;
@@ -43,203 +56,277 @@ body {
   align-items: center;
   flex-direction: column;
 }
+
 .login-box {
   background-color: var(--bg-card);
   padding: 40px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid var(--color-revoada);
   text-align: center;
-  box-shadow: 0 0 30px rgba(0, 86, 179, 0.3);
+  box-shadow: 0 0 40px rgba(0, 86, 179, 0.2);
   max-width: 400px;
   width: 90%;
 }
+
 .login-logo {
   height: 100px;
   margin-bottom: 20px;
 }
+
 .login-box h2 {
   color: var(--color-revoada);
   margin-bottom: 10px;
+  letter-spacing: 1px;
 }
+
 .login-box p {
   color: var(--text-secondary);
   margin-bottom: 30px;
 }
+
 .btn-discord-login {
-  background-color: #5865f2;
+  background-color: #5865f2; /* Cor oficial Discord */
   color: white;
   border: none;
   padding: 12px 25px;
-  border-radius: 5px;
+  border-radius: 6px;
   font-size: 1em;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.2s;
   width: 100%;
   display: block;
   text-decoration: none;
   margin-bottom: 10px;
 }
+
 .btn-discord-login:hover {
   background-color: #4752c4;
+  transform: translateY(-2px);
 }
+
 .login-footer {
   font-size: 0.8em;
   margin-top: 20px;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
-/* HEADER */
+/* =========================================
+   3. HEADER E TOPO
+   ========================================= */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 15px 0;
   border-bottom: 2px solid var(--border-color);
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
+
 .logo-area {
   display: flex;
   align-items: center;
   gap: 15px;
 }
+
 header h1 {
   font-size: 1.8em;
   color: var(--color-revoada);
   text-transform: uppercase;
-  font-weight: bold;
+  font-weight: 800;
+  letter-spacing: 1px;
 }
+
+header p.titulo {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+  margin-top: 2px;
+}
+
 .badge-area {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
+
 .badge {
-  height: 45px;
+  height: 50px;
+  transition: transform 0.2s;
 }
+.badge:hover {
+  transform: scale(1.1);
+}
+
 .user-info {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 5px 15px;
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 15px;
+  border-radius: 30px;
   border: 1px solid var(--border-color);
 }
+
 .avatar-small {
-  width: 35px;
-  height: 35px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
+  border: 2px solid var(--color-revoada);
 }
+
 .user-details {
   display: flex;
   flex-direction: column;
-  font-size: 0.85em;
+  line-height: 1.2;
 }
+
 .user-label {
   color: var(--text-secondary);
   font-size: 0.75em;
+  text-transform: uppercase;
 }
 .user-value {
   color: var(--color-revoada);
   font-weight: bold;
+  font-size: 0.9em;
 }
 
-/* CONFIG BOT */
+/* Configuração do Bot (Input Webhook) */
 .config-bot {
   margin-bottom: 20px;
   border-left: 4px solid #5865f2;
 }
 
-/* DADOS DO PRESO - LAYOUT (2 COLUNAS) */
+/* =========================================
+   4. ESTRUTURA DE GRIDS (LAYOUT)
+   ========================================= */
+
+/* Dados do Preso + Uploads (Topo) */
 .dados-preso-container {
   display: grid;
-  grid-template-columns: 2fr 1fr; /* 2 partes inputs, 1 parte uploads */
+  grid-template-columns: 2fr 1fr; /* Esquerda: Texto (2), Direita: Uploads (1) */
   gap: 20px;
   align-items: start;
 }
+
 .full-width {
   grid-column: 1 / -1;
 }
+
 .dados-inputs {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
-/* LAYOUT PRINCIPAL (MUDANÇA AQUI) */
+/* Conteúdo Principal (Lista de Crimes + Resumo) */
 .main-content {
   display: grid;
-  grid-template-columns: 3fr 1fr; /* 75% Esquerda, 25% Direita */
+  grid-template-columns: 3fr 1fr; /* Esquerda: 75%, Direita: 25% */
   gap: 20px;
   align-items: start;
 }
 
-/* CARDS */
+/* =========================================
+   5. CARDS, INPUTS E FORMULÁRIOS
+   ========================================= */
 .card {
   background-color: var(--bg-card);
-  border-radius: 4px;
-  padding: 15px;
+  border-radius: 8px;
+  padding: 20px;
   margin-bottom: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--border-color);
 }
+
 .card-header {
-  font-size: 1em;
-  font-weight: bold;
+  font-size: 1.1em;
+  font-weight: 700;
   color: var(--text-primary);
-  padding-bottom: 10px;
-  margin-bottom: 10px;
+  padding-bottom: 12px;
+  margin-bottom: 15px;
   border-bottom: 1px solid var(--border-color);
   text-transform: uppercase;
-}
-.card-header i {
-  color: var(--color-revoada);
-  margin-right: 8px;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
 }
 
-/* INPUTS */
+.card-header i {
+  color: var(--color-revoada);
+  margin-right: 10px;
+}
+
+/* Inputs Gerais */
 .input-group {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 10px;
+  gap: 15px;
   margin-bottom: 5px;
+  align-items: center;
 }
+
 .input-group label {
-  font-size: 0.9em;
+  font-size: 0.95em;
   color: var(--text-secondary);
-  align-self: center;
   text-align: right;
-  width: 120px;
+  width: 130px;
+  font-weight: 500;
 }
+
 input:not([type="file"]),
 textarea,
 select {
   background-color: var(--bg-main);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
-  padding: 8px;
-  border-radius: 4px;
-  font-size: 0.9em;
-  min-height: 35px;
-}
-input:focus,
-textarea:focus {
-  border-color: var(--color-revoada);
-  outline: none;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 0.95em;
+  min-height: 40px;
+  transition: border-color 0.2s;
 }
 
-/* UPLOADS */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--color-revoada);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.2);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* =========================================
+   6. UPLOADS E PREVIEW
+   ========================================= */
 .upload-section {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
+
 .upload-box {
   background-color: var(--bg-main);
   border: 1px solid var(--border-color);
-  padding: 10px;
-  border-radius: 4px;
+  padding: 12px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  outline: none;
+  cursor: pointer;
+  position: relative;
 }
+
+/* Efeito ao clicar para colar */
+.upload-box:focus,
+.upload-box.active-box {
+  border-color: var(--color-revoada);
+  box-shadow: 0 0 10px rgba(0, 86, 179, 0.3);
+  background-color: rgba(0, 86, 179, 0.05);
+}
+
 .upload-box label {
   display: block;
   margin-bottom: 5px;
@@ -247,23 +334,37 @@ textarea:focus {
   color: var(--text-primary);
   font-size: 0.9em;
 }
+
+.paste-hint {
+  font-size: 0.75em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 .preview-area {
   width: 100%;
-  height: 120px;
+  height: 130px;
   background-color: #050505;
   border: 2px dashed var(--border-color);
-  border-radius: 4px;
+  border-radius: 6px;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
   position: relative;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
 }
+
 .preview-area i {
-  font-size: 2em;
+  font-size: 2.5em;
   color: var(--border-color);
+  opacity: 0.5;
 }
+
 .preview-area img {
   position: absolute;
   top: 0;
@@ -272,53 +373,98 @@ textarea:focus {
   height: 100%;
   object-fit: cover;
 }
+
 input[type="file"] {
   width: 100%;
   font-size: 0.8em;
   color: var(--text-secondary);
 }
 
-/* PARTICIPANTES */
+/* =========================================
+   7. SELEÇÃO DE PARTICIPANTES (TAGS)
+   ========================================= */
 .participantes-section {
   border-top: 1px dashed var(--border-color);
-  padding-top: 10px;
+  padding-top: 15px;
   margin-top: 10px;
 }
-.participante-row {
+
+.participante-selector-row {
   display: flex;
-  gap: 5px;
-  margin-top: 5px;
+  gap: 10px;
+  margin-bottom: 10px;
 }
+
+.form-select {
+  flex: 1;
+}
+
 .btn-small {
   background-color: var(--bg-header-category);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  padding: 5px 10px;
-  border-radius: 4px;
+  padding: 0 15px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 0.8em;
-  margin-top: 5px;
+  transition: 0.2s;
 }
-.btn-remove-part {
-  background-color: var(--color-danger);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  padding: 0 10px;
+.btn-small:hover {
+  background-color: var(--color-revoada);
+  border-color: var(--color-revoada);
 }
 
-/* CRIMES */
-.crimes-aplicados {
-  padding: 0;
-  min-width: 0; /* Previne quebra do grid */
+/* Tags visuais dos participantes */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
 }
+
+.officer-tag {
+  background-color: var(--color-revoada);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.officer-tag button {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-weight: bold;
+  padding: 0;
+  font-size: 1.1em;
+  line-height: 1;
+}
+.officer-tag button:hover {
+  color: #fff;
+}
+
+/* =========================================
+   8. LISTA DE CRIMES
+   ========================================= */
+.crimes-aplicados {
+  min-width: 0;
+}
+
 .crimes-list {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  padding: 0 15px 15px 15px;
+  grid-template-columns: repeat(2, 1fr); /* 2 colunas internas */
+  gap: 25px;
+  padding: 0 20px 20px 20px;
 }
+
 .category-title {
   background: linear-gradient(
     90deg,
@@ -328,212 +474,326 @@ input[type="file"] {
   border-left: 4px solid var(--color-revoada);
   border-bottom: 1px solid var(--border-color);
   padding: 12px 15px;
-  font-weight: bold;
+  font-weight: 700;
   color: var(--text-primary);
   text-transform: uppercase;
-  font-size: 0.95em;
-  margin-top: 20px;
+  font-size: 0.9em;
+  margin-top: 25px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  letter-spacing: 0.5px;
 }
+.crime-column .category-title:first-child {
+  margin-top: 0;
+}
+
 .category-content {
   display: block;
-  padding: 0;
+  padding: 5px 0;
 }
+
 .crime-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 15px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   cursor: pointer;
   font-size: 0.9em;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
 }
+
 .crime-item:hover {
-  background-color: #1a2330;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding-left: 20px; /* Efeito de movimento */
 }
+
+.crime-item:last-child {
+  border-bottom: none;
+}
+
 .crime-item.selected {
-  background-color: rgba(0, 86, 179, 0.2);
+  background-color: rgba(0, 86, 179, 0.15);
   border-left: 3px solid var(--color-revoada);
+  color: #fff;
 }
+
+/* Etiquetas */
 .btn-info {
   background-color: var(--color-danger);
   color: white;
   border: none;
-  padding: 3px 6px;
-  border-radius: 3px;
+  padding: 3px 8px;
+  border-radius: 4px;
   font-size: 0.7em;
-  font-weight: bold;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
+
 .crime-condition {
-  font-size: 0.8em;
+  font-size: 0.75em;
   background-color: #1e3a8a;
   color: #bfdbfe;
   padding: 2px 6px;
   border-radius: 4px;
   margin-left: 8px;
+  font-weight: 600;
 }
 
-/* RESUMO (DIREITA) */
+/* =========================================
+   9. RESUMO DA SENTENÇA (DIREITA)
+   ========================================= */
 .resumo-sentenca {
   position: sticky;
   top: 20px;
   height: fit-content;
-  min-width: 300px;
+  min-width: 320px;
 }
+
+.resumo-section {
+  margin-bottom: 20px;
+  padding: 0 5px;
+}
+
+.section-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 0.5px;
+}
+
+.section-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.8em;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 20px 0;
+  opacity: 0.5;
+}
+
+/* Lista de Selecionados */
 .output-list {
-  min-height: 50px;
+  min-height: 60px;
   padding: 10px;
-  background-color: var(--bg-main);
-  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
   border: 1px solid var(--border-color);
-  max-height: 300px;
+  max-height: 350px;
   overflow-y: auto;
+  margin-bottom: 15px;
 }
+
 .crime-output-item {
   display: flex;
   justify-content: space-between;
-  padding: 5px 0;
+  padding: 8px 0;
   font-size: 0.9em;
-  border-bottom: 1px dashed #333;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  align-items: center;
 }
+.crime-output-item:last-child {
+  border-bottom: none;
+}
+
+.crime-output-item span {
+  line-height: 1.4;
+  padding-right: 10px;
+}
+
 .crime-output-item button {
   background: none;
   border: none;
   color: var(--color-danger);
   cursor: pointer;
+  font-size: 1.1em;
+  transition: transform 0.2s;
 }
+.crime-output-item button:hover {
+  transform: scale(1.2);
+}
+
+/* Totais */
 .pena-multa .section-title {
   display: flex;
   justify-content: space-between;
-  padding: 5px 0;
+  padding: 8px 0;
   font-size: 1.1em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
+
 #pena-total {
   color: var(--color-danger);
-  font-weight: bold;
+  font-weight: 800;
 }
 #multa-total {
   color: var(--color-success);
-  font-weight: bold;
+  font-weight: 800;
 }
+
+/* Alerta */
 .alert-box {
   background-color: rgba(211, 47, 47, 0.15);
   border: 1px solid var(--color-danger);
   color: var(--color-danger);
-  padding: 10px;
-  border-radius: 4px;
-  margin-top: 10px;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 15px;
   text-align: center;
   font-weight: bold;
-  animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-/* ATENUANTES */
-.atenuante-item {
-  margin-bottom: 8px;
+  font-size: 0.9em;
   display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 10px;
+  animation: pulse 2s infinite;
+}
+
+/* Atenuantes */
+.atenuante-item {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 8px;
+  border-radius: 4px;
 }
 .atenuante-item label {
-  margin-left: 8px;
+  margin-left: 10px;
   cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.95em;
 }
 .atenuante-item input[type="checkbox"] {
   accent-color: var(--color-revoada);
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   cursor: pointer;
 }
+
+/* Linhas Calculadas (Fiança, HP) */
 .calculated-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 10px;
+  margin-top: 15px;
+  padding-bottom: 5px;
+}
+.calculated-row label {
+  font-size: 0.95em;
+  color: var(--text-secondary);
 }
 .calculated-row input {
-  width: 40%;
+  width: 45%;
   text-align: right;
   background-color: #252535;
+  font-weight: bold;
 }
+
 .calculated-row-radio {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 10px;
-  padding: 5px 0;
-  border-bottom: 1px dotted var(--border-color);
+  margin-top: 15px;
+  padding: 8px 0;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.1);
 }
 .radio-group {
   display: flex;
   gap: 15px;
+  align-items: center;
 }
 .radio-label {
-  margin-left: 5px !important;
+  margin-left: 6px !important;
   cursor: pointer;
   color: var(--text-primary) !important;
+  font-size: 0.95em;
 }
 input[type="radio"] {
   accent-color: var(--color-revoada);
   cursor: pointer;
+  transform: scale(1.1);
 }
+
+/* Fiança Breakdown (Estilo Premium) */
 .fianca-breakdown {
-  background-color: rgba(255, 255, 255, 0.05);
-  padding: 10px;
-  border-radius: 4px;
-  margin-top: 5px;
-  border-left: 3px solid var(--color-success);
+  background-color: rgba(16, 185, 129, 0.08); /* Verde suave */
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+  border-left: 4px solid var(--color-success);
 }
 .breakdown-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 5px;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
   font-size: 0.9em;
   color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+.breakdown-row:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.breakdown-row i {
+  margin-right: 8px;
+  width: 20px;
+  text-align: center;
+  color: var(--text-primary);
+  opacity: 0.8;
 }
 .breakdown-row span:last-child {
-  font-weight: bold;
+  font-weight: 700;
   color: #fff;
+  font-size: 1.05em;
+  letter-spacing: 0.5px;
 }
 
-/* BOTOES E ALERTAS */
+/* Botões de Ação */
 .action-buttons {
   display: flex;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 12px;
+  margin-top: 25px;
 }
 .btn-action {
   flex: 1;
-  padding: 12px;
+  padding: 14px;
   border: none;
-  border-radius: 4px;
-  font-weight: bold;
+  border-radius: 6px;
+  font-weight: 800;
   cursor: pointer;
   transition: all 0.2s;
   text-transform: uppercase;
   font-size: 0.9em;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
+
 #btn-enviar {
   background-color: #5865f2;
   color: white;
+  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
 }
 #btn-enviar:hover {
   background-color: #4752c4;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
 }
+
 .btn-limpar {
   background-color: var(--bg-header-category);
   color: var(--text-primary);
@@ -542,42 +802,62 @@ input[type="radio"] {
 .btn-limpar:hover {
   background-color: var(--color-danger);
   border-color: var(--color-danger);
+  color: white;
 }
+
+/* Alertas Toast */
 .custom-alert {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 25px;
+  right: 25px;
   background-color: var(--bg-card);
-  padding: 15px 20px;
-  border-radius: 4px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  padding: 18px 25px;
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 15px;
   z-index: 9999;
-  border-left: 5px solid;
-  animation: slideIn 0.3s forwards, fadeOut 0.5s forwards 3.5s;
-  font-size: 0.95em;
+  border-left: 6px solid;
+  animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
+    fadeOut 0.5s forwards 4s;
   color: white;
 }
 .custom-alert.error {
   border-color: var(--color-danger);
 }
+.custom-alert.error i {
+  color: var(--color-danger);
+  font-size: 1.5em;
+}
 .custom-alert.success {
   border-color: var(--color-success);
 }
+.custom-alert.success i {
+  color: var(--color-success);
+  font-size: 1.5em;
+}
+
 .alert-content {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 .alert-title {
-  font-weight: bold;
-  font-size: 0.85em;
-  margin-bottom: 2px;
+  font-weight: 800;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
+.alert-msg {
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+
+/* Animações */
 @keyframes slideIn {
   from {
-    transform: translateX(100%);
+    transform: translateX(120%);
   }
   to {
     transform: translateX(0);
@@ -586,25 +866,43 @@ input[type="radio"] {
 @keyframes fadeOut {
   to {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-15px);
+  }
+}
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(211, 47, 47, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(211, 47, 47, 0);
   }
 }
 
-/* RESPONSIVIDADE */
+/* =========================================
+   10. RESPONSIVIDADE
+   ========================================= */
 @media (max-width: 1200px) {
   .main-content {
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 60% 40%;
   }
 }
+
 @media (max-width: 1000px) {
   .dados-preso-container {
     grid-template-columns: 1fr;
   }
   .main-content {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Vira coluna única */
   }
   .crimes-list {
     grid-template-columns: 1fr;
+  }
+  .resumo-sentenca {
+    position: relative; /* Remove sticky no mobile */
+    top: 0;
   }
 }
 

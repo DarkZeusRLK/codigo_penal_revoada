@@ -2,10 +2,14 @@ document.addEventListener("DOMContentLoaded", function () {
   // --- CONFIGURAÇÃO ---
   var PORCENTAGEM_MULTA_SUJO = 0.5;
   var PENA_MAXIMA_SERVER = 150;
+  var WEBHOOK_URL_FIXA = "";
 
-  // URL FIXA DO WEBHOOK (Cole aqui se quiser)
-  var WEBHOOK_URL_FIXA =
-    "https://discord.com/api/webhooks/1448692300266868767/xfqk-pLh49481dceQHNg2W9VwWfVuvMIcHdKfaDa1QGwlzfHDePExBMIwuFWRZUUo1EY";
+  // CADASTRO DE OFICIAIS
+  var LISTA_OFICIAIS = [
+    { nome: "Comandante 01", id: "123456789012345678" },
+    { nome: "Cabo Exemplo", id: "987654321098765432" },
+  ];
+  LISTA_OFICIAIS.sort((a, b) => a.nome.localeCompare(b.nome));
 
   var ARTIGOS_COM_ITENS = [
     "121",
@@ -25,53 +29,6 @@ document.addEventListener("DOMContentLoaded", function () {
     "136",
   ];
 
-  // --- SELETORES LOGIN ---
-  var loginScreen = document.getElementById("login-screen");
-  var btnLoginSimulado = document.getElementById("btn-login-simulado");
-  var appContent = document.getElementById("app-content");
-  var userNameSpan = document.getElementById("user-name");
-  var userAvatarImg = document.getElementById("user-avatar");
-  var userIdHidden = document.getElementById("user-id-hidden"); // Guardar ID
-
-  // --- LÓGICA LOGIN ---
-  function doLogin(username, avatarUrl, userId) {
-    loginScreen.style.display = "none";
-    appContent.classList.remove("hidden");
-    userNameSpan.textContent = username;
-    userIdHidden.value = userId; // Salva o ID para usar no @menção
-    if (avatarUrl) {
-      userAvatarImg.src = avatarUrl;
-      userAvatarImg.classList.remove("hidden");
-    }
-  }
-
-  // Simulado (ID Fake)
-  if (btnLoginSimulado) {
-    btnLoginSimulado.addEventListener("click", function () {
-      doLogin("Oficial. Padrao", "Imagens/image.png", "0000000000");
-    });
-  }
-
-  // OAuth2 Discord
-  var fragment = new URLSearchParams(window.location.hash.slice(1));
-  var accessToken = fragment.get("access_token");
-  if (accessToken) {
-    fetch("https://discord.com/api/users/@me", {
-      headers: { authorization: `Bearer ${accessToken}` },
-    })
-      .then((result) => result.json())
-      .then((response) => {
-        var avatar = `https://cdn.discordapp.com/avatars/${response.id}/${response.avatar}.png`;
-        doLogin(response.username, avatar, response.id); // Passa o ID real
-        history.pushState(
-          "",
-          document.title,
-          window.location.pathname + window.location.search
-        );
-      })
-      .catch(console.error);
-  }
-
   // --- SELETORES GERAIS ---
   var crimeItems = document.querySelectorAll(".crime-item");
   var checkboxes = document.querySelectorAll(
@@ -79,7 +36,6 @@ document.addEventListener("DOMContentLoaded", function () {
   );
   var btnLimpar = document.getElementById("btn-limpar");
   var btnEnviar = document.getElementById("btn-enviar");
-
   var webhookInput = document.getElementById("webhook-url");
   if (WEBHOOK_URL_FIXA && webhookInput) webhookInput.value = WEBHOOK_URL_FIXA;
 
@@ -91,34 +47,201 @@ document.addEventListener("DOMContentLoaded", function () {
     ".itens-apreendidos textarea"
   );
 
-  // UPLOADS
+  // --- ARMAZENAMENTO DE ARQUIVOS (PASTE + INPUT) ---
+  // Vamos guardar o objeto File real aqui, vindo do input ou do paste
+  var arquivoPreso = null;
+  var arquivoMochila = null;
+
+  // SELETORES DE UPLOAD
+  var boxPreso = document.getElementById("box-upload-preso");
   var inputPreso = document.getElementById("upload-preso");
   var imgPreviewPreso = document.getElementById("img-preview-preso");
+
+  var boxMochila = document.getElementById("box-upload-mochila");
   var inputMochila = document.getElementById("upload-mochila");
   var imgPreviewMochila = document.getElementById("img-preview-mochila");
 
-  // PARTICIPANTES
-  var btnAddPart = document.getElementById("btn-add-participante");
-  var partContainer = document.getElementById("participantes-container");
+  // VARIÁVEL PARA SABER ONDE COLAR
+  var activeUploadBox = null; // 'preso' ou 'mochila'
 
-  // DINAMICOS
+  // --- LOGIN ---
+  var loginScreen = document.getElementById("login-screen");
+  var btnLoginSimulado = document.getElementById("btn-login-simulado");
+  var appContent = document.getElementById("app-content");
+  var userNameSpan = document.getElementById("user-name");
+  var userAvatarImg = document.getElementById("user-avatar");
+  var userIdHidden = document.getElementById("user-id-hidden");
+
+  function doLogin(username, avatarUrl, userId) {
+    loginScreen.style.display = "none";
+    appContent.classList.remove("hidden");
+    userNameSpan.textContent = username;
+    userIdHidden.value = userId;
+    if (avatarUrl) {
+      userAvatarImg.src = avatarUrl;
+      userAvatarImg.classList.remove("hidden");
+    }
+  }
+
+  if (btnLoginSimulado)
+    btnLoginSimulado.addEventListener("click", function () {
+      doLogin("Oficial. Padrao", "Imagens/image.png", "0000000000");
+    });
+
+  var fragment = new URLSearchParams(window.location.hash.slice(1));
+  var accessToken = fragment.get("access_token");
+  if (accessToken) {
+    fetch("https://discord.com/api/users/@me", {
+      headers: { authorization: `Bearer ${accessToken}` },
+    })
+      .then((result) => result.json())
+      .then((response) => {
+        var avatar = `https://cdn.discordapp.com/avatars/${response.id}/${response.avatar}.png`;
+        doLogin(response.username, avatar, response.id);
+        history.pushState(
+          "",
+          document.title,
+          window.location.pathname + window.location.search
+        );
+      })
+      .catch(console.error);
+  }
+
+  // --- LÓGICA DE UPLOAD UNIFICADA (INPUT + PASTE) ---
+
+  // 1. Função genérica para atualizar a preview e salvar o arquivo na variavel
+  function setFile(type, file) {
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      if (type === "preso") {
+        arquivoPreso = file;
+        imgPreviewPreso.src = e.target.result;
+        imgPreviewPreso.classList.remove("hidden");
+      } else {
+        arquivoMochila = file;
+        imgPreviewMochila.src = e.target.result;
+        imgPreviewMochila.classList.remove("hidden");
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // 2. Listeners para Input File (Clique tradicional)
+  inputPreso.addEventListener("change", function () {
+    if (this.files[0]) setFile("preso", this.files[0]);
+  });
+  inputMochila.addEventListener("change", function () {
+    if (this.files[0]) setFile("mochila", this.files[0]);
+  });
+
+  // 3. Listeners para Foco (Saber onde colar)
+  boxPreso.addEventListener("click", function () {
+    activeUploadBox = "preso";
+    boxPreso.classList.add("active-box");
+    boxMochila.classList.remove("active-box");
+  });
+  boxPreso.addEventListener("focus", function () {
+    activeUploadBox = "preso";
+    boxPreso.classList.add("active-box");
+    boxMochila.classList.remove("active-box");
+  });
+
+  boxMochila.addEventListener("click", function () {
+    activeUploadBox = "mochila";
+    boxMochila.classList.add("active-box");
+    boxPreso.classList.remove("active-box");
+  });
+  boxMochila.addEventListener("focus", function () {
+    activeUploadBox = "mochila";
+    boxMochila.classList.add("active-box");
+    boxPreso.classList.remove("active-box");
+  });
+
+  // 4. Listener Global de PASTE
+  document.addEventListener("paste", function (e) {
+    if (!activeUploadBox) return; // Se não clicou em nenhuma caixa, ignora
+
+    if (e.clipboardData && e.clipboardData.items) {
+      var items = e.clipboardData.items;
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf("image") !== -1) {
+          var blob = items[i].getAsFile();
+          // Envia para a caixa que está ativa no momento
+          setFile(activeUploadBox, blob);
+          mostrarAlerta(
+            "Imagem colada em: " +
+              (activeUploadBox === "preso" ? "Foto Preso" : "Inventário"),
+            "success"
+          );
+          e.preventDefault();
+          break;
+        }
+      }
+    }
+  });
+
+  // --- SELEÇÃO DE PARTICIPANTES ---
+  var selectOficial = document.getElementById("select-oficial");
+  var btnAddPart = document.getElementById("btn-add-participante");
+  var listaParticipantesVisual = document.getElementById(
+    "lista-participantes-visual"
+  );
+  var participantesSelecionados = [];
+
+  if (selectOficial) {
+    LISTA_OFICIAIS.forEach((oficial) => {
+      var option = document.createElement("option");
+      option.value = oficial.id;
+      option.textContent = oficial.nome;
+      selectOficial.appendChild(option);
+    });
+  }
+
+  if (btnAddPart) {
+    btnAddPart.addEventListener("click", function () {
+      var idSelecionado = selectOficial.value;
+      var nomeSelecionado =
+        selectOficial.options[selectOficial.selectedIndex].text;
+      if (!idSelecionado) return;
+      if (participantesSelecionados.some((p) => p.id === idSelecionado)) {
+        alert("Oficial já adicionado.");
+        return;
+      }
+
+      participantesSelecionados.push({
+        id: idSelecionado,
+        nome: nomeSelecionado,
+      });
+      var tag = document.createElement("div");
+      tag.className = "officer-tag";
+      tag.innerHTML = `<span>${nomeSelecionado}</span> <button onclick="removerParticipante('${idSelecionado}', this)">×</button>`;
+      listaParticipantesVisual.appendChild(tag);
+      selectOficial.value = "";
+    });
+  }
+
+  window.removerParticipante = function (id, btnElement) {
+    participantesSelecionados = participantesSelecionados.filter(
+      (p) => p.id !== id
+    );
+    btnElement.parentElement.remove();
+  };
+
+  // --- RESTO DA LÓGICA (Cálculos, Seletores) ---
   var hpSimBtn = document.getElementById("hp-sim");
   var hpNaoBtn = document.getElementById("hp-nao");
   var containerHpMinutos = document.getElementById("container-hp-minutos");
   var inputHpMinutos = document.getElementById("hp-minutos");
   var radiosPorte = document.getElementsByName("porte-arma");
-
   var containerDinheiroSujo = document.getElementById(
     "container-dinheiro-sujo"
   );
   var inputDinheiroSujo = document.getElementById("input-dinheiro-sujo");
-
   var crimesListOutput = document.getElementById("crimes-list-output");
   var penaTotalEl = document.getElementById("pena-total");
   var multaTotalEl = document.getElementById("multa-total");
   var fiancaOutputEl = document.getElementById("fianca-output");
   var alertaPenaMaxima = document.getElementById("alerta-pena-maxima");
-
   var fiancaBreakdown = document.getElementById("fianca-breakdown");
   var valPolicial = document.getElementById("valor-policial");
   var valPainel = document.getElementById("valor-painel");
@@ -126,7 +249,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   var selectedCrimes = [];
 
-  // --- FUNÇÃO ALERTA ---
   function mostrarAlerta(mensagem, tipo) {
     if (!tipo) tipo = "error";
     var div = document.createElement("div");
@@ -141,46 +263,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 4000);
   }
 
-  // --- LOGICA UPLOADS E PREVIEW ---
-  function handlePreview(input, imgElement) {
-    if (input && input.files && input.files[0]) {
-      var reader = new FileReader();
-      reader.onload = function (e) {
-        imgElement.src = e.target.result;
-        imgElement.classList.remove("hidden");
-      };
-      reader.readAsDataURL(input.files[0]);
-    } else {
-      imgElement.src = "";
-      imgElement.classList.add("hidden");
-    }
-  }
-
-  if (inputPreso)
-    inputPreso.addEventListener("change", function () {
-      handlePreview(this, imgPreviewPreso);
-    });
-  if (inputMochila)
-    inputMochila.addEventListener("change", function () {
-      handlePreview(this, imgPreviewMochila);
-    });
-
-  // --- PARTICIPANTES ---
-  if (btnAddPart) {
-    btnAddPart.addEventListener("click", function () {
-      var div = document.createElement("div");
-      div.className = "participante-row";
-      div.innerHTML = `<input type="text" placeholder="ID do Oficial" class="part-id" style="width: 150px;"><button class="btn-remove-part"><i class="fa-solid fa-minus"></i></button>`;
-      partContainer.appendChild(div);
-      div
-        .querySelector(".btn-remove-part")
-        .addEventListener("click", function () {
-          div.remove();
-        });
-    });
-  }
-
-  // --- LÓGICA HP ---
   function toggleHpInput() {
     if (hpSimBtn.checked) {
       containerHpMinutos.classList.remove("hidden");
@@ -200,11 +282,9 @@ document.addEventListener("DOMContentLoaded", function () {
     inputHpMinutos.addEventListener("keyup", calculateSentence);
   }
 
-  // --- CÁLCULO ---
   function calculateSentence() {
     var totalPenaRaw = 0;
     var totalMulta = 0;
-
     for (var i = 0; i < selectedCrimes.length; i++) {
       totalPenaRaw += selectedCrimes[i].pena;
       totalMulta += selectedCrimes[i].multa;
@@ -213,7 +293,6 @@ document.addEventListener("DOMContentLoaded", function () {
     var valorSujo = 0;
     if (
       inputDinheiroSujo &&
-      containerDinheiroSujo &&
       !containerDinheiroSujo.classList.contains("hidden")
     ) {
       var valorSujoString = inputDinheiroSujo.value.replace(/\./g, "");
@@ -235,26 +314,26 @@ document.addEventListener("DOMContentLoaded", function () {
       if (selectedCrimes[j].infiancavel) isInfiancavel = true;
     }
     for (var k = 0; k < checkboxes.length; k++) {
-      if (checkboxes[k].checked) {
+      if (checkboxes[k].checked)
         totalDiscountPercent += parseFloat(checkboxes[k].dataset.percent);
-      }
     }
 
     var descontoDecimal = Math.abs(totalDiscountPercent) / 100;
     var totalPenaFinal = Math.max(0, penaBaseCalculo * (1 - descontoDecimal));
 
     var hpReduction = 0;
-    var hpMarcado = hpSimBtn && hpSimBtn.checked;
-    if (hpMarcado && inputHpMinutos) {
-      var val = parseInt(inputHpMinutos.value);
-      if (!isNaN(val)) hpReduction = val;
+    if (
+      hpSimBtn &&
+      hpSimBtn.checked &&
+      inputHpMinutos &&
+      !isNaN(parseInt(inputHpMinutos.value))
+    ) {
+      hpReduction = parseInt(inputHpMinutos.value);
     }
     totalPenaFinal = Math.max(0, totalPenaFinal - hpReduction);
 
     var fianca = 0;
-    if (!isInfiancavel) {
-      fianca = totalMulta;
-    }
+    if (!isInfiancavel) fianca = totalMulta;
 
     if (checkboxAdvogado && checkboxAdvogado.checked && fianca > 0) {
       if (fiancaBreakdown) fiancaBreakdown.classList.remove("hidden");
@@ -328,7 +407,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // --- EVENTOS ---
   for (var i = 0; i < crimeItems.length; i++) {
     crimeItems[i].addEventListener("click", function () {
       var el = this;
@@ -345,7 +423,6 @@ document.addEventListener("DOMContentLoaded", function () {
           break;
         }
       }
-
       if (existeIndex === -1) {
         selectedCrimes.push({
           artigo: artigo,
@@ -371,115 +448,84 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  if (inputDinheiroSujo) {
+  if (inputDinheiroSujo)
     inputDinheiroSujo.addEventListener("input", function (e) {
-      var val = e.target.value.replace(/\D/g, "");
-      val = val.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+      var val = e.target.value
+        .replace(/\D/g, "")
+        .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
       e.target.value = val;
       calculateSentence();
     });
-  }
 
-  for (var c = 0; c < checkboxes.length; c++) {
+  for (var c = 0; c < checkboxes.length; c++)
     checkboxes[c].addEventListener("change", calculateSentence);
-  }
 
-  if (btnLimpar) {
+  if (btnLimpar)
     btnLimpar.addEventListener("click", function () {
       if (confirm("Tem certeza?")) {
         selectedCrimes = [];
-        var selectedItens = document.querySelectorAll(".crime-item.selected");
-        for (var s = 0; s < selectedItens.length; s++)
-          selectedItens[s].classList.remove("selected");
-        for (var cb = 0; cb < checkboxes.length; cb++)
-          checkboxes[cb].checked = false;
-        if (nomeInput) nomeInput.value = "";
-        if (rgInput) rgInput.value = "";
-        if (advogadoInput) advogadoInput.value = "";
-        if (itensApreendidosInput) itensApreendidosInput.value = "";
+        participantesSelecionados = [];
+        listaParticipantesVisual.innerHTML = "";
+        arquivoPreso = null;
+        arquivoMochila = null;
+
+        document
+          .querySelectorAll(".crime-item.selected")
+          .forEach((el) => el.classList.remove("selected"));
+        checkboxes.forEach((cb) => (cb.checked = false));
+        nomeInput.value = "";
+        rgInput.value = "";
+        advogadoInput.value = "";
+        itensApreendidosInput.value = "";
 
         if (containerDinheiroSujo)
           containerDinheiroSujo.classList.add("hidden");
         if (inputDinheiroSujo) inputDinheiroSujo.value = "";
-        if (hpNaoBtn) hpNaoBtn.checked = true;
-        if (document.getElementById("porte-nao"))
-          document.getElementById("porte-nao").checked = true;
-        if (containerHpMinutos) containerHpMinutos.classList.add("hidden");
-        if (inputHpMinutos) inputHpMinutos.value = "";
+        hpNaoBtn.checked = true;
+        document.getElementById("porte-nao").checked = true;
+        containerHpMinutos.classList.add("hidden");
+        inputHpMinutos.value = "";
 
-        if (inputPreso) inputPreso.value = "";
-        if (imgPreviewPreso) imgPreviewPreso.classList.add("hidden");
-        if (inputMochila) inputMochila.value = "";
-        if (imgPreviewMochila) imgPreviewMochila.classList.add("hidden");
-        if (partContainer) partContainer.innerHTML = "";
+        inputPreso.value = "";
+        imgPreviewPreso.classList.add("hidden");
+        imgPreviewPreso.src = "";
+        inputMochila.value = "";
+        imgPreviewMochila.classList.add("hidden");
+        imgPreviewMochila.src = "";
+        boxPreso.classList.remove("active-box");
+        boxMochila.classList.remove("active-box");
 
         calculateSentence();
       }
     });
-  }
 
-  // --- ENVIAR PARA DISCORD (LOGICA CORRIGIDA QRA FORA DO EMBED) ---
   if (btnEnviar) {
     btnEnviar.addEventListener("click", function (e) {
       e.preventDefault();
-
       var webhookURL = webhookInput ? webhookInput.value.trim() : "";
       if (!webhookURL) {
         mostrarAlerta("Configure a URL do Webhook!", "error");
-        if (webhookInput) webhookInput.focus();
         return;
       }
-
       if (nomeInput.value.trim() === "") {
         mostrarAlerta("Preencha o Nome.", "error");
-        nomeInput.focus();
         return;
       }
       if (rgInput.value.trim() === "") {
         mostrarAlerta("Preencha o RG.", "error");
-        rgInput.focus();
         return;
       }
 
-      if (
-        checkboxAdvogado &&
-        checkboxAdvogado.checked &&
-        advogadoInput.value.trim() === ""
-      ) {
-        mostrarAlerta("Preencha o RG do Advogado.", "error");
-        advogadoInput.focus();
-        return;
-      }
-
-      // Validação Arquivos (Obrigatórios)
-      if (!inputPreso.files[0]) {
+      // Verifica se temos os arquivos nas variaveis (seja por paste ou input)
+      if (!arquivoPreso) {
         mostrarAlerta("Falta a foto do PRESO.", "error");
         return;
       }
-      if (!inputMochila.files[0]) {
+      if (!arquivoMochila) {
         mostrarAlerta("Falta a foto do INVENTÁRIO.", "error");
         return;
       }
 
-      // Validação Itens
-      var possuiItem = false;
-      for (var x = 0; x < selectedCrimes.length; x++) {
-        if (ARTIGOS_COM_ITENS.indexOf(selectedCrimes[x].artigo) > -1) {
-          possuiItem = true;
-          break;
-        }
-      }
-      if (
-        possuiItem &&
-        itensApreendidosInput &&
-        itensApreendidosInput.value.trim() === ""
-      ) {
-        mostrarAlerta("Descreva os itens apreendidos.", "error");
-        itensApreendidosInput.focus();
-        return;
-      }
-
-      // DADOS
       var nome = nomeInput.value;
       var rg = rgInput.value;
       var advogado = advogadoInput.value || "Nenhum";
@@ -489,25 +535,16 @@ document.addEventListener("DOMContentLoaded", function () {
       var valorSujo = !containerDinheiroSujo.classList.contains("hidden")
         ? inputDinheiroSujo.value
         : "Nenhum";
+      var oficial = userNameSpan.textContent;
+      var officerId = userIdHidden.value || "000000";
 
-      // ID DO OFICIAL
-      var officerId = userIdHidden.value || "000000"; // Pega o ID salvo no login
-
-      // PARTICIPANTES (IDs)
       var participantesStr = "";
-      if (partContainer) {
-        var partInputs = partContainer.querySelectorAll(".part-id");
-        partInputs.forEach(function (inp) {
-          if (inp.value.trim() !== "") {
-            participantesStr += "<@" + inp.value.trim() + "> ";
-          }
-        });
-      }
+      participantesSelecionados.forEach((p) => {
+        participantesStr += "<@" + p.id + "> ";
+      });
+      if (participantesStr === "") participantesStr = "Nenhum adicional.";
 
-      // MONTA O TEXTO "QRA" PARA O CONTENT (Fora do Embed)
-      // Formato: QRA: <@ID_OFICIAL> <@OUTROS_IDS>
       var qraContent = "**QRA:** <@" + officerId + "> " + participantesStr;
-
       var crimesText =
         selectedCrimes.length > 0
           ? selectedCrimes
@@ -529,10 +566,9 @@ document.addEventListener("DOMContentLoaded", function () {
           atenuantesText += "🔹 " + lbl + "\n";
         }
       }
-      if (hpSimBtn && hpSimBtn.checked && inputHpMinutos.value) {
+      if (hpSimBtn && hpSimBtn.checked && inputHpMinutos.value)
         atenuantesText +=
           "🔹 Reanimado no HP (-" + inputHpMinutos.value + "m)\n";
-      }
       if (atenuantesText === "") atenuantesText = "Nenhum.";
 
       var porteTexto = "Não";
@@ -541,18 +577,17 @@ document.addEventListener("DOMContentLoaded", function () {
           porteTexto = "Sim";
       }
 
-      // --- MONTAR FORMDATA ---
       var formData = new FormData();
-
-      formData.append("file1", inputPreso.files[0]);
-      formData.append("file2", inputMochila.files[0]);
+      formData.append("file1", arquivoPreso, "preso.png");
+      formData.append("file2", arquivoMochila, "mochila.png");
 
       var embeds = [
         {
           title: "📑 RELATÓRIO DE PRISÃO - REVOADA RJ",
           color: 3447003,
-          image: { url: "attachment://" + inputPreso.files[0].name },
+          image: { url: "attachment://preso.png" },
           fields: [
+            { name: "👮 OFICIAL RESPONSÁVEL", value: oficial, inline: false },
             {
               name: "👤 PRESO",
               value: "**Nome:** " + nome + "\n**RG:** " + rg,
@@ -565,7 +600,6 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             { name: "🛡️ ADVOGADO", value: advogado, inline: true },
             { name: "📜 CRIMES", value: "```\n" + crimesText + "\n```" },
-            { name: "📦 ITENS APREENDIDOS", value: itens },
             {
               name: "🔻 ATENUANTES / STATUS",
               value:
@@ -580,7 +614,7 @@ document.addEventListener("DOMContentLoaded", function () {
         {
           title: "📦 FOTO DO INVENTÁRIO",
           color: 3447003,
-          image: { url: "attachment://" + inputMochila.files[0].name },
+          image: { url: "attachment://mochila.png" },
           footer: {
             text:
               "Sistema Policial Revoada • " +
@@ -591,17 +625,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       formData.append(
         "payload_json",
-        JSON.stringify({
-          content: qraContent, // AQUI ESTÁ O QRA FORA DO EMBED
-          embeds: embeds,
-        })
+        JSON.stringify({ content: qraContent, embeds: embeds })
       );
 
-      // ENVIAR
-      fetch(webhookURL, {
-        method: "POST",
-        body: formData,
-      })
+      fetch(webhookURL, { method: "POST", body: formData })
         .then((response) => {
           if (response.ok)
             mostrarAlerta("Relatório enviado para o Discord!", "success");

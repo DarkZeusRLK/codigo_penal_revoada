@@ -32,14 +32,19 @@
 
   <div class="container hidden" id="app-content">
     <header>
+      <div class="badge-area">
+        <img src="Imagens/Brasão_da_Polícia_Civil_do_Estado_do_Rio_de_Janeiro (1).png" alt="Emblema 1" class="badge">
+        <img src="Imagens/Brasão_da_Polícia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="Emblema 2" class="badge">
+        <img src="Imagens/Policia-federal-logo.png" alt="Emblema 3" class="badge">
+        <img src="Imagens/PRF_new.png" alt="Emblema 4" class="badge">
+      </div>
       <div class="logo-area">
         <img src="Imagens/image.png" alt="REVOADA Logo" class="logo-revoada" style="height: 50px;">
         <div class="header-text">
           <h1>CALCULADORA PENAL</h1>
-          <p class="titulo"><b>Polícia Revoada - Sistema de Sentenciamento (Developed By Dark Tenebras)</b></p>
+          <p class="titulo"><b>Polícia Revoada - Sistema de Sentenciamento</b></p>
         </div>
       </div>
-
 
       <div class="user-info">
         <img id="user-avatar" src="" alt="Avatar" class="avatar-small hidden">
@@ -48,12 +53,6 @@
           <span id="user-name" class="user-value">Desconhecido</span>
           <input type="hidden" id="user-id-hidden">
         </div>
-      </div>
-      <div class="badge-area">
-        <img src="Imagens/Brasão_da_Polícia_Civil_do_Estado_do_Rio_de_Janeiro (1).png" alt="Emblema 1" class="badge">
-        <img src="Imagens/Brasão_da_Polícia_Militar_do_Estado_do_Rio_de_Janeiro_-_PMERJ.png" alt="Emblema 2" class="badge">
-        <img src="Imagens/Policia-federal-logo.png" alt="Emblema 3" class="badge">
-        <img src="Imagens/PRF_new.png" alt="Emblema 4" class="badge">
       </div>
     </header>
 
@@ -84,26 +83,33 @@
         </div>
 
         <div class="participantes-section">
-          <label><i class="fa-solid fa-users"></i> Participantes (IDs do Discord):</label>
-          <div id="participantes-container"></div>
-          <button id="btn-add-participante" class="btn-small"><i class="fa-solid fa-plus"></i> Add Oficial</button>
+          <label><i class="fa-solid fa-users"></i> Adicionar Participantes:</label>
+          <div class="participante-selector-row">
+            <select id="select-oficial" class="form-select">
+              <option value="">Selecione um oficial...</option>
+            </select>
+            <button id="btn-add-participante" class="btn-small"><i class="fa-solid fa-plus"></i></button>
+          </div>
+          <div id="lista-participantes-visual" class="tags-container"></div>
         </div>
       </div>
 
       <div class="upload-section">
-        <div class="upload-box">
+        <div class="upload-box" id="box-upload-preso" tabindex="0">
           <label>📸 Foto do Preso (Obrigatório)</label>
+          <p class="paste-hint"><i class="fa-regular fa-clipboard"></i> Clique aqui e aperte Ctrl+V</p>
           <div class="preview-area" id="preview-box-preso">
-            <i class="fa-solid fa-user"></i>
+            <i class="fa-solid fa-user placeholder-icon"></i>
             <img id="img-preview-preso" class="hidden" src="">
           </div>
           <input type="file" id="upload-preso" accept="image/*">
         </div>
 
-        <div class="upload-box">
+        <div class="upload-box" id="box-upload-mochila" tabindex="0">
           <label>🎒 Foto Inventário (Obrigatório)</label>
+          <p class="paste-hint"><i class="fa-regular fa-clipboard"></i> Clique aqui e aperte Ctrl+V</p>
           <div class="preview-area" id="preview-box-mochila">
-            <i class="fa-solid fa-suitcase"></i>
+            <i class="fa-solid fa-suitcase placeholder-icon"></i>
             <img id="img-preview-mochila" class="hidden" src="">
           </div>
           <input type="file" id="upload-mochila" accept="image/*">
@@ -115,7 +121,7 @@
 
       <section class="card crimes-aplicados">
         <div class="card-header">
-          <i class="fa-solid fa-gavel"></i> LISTA DE CRIMES (SELECIONE)
+          <i class="fa-solid fa-gavel"></i> LISTA DE CRIMES
         </div>
 
         <div class="crimes-list">
@@ -165,19 +171,41 @@
             <div class="category-content">
               <div class="crime-item" data-artigo="121" data-pena="15" data-multa="10000"><span class="crime-name">Art. 121 - Posse de Suprimentos de Armas</span></div>
               <div class="crime-item" data-artigo="122" data-pena="15" data-multa="10000"><span class="crime-name">Art. 122 - Posse de Suprimentos de Munição</span></div>
-              <div class="crime-item" data-artigo="123" data-pena="40" data-multa="50000"><span class="crime-name">Art. 123 - Tráfico de Armas <span class="crime-condition">3+ armas</span></span></div>
+
+              <div class="crime-item" data-artigo="123" data-pena="40" data-multa="50000">
+                <span class="crime-name">Art. 123 - Tráfico de Armas <span class="crime-condition">3+ armas</span></span>
+              </div>
+
               <div class="crime-item" data-artigo="124" data-pena="40" data-multa="15000"><span class="crime-name">Art. 124 - Tráfico de Itens Ilegais</span></div>
               <div class="crime-item" data-artigo="125" data-pena="25" data-multa="15000"><span class="crime-name">Art. 125 - Porte de Arma Pesada</span></div>
               <div class="crime-item" data-artigo="126" data-pena="15" data-multa="5000"><span class="crime-name">Art. 126 - Porte de Arma Leve</span></div>
               <div class="crime-item" data-artigo="127" data-pena="25" data-multa="0"><span class="crime-name">Art. 127 - Disparo de Arma de Fogo</span></div>
-              <div class="crime-item" data-artigo="128" data-pena="25" data-multa="20000"><span class="crime-name">Art. 128 - Tráfico de Munições <span class="crime-condition">+100 un.</span></span></div>
-              <div class="crime-item" data-artigo="129" data-pena="15" data-multa="5000"><span class="crime-name">Art. 129 - Posse de Munição <span class="crime-condition">-100 un.</span></span></div>
+
+              <div class="crime-item" data-artigo="128" data-pena="25" data-multa="20000">
+                <span class="crime-name">Art. 128 - Tráfico de Munições <span class="crime-condition">+100 un.</span></span>
+              </div>
+
+              <div class="crime-item" data-artigo="129" data-pena="15" data-multa="5000">
+                <span class="crime-name">Art. 129 - Posse de Munição <span class="crime-condition">-100 un.</span></span>
+              </div>
+
               <div class="crime-item" data-artigo="130" data-pena="15" data-multa="5000"><span class="crime-name">Art. 130 - Posse de Coletes</span></div>
               <div class="crime-item" data-artigo="131" data-pena="0" data-multa="5000"><span class="crime-name">Art. 131 - Porte de Arma Branca</span></div>
-              <div class="crime-item" data-artigo="132" data-pena="35" data-multa="30000"><span class="crime-name">Art. 132 - Tráfico de Drogas <span class="crime-condition">+100 un.</span></span></div>
-              <div class="crime-item" data-artigo="133" data-pena="20" data-multa="10000"><span class="crime-name">Art. 133 - Aviãozinho <span class="crime-condition">6-100 un.</span></span></div>
+
+              <div class="crime-item" data-artigo="132" data-pena="35" data-multa="30000">
+                <span class="crime-name">Art. 132 - Tráfico de Drogas <span class="crime-condition">+100 un.</span></span>
+              </div>
+
+              <div class="crime-item" data-artigo="133" data-pena="20" data-multa="10000">
+                <span class="crime-name">Art. 133 - Aviãozinho <span class="crime-condition">6-100 un.</span></span>
+              </div>
+
               <div class="crime-item" data-artigo="134" data-pena="10" data-multa="10000"><span class="crime-name">Art. 134 - Posse de Componentes Narcóticos</span></div>
-              <div class="crime-item" data-artigo="135" data-pena="10" data-multa="5000"><span class="crime-name">Art. 135 - Posse de Drogas <span class="crime-condition">1-5 un.</span></span></div>
+
+              <div class="crime-item" data-artigo="135" data-pena="10" data-multa="5000">
+                <span class="crime-name">Art. 135 - Posse de Drogas <span class="crime-condition">1-5 un.</span></span>
+              </div>
+
               <div class="crime-item" data-artigo="136" data-pena="10" data-multa="10000"><span class="crime-name">Art. 136 - Posse de Itens Ilegais</span></div>
               <div class="crime-item" data-artigo="137" data-pena="20" data-multa="0"><span class="crime-name">Art. 137 - Dinheiro Sujo</span></div>
             </div>
