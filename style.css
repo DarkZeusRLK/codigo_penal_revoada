@@ -116,8 +116,6 @@ header h1 {
 .badge {
   height: 45px;
 }
-
-/* USER INFO */
 .user-info {
   display: flex;
   align-items: center;
@@ -146,10 +144,16 @@ header h1 {
   font-weight: bold;
 }
 
-/* DADOS DO PRESO - LAYOUT */
+/* CONFIG BOT */
+.config-bot {
+  margin-bottom: 20px;
+  border-left: 4px solid #5865f2;
+}
+
+/* DADOS DO PRESO - LAYOUT (2 COLUNAS) */
 .dados-preso-container {
   display: grid;
-  grid-template-columns: 2fr 1fr; /* 2 partes texto, 1 parte uploads */
+  grid-template-columns: 2fr 1fr; /* 2 partes inputs, 1 parte uploads */
   gap: 20px;
   align-items: start;
 }
@@ -162,7 +166,69 @@ header h1 {
   gap: 10px;
 }
 
-/* AREA DE UPLOAD */
+/* LAYOUT PRINCIPAL (MUDANÇA AQUI) */
+.main-content {
+  display: grid;
+  grid-template-columns: 3fr 1fr; /* 75% Esquerda, 25% Direita */
+  gap: 20px;
+  align-items: start;
+}
+
+/* CARDS */
+.card {
+  background-color: var(--bg-card);
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+}
+.card-header {
+  font-size: 1em;
+  font-weight: bold;
+  color: var(--text-primary);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  text-transform: uppercase;
+}
+.card-header i {
+  color: var(--color-revoada);
+  margin-right: 8px;
+}
+
+/* INPUTS */
+.input-group {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+.input-group label {
+  font-size: 0.9em;
+  color: var(--text-secondary);
+  align-self: center;
+  text-align: right;
+  width: 120px;
+}
+input:not([type="file"]),
+textarea,
+select {
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  min-height: 35px;
+}
+input:focus,
+textarea:focus {
+  border-color: var(--color-revoada);
+  outline: none;
+}
+
+/* UPLOADS */
 .upload-section {
   display: flex;
   flex-direction: column;
@@ -242,38 +308,11 @@ input[type="file"] {
   padding: 0 10px;
 }
 
-/* INPUTS GERAIS */
-.input-group {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 10px;
-  margin-bottom: 5px;
-}
-.input-group label {
-  font-size: 0.9em;
-  color: var(--text-secondary);
-  align-self: center;
-  text-align: right;
-  width: 120px;
-}
-input:not([type="file"]),
-textarea,
-select {
-  background-color: var(--bg-main);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  padding: 8px;
-  border-radius: 4px;
-  font-size: 0.9em;
-  min-height: 35px;
-}
-input:focus,
-textarea:focus {
-  border-color: var(--color-revoada);
-  outline: none;
-}
-
 /* CRIMES */
+.crimes-aplicados {
+  padding: 0;
+  min-width: 0; /* Previne quebra do grid */
+}
 .crimes-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -338,7 +377,13 @@ textarea:focus {
   margin-left: 8px;
 }
 
-/* RESUMO */
+/* RESUMO (DIREITA) */
+.resumo-sentenca {
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+  min-width: 300px;
+}
 .output-list {
   min-height: 50px;
   padding: 10px;
@@ -398,7 +443,7 @@ textarea:focus {
   }
 }
 
-/* ATENUANTES E RADIOS */
+/* ATENUANTES */
 .atenuante-item {
   margin-bottom: 8px;
   display: flex;
@@ -544,35 +589,19 @@ input[type="radio"] {
     transform: translateY(-10px);
   }
 }
-.config-bot {
-  margin-bottom: 20px;
-  border-left: 4px solid #5865f2;
-}
-.card {
-  background-color: var(--bg-card);
-  border-radius: 4px;
-  padding: 15px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border-color);
-}
-.card-header {
-  font-size: 1em;
-  font-weight: bold;
-  color: var(--text-primary);
-  padding-bottom: 10px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid var(--border-color);
-  text-transform: uppercase;
-}
 
-/* MEDIA QUERY */
+/* RESPONSIVIDADE */
+@media (max-width: 1200px) {
+  .main-content {
+    grid-template-columns: 2fr 1fr;
+  }
+}
 @media (max-width: 1000px) {
   .dados-preso-container {
     grid-template-columns: 1fr;
   }
   .main-content {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
   .crimes-list {
     grid-template-columns: 1fr;

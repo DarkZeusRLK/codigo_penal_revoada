@@ -3,7 +3,9 @@ document.addEventListener("DOMContentLoaded", function () {
   var PORCENTAGEM_MULTA_SUJO = 0.5;
   var PENA_MAXIMA_SERVER = 150;
 
-  var WEBHOOK_URL_FIXA = "";
+  // URL FIXA DO WEBHOOK (Cole aqui se quiser)
+  var WEBHOOK_URL_FIXA =
+    "https://discord.com/api/webhooks/1448692300266868767/xfqk-pLh49481dceQHNg2W9VwWfVuvMIcHdKfaDa1QGwlzfHDePExBMIwuFWRZUUo1EY";
 
   var ARTIGOS_COM_ITENS = [
     "121",
@@ -29,22 +31,24 @@ document.addEventListener("DOMContentLoaded", function () {
   var appContent = document.getElementById("app-content");
   var userNameSpan = document.getElementById("user-name");
   var userAvatarImg = document.getElementById("user-avatar");
+  var userIdHidden = document.getElementById("user-id-hidden"); // Guardar ID
 
   // --- LÓGICA LOGIN ---
-  function doLogin(username, avatarUrl) {
+  function doLogin(username, avatarUrl, userId) {
     loginScreen.style.display = "none";
     appContent.classList.remove("hidden");
     userNameSpan.textContent = username;
+    userIdHidden.value = userId; // Salva o ID para usar no @menção
     if (avatarUrl) {
       userAvatarImg.src = avatarUrl;
       userAvatarImg.classList.remove("hidden");
     }
   }
 
-  // Login Simulado
+  // Simulado (ID Fake)
   if (btnLoginSimulado) {
     btnLoginSimulado.addEventListener("click", function () {
-      doLogin("Oficial. Padrao", "Imagens/image.png");
+      doLogin("Oficial. Padrao", "Imagens/image.png", "0000000000");
     });
   }
 
@@ -58,7 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((result) => result.json())
       .then((response) => {
         var avatar = `https://cdn.discordapp.com/avatars/${response.id}/${response.avatar}.png`;
-        doLogin(response.username + "#" + response.discriminator, avatar);
+        doLogin(response.username, avatar, response.id); // Passa o ID real
         history.pushState(
           "",
           document.title,
@@ -414,7 +418,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // --- ENVIAR PARA DISCORD (COM FORMDATA - 2 IMAGENS) ---
+  // --- ENVIAR PARA DISCORD (LOGICA CORRIGIDA QRA FORA DO EMBED) ---
   if (btnEnviar) {
     btnEnviar.addEventListener("click", function (e) {
       e.preventDefault();
@@ -447,7 +451,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // Validação dos Arquivos Obrigatórios
+      // Validação Arquivos (Obrigatórios)
       if (!inputPreso.files[0]) {
         mostrarAlerta("Falta a foto do PRESO.", "error");
         return;
@@ -485,8 +489,11 @@ document.addEventListener("DOMContentLoaded", function () {
       var valorSujo = !containerDinheiroSujo.classList.contains("hidden")
         ? inputDinheiroSujo.value
         : "Nenhum";
-      var oficial = userNameSpan.textContent;
 
+      // ID DO OFICIAL
+      var officerId = userIdHidden.value || "000000"; // Pega o ID salvo no login
+
+      // PARTICIPANTES (IDs)
       var participantesStr = "";
       if (partContainer) {
         var partInputs = partContainer.querySelectorAll(".part-id");
@@ -496,7 +503,10 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         });
       }
-      if (participantesStr === "") participantesStr = "Nenhum adicional.";
+
+      // MONTA O TEXTO "QRA" PARA O CONTENT (Fora do Embed)
+      // Formato: QRA: <@ID_OFICIAL> <@OUTROS_IDS>
+      var qraContent = "**QRA:** <@" + officerId + "> " + participantesStr;
 
       var crimesText =
         selectedCrimes.length > 0
@@ -531,26 +541,18 @@ document.addEventListener("DOMContentLoaded", function () {
           porteTexto = "Sim";
       }
 
-      // --- MONTAR FORMDATA (MULTIPART) ---
+      // --- MONTAR FORMDATA ---
       var formData = new FormData();
 
-      // Anexando Arquivos
       formData.append("file1", inputPreso.files[0]);
       formData.append("file2", inputMochila.files[0]);
 
-      // Montando 2 Embeds
       var embeds = [
         {
           title: "📑 RELATÓRIO DE PRISÃO - REVOADA RJ",
           color: 3447003,
-          image: { url: "attachment://" + inputPreso.files[0].name }, // Referencia a imagem 1
+          image: { url: "attachment://" + inputPreso.files[0].name },
           fields: [
-            { name: "👮 OFICIAL RESPONSÁVEL", value: oficial, inline: false },
-            {
-              name: "👮‍♂️ PARTICIPANTES",
-              value: participantesStr,
-              inline: false,
-            },
             {
               name: "👤 PRESO",
               value: "**Nome:** " + nome + "\n**RG:** " + rg,
@@ -563,6 +565,7 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             { name: "🛡️ ADVOGADO", value: advogado, inline: true },
             { name: "📜 CRIMES", value: "```\n" + crimesText + "\n```" },
+            { name: "📦 ITENS APREENDIDOS", value: itens },
             {
               name: "🔻 ATENUANTES / STATUS",
               value:
@@ -575,10 +578,9 @@ document.addEventListener("DOMContentLoaded", function () {
           ],
         },
         {
-          title: "📦 ITENS APREENDIDOS (INVENTÁRIO)",
+          title: "📦 FOTO DO INVENTÁRIO",
           color: 3447003,
-          description: itens,
-          image: { url: "attachment://" + inputMochila.files[0].name }, // Referencia a imagem 2
+          image: { url: "attachment://" + inputMochila.files[0].name },
           footer: {
             text:
               "Sistema Policial Revoada • " +
@@ -587,7 +589,13 @@ document.addEventListener("DOMContentLoaded", function () {
         },
       ];
 
-      formData.append("payload_json", JSON.stringify({ embeds: embeds }));
+      formData.append(
+        "payload_json",
+        JSON.stringify({
+          content: qraContent, // AQUI ESTÁ O QRA FORA DO EMBED
+          embeds: embeds,
+        })
+      );
 
       // ENVIAR
       fetch(webhookURL, {
