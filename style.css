@@ -325,7 +325,7 @@ hr {
 }
 .atenuante-item label {
   margin-left: 8px;
-  color: var(--text-secondary);
+  color: #fff;
   cursor: pointer;
 }
 .atenuante-item input[type="checkbox"] {
@@ -350,7 +350,7 @@ hr {
 }
 .calculated-row label {
   font-size: 0.9em;
-  color: var(--text-secondary);
+  color: #fff;
 }
 
 /* ESTILOS RADIO BUTTONS */
@@ -364,7 +364,7 @@ hr {
 }
 .calculated-row-radio label {
   font-size: 0.9em;
-  color: var(--text-secondary);
+  color: #fff;
 }
 .radio-group {
   display: flex;

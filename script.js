@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 4000);
   }
 
-  // --- 4. FUNÇÕES DE INTERFACE ---
+  // --- 4. LÓGICA DO INPUT HP (DIRETA) ---
   function toggleHpInput() {
     if (hpSimBtn.checked) {
       containerHpMinutos.classList.remove("hidden");
@@ -117,16 +117,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // --- 5. LÓGICA DE CÁLCULO ---
   function calculateSentence() {
-    var totalPenaRaw = 0; // Pena bruta sem limites
+    var totalPenaRaw = 0;
     var totalMulta = 0;
 
-    // Soma básica
     for (var i = 0; i < selectedCrimes.length; i++) {
       totalPenaRaw += selectedCrimes[i].pena;
       totalMulta += selectedCrimes[i].multa;
     }
 
-    // Dinheiro Sujo
     var valorSujo = 0;
     if (
       inputDinheiroSujo &&
@@ -138,18 +136,16 @@ document.addEventListener("DOMContentLoaded", function () {
       totalMulta += valorSujo * PORCENTAGEM_MULTA_SUJO;
     }
 
-    // LÓGICA CORRIGIDA: TRAVA A BASE EM 150 ANTES DOS DESCONTOS
+    // TRAVA PENA EM 150 ANTES DE DESCONTAR
     var penaBaseCalculo = totalPenaRaw;
     if (penaBaseCalculo > PENA_MAXIMA_SERVER) {
       penaBaseCalculo = PENA_MAXIMA_SERVER;
-      // Mostra o alerta se a pena bruta passou do teto
       if (alertaPenaMaxima) alertaPenaMaxima.classList.remove("hidden");
     } else {
       if (alertaPenaMaxima) alertaPenaMaxima.classList.add("hidden");
     }
 
-    // Cálculo dos Atenuantes
-    var descontoTotal = 0;
+    var totalDiscountPercent = 0;
     var isInfiancavel = false;
 
     for (var j = 0; j < selectedCrimes.length; j++) {
@@ -158,14 +154,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     for (var k = 0; k < checkboxes.length; k++) {
       if (checkboxes[k].checked) {
-        descontoTotal += parseFloat(checkboxes[k].dataset.percent) / 100;
+        totalDiscountPercent += parseFloat(checkboxes[k].dataset.percent);
       }
     }
+    // Converter % (ex: -20) para fator decimal (ex: 0.20)
+    var descontoDecimal = Math.abs(totalDiscountPercent) / 100;
+    var totalPenaFinal = Math.max(0, penaBaseCalculo * (1 - descontoDecimal));
 
-    // Aplica o desconto sobre a base travada (ex: 150 * (1 - 0.10) = 135)
-    var totalPenaFinal = Math.max(0, penaBaseCalculo * (1 + descontoTotal)); // descontoTotal é negativo ex: -0.1
-
-    // Subtração HP (Minutos)
     var hpReduction = 0;
     var hpMarcado = false;
     if (hpSimBtn && hpSimBtn.checked) hpMarcado = true;
@@ -177,16 +172,13 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    // Subtrai os minutos do valor já descontado
     totalPenaFinal = Math.max(0, totalPenaFinal - hpReduction);
 
-    // Fiança
     var fianca = 0;
     if (!isInfiancavel) {
       fianca = totalMulta;
     }
 
-    // Divisão Advogado
     if (checkboxAdvogado && checkboxAdvogado.checked && fianca > 0) {
       if (fiancaBreakdown) fiancaBreakdown.classList.remove("hidden");
       var partePolicial = fianca * 0.35;
@@ -209,7 +201,6 @@ document.addEventListener("DOMContentLoaded", function () {
       if (fiancaBreakdown) fiancaBreakdown.classList.add("hidden");
     }
 
-    // Atualiza HTML
     if (penaTotalEl)
       penaTotalEl.textContent = Math.round(totalPenaFinal) + " meses";
     if (multaTotalEl)
@@ -223,7 +214,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // --- 6. ATUALIZAR LISTA VISUAL ---
   function updateCrimesOutput() {
     if (!crimesListOutput) return;
-
     crimesListOutput.innerHTML = "";
     if (selectedCrimes.length === 0) {
       crimesListOutput.innerHTML =
@@ -254,20 +244,15 @@ document.addEventListener("DOMContentLoaded", function () {
       removeBtns[i].addEventListener("click", function (e) {
         var idx = parseInt(e.currentTarget.dataset.index);
         var crimeToRemove = selectedCrimes[idx];
-
         if (crimeToRemove.artigo === "137" && containerDinheiroSujo) {
           containerDinheiroSujo.classList.add("hidden");
           if (inputDinheiroSujo) inputDinheiroSujo.value = "";
         }
-
         selectedCrimes.splice(idx, 1);
-
         var originalItem = document.querySelector(
           '.crime-item[data-artigo="' + crimeToRemove.artigo + '"]'
         );
-        if (originalItem) {
-          originalItem.classList.remove("selected");
-        }
+        if (originalItem) originalItem.classList.remove("selected");
         calculateSentence();
       });
     }
@@ -346,11 +331,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (rgInput) rgInput.value = "";
         if (advogadoInput) advogadoInput.value = "";
         if (itensApreendidosInput) itensApreendidosInput.value = "";
-        if (fotoUrlInput) {
-          fotoUrlInput.value = "";
-          imgPreview.src = "";
-          imgPreview.classList.add("hidden");
-        }
 
         if (containerDinheiroSujo)
           containerDinheiroSujo.classList.add("hidden");
@@ -367,9 +347,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // --- 8. GERAR RELATÓRIO (FORMATO MD) ---
+  // --- 8. GERAR RELATÓRIO ---
   if (btnCopiar) {
-    btnCopiar.addEventListener("click", function () {
+    btnCopiar.addEventListener("click", function (e) {
+      e.preventDefault(); // EVITA RECARREGAR A PÁGINA
+
       if (nomeInput && nomeInput.value.trim() === "") {
         mostrarAlerta("Preencha o NOME do preso.", "error");
         nomeInput.focus();
@@ -421,15 +403,6 @@ document.addEventListener("DOMContentLoaded", function () {
         inputDinheiroSujo && !containerDinheiroSujo.classList.contains("hidden")
           ? inputDinheiroSujo.value
           : null;
-
-      var fotoUrl = "Sem registro";
-      if (fotoUrlInput && fotoUrlInput.value.trim() !== "") {
-        if (fotoUrlInput.value.includes("[Imagem")) {
-          fotoUrl = "[Imagem Anexada Localmente]";
-        } else {
-          fotoUrl = "[Ver Imagem](" + fotoUrlInput.value + ")";
-        }
-      }
 
       var now = new Date();
       var dataHora =
@@ -533,9 +506,6 @@ document.addEventListener("DOMContentLoaded", function () {
         "\n" +
         "# 🏥 REANIMADO NO HP: " +
         (hpSim ? "Sim" : "Não") +
-        "\n" +
-        "* FOTO: " +
-        fotoUrl +
         "\n" +
         "* DATA: " +
         dataHora +
