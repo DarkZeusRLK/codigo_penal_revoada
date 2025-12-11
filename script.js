@@ -1,11 +1,10 @@
 document.addEventListener("DOMContentLoaded", function () {
   // --- 1. CONFIGURAÇÕES ---
-  var PORCENTAGEM_MULTA_SUJO = 0.5;
+  var PORCENTAGEM_MULTA_SUJO = 0.5; // 50%
   var PENA_MAXIMA_SERVER = 150;
 
-  // URL FIXA (Opcional, se quiser deixar hardcoded)
-  var WEBHOOK_URL_FIXA =
-    "https://discord.com/api/webhooks/1448692300266868767/xfqk-pLh49481dceQHNg2W9VwWfVuvMIcHdKfaDa1QGwlzfHDePExBMIwuFWRZUUo1EY";
+  // COLOQUE SEU WEBHOOK AQUI PARA NÃO PRECISAR COLAR TODA VEZ
+  var WEBHOOK_URL_FIXA = "";
 
   var ARTIGOS_COM_ITENS = [
     "121",
@@ -25,56 +24,80 @@ document.addEventListener("DOMContentLoaded", function () {
     "136",
   ];
 
-  // --- SELETORES LOGIN ---
+  // --- 2. SELETORES GERAIS ---
   var loginScreen = document.getElementById("login-screen");
   var btnLoginSimulado = document.getElementById("btn-login-simulado");
   var appContent = document.getElementById("app-content");
   var userNameSpan = document.getElementById("user-name");
   var userAvatarImg = document.getElementById("user-avatar");
 
-  // --- LÓGICA DE LOGIN ---
-  // Função para logar (Simulado ou Real)
-  function doLogin(username, avatarUrl) {
-    loginScreen.style.display = "none";
-    appContent.classList.remove("hidden");
-    userNameSpan.textContent = username;
-    if (avatarUrl) {
+  // --- LÓGICA DE LOGIN (CORRIGIDA) ---
+
+  // Função que libera a tela
+  function liberarAcesso(username, avatarUrl) {
+    if (loginScreen) loginScreen.style.display = "none";
+    if (appContent) appContent.classList.remove("hidden");
+
+    if (userNameSpan) userNameSpan.textContent = username;
+    if (avatarUrl && userAvatarImg) {
       userAvatarImg.src = avatarUrl;
       userAvatarImg.classList.remove("hidden");
     }
   }
 
-  // 1. Simulação
+  // 1. Verifica se o usuário voltou do Discord com o Token na URL
+  // O Discord retorna algo como: site.com/#access_token=...
+  var urlHash = window.location.hash;
+  if (urlHash.includes("access_token")) {
+    // Extrai o token da URL
+    var params = new URLSearchParams(urlHash.substring(1));
+    var accessToken = params.get("access_token");
+
+    if (accessToken) {
+      // Busca os dados do usuário no Discord
+      fetch("https://discord.com/api/users/@me", {
+        headers: { authorization: `Bearer ${accessToken}` },
+      })
+        .then((result) => result.json())
+        .then((response) => {
+          // Monta a URL do Avatar
+          var avatar = null;
+          if (response.avatar) {
+            avatar = `https://cdn.discordapp.com/avatars/${response.id}/${response.avatar}.png`;
+          }
+          // Libera o acesso
+          liberarAcesso(response.username, avatar);
+
+          // (Opcional) Limpa a URL para não ficar aquele monte de código
+          history.pushState(
+            "",
+            document.title,
+            window.location.pathname + window.location.search
+          );
+        })
+        .catch((err) => {
+          console.error("Erro ao pegar dados do Discord:", err);
+          alert("Erro ao validar login. Tente novamente.");
+        });
+    }
+  }
+
+  // 2. Botão de Login Simulado (Para testes sem Discord)
   if (btnLoginSimulado) {
     btnLoginSimulado.addEventListener("click", function () {
-      // Aqui simula um usuário logado
-      doLogin("Oficial. Padrao", "Imagens/image.png");
+      liberarAcesso("Oficial. Padrao", "Imagens/image.png");
     });
   }
 
-  // 2. Verificação OAuth2 Real (Se tiver token na URL)
-  // Se você implementar o OAuth, o Discord retorna o token na URL (hash)
-  var fragment = new URLSearchParams(window.location.hash.slice(1));
-  var accessToken = fragment.get("access_token");
-  if (accessToken) {
-    fetch("https://discord.com/api/users/@me", {
-      headers: { authorization: `Bearer ${accessToken}` },
-    })
-      .then((result) => result.json())
-      .then((response) => {
-        var avatar = `https://cdn.discordapp.com/avatars/${response.id}/${response.avatar}.png`;
-        doLogin(response.username + "#" + response.discriminator, avatar);
-      })
-      .catch(console.error);
-  }
+  // --- RESTANTE DO CÓDIGO DA CALCULADORA ---
 
-  // --- SELETORES GERAIS DA APP ---
   var crimeItems = document.querySelectorAll(".crime-item");
   var checkboxes = document.querySelectorAll(
     '.atenuantes input[type="checkbox"]'
   );
+
   var btnLimpar = document.getElementById("btn-limpar");
-  var btnEnviar = document.getElementById("btn-enviar");
+  var btnEnviar = document.getElementById("btn-enviar"); // Botão de Enviar Webhook
 
   var webhookInput = document.getElementById("webhook-url");
   if (WEBHOOK_URL_FIXA && webhookInput) webhookInput.value = WEBHOOK_URL_FIXA;
@@ -87,8 +110,8 @@ document.addEventListener("DOMContentLoaded", function () {
     ".itens-apreendidos textarea"
   );
 
-  // UPLOAD DE FOTO
-  var fileInput = document.getElementById("preso-foto-upload");
+  // UPLOAD DE FOTO (Arquivo local)
+  var fileInput = document.getElementById("preso-foto-upload"); // Input type="file" que criamos no HTML anterior
   var fileNameDisplay = document.getElementById("file-name-display");
 
   // PARTICIPANTES
@@ -141,7 +164,7 @@ document.addEventListener("DOMContentLoaded", function () {
       var div = document.createElement("div");
       div.className = "participante-row";
       div.innerHTML = `
-            <input type="text" placeholder="ID do Oficial" class="part-id">
+            <input type="text" placeholder="ID do Oficial" class="part-id" style="width: 150px;">
             <button class="btn-remove-part"><i class="fa-solid fa-minus"></i></button>
           `;
       partContainer.appendChild(div);
@@ -154,14 +177,17 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // --- LOGICA UPLOAD FOTO ---
+  // --- LOGICA UPLOAD FOTO (Visualização do nome) ---
+  // No HTML anterior, eu sugeri usar <input type="file" id="preso-foto-upload">
+  // Se você ainda não tem esse input no HTML, o JS não vai achar, mas não vai quebrar.
   if (fileInput) {
     fileInput.addEventListener("change", function () {
       if (this.files && this.files[0]) {
-        fileNameDisplay.textContent =
-          "Imagem selecionada: " + this.files[0].name;
+        if (fileNameDisplay)
+          fileNameDisplay.textContent =
+            "Imagem selecionada: " + this.files[0].name;
       } else {
-        fileNameDisplay.textContent = "";
+        if (fileNameDisplay) fileNameDisplay.textContent = "";
       }
     });
   }
@@ -383,6 +409,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (rgInput) rgInput.value = "";
         if (advogadoInput) advogadoInput.value = "";
         if (itensApreendidosInput) itensApreendidosInput.value = "";
+
+        if (fileInput) fileInput.value = ""; // Limpa input file
+        if (fileNameDisplay) fileNameDisplay.textContent = "";
+        if (partContainer) partContainer.innerHTML = "";
+
         if (containerDinheiroSujo)
           containerDinheiroSujo.classList.add("hidden");
         if (inputDinheiroSujo) inputDinheiroSujo.value = "";
@@ -391,17 +422,12 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById("porte-nao").checked = true;
         if (containerHpMinutos) containerHpMinutos.classList.add("hidden");
         if (inputHpMinutos) inputHpMinutos.value = "";
-
-        if (fileInput) fileInput.value = ""; // Limpa foto
-        if (fileNameDisplay) fileNameDisplay.textContent = "";
-        if (partContainer) partContainer.innerHTML = ""; // Limpa participantes
-
         calculateSentence();
       }
     });
   }
 
-  // --- ENVIAR PARA DISCORD (COM ARQUIVO) ---
+  // --- ENVIAR PARA DISCORD (COM ARQUIVO LOCAL) ---
   if (btnEnviar) {
     btnEnviar.addEventListener("click", function (e) {
       e.preventDefault();
@@ -465,12 +491,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // PARTICIPANTES
       var participantesStr = "";
-      var partInputs = partContainer.querySelectorAll(".part-id");
-      partInputs.forEach(function (inp) {
-        if (inp.value.trim() !== "") {
-          participantesStr += "<@" + inp.value.trim() + "> ";
-        }
-      });
+      if (partContainer) {
+        var partInputs = partContainer.querySelectorAll(".part-id");
+        partInputs.forEach(function (inp) {
+          if (inp.value.trim() !== "") {
+            participantesStr += "<@" + inp.value.trim() + "> ";
+          }
+        });
+      }
       if (participantesStr === "") participantesStr = "Nenhum adicional.";
 
       var crimesText =
@@ -506,7 +534,7 @@ document.addEventListener("DOMContentLoaded", function () {
           porteTexto = "Sim";
       }
 
-      // --- MONTAR FORMDATA (MULTIPART) ---
+      // --- FORMDATA PARA ENVIAR ARQUIVO ---
       var formData = new FormData();
 
       var embed = {
@@ -544,7 +572,7 @@ document.addEventListener("DOMContentLoaded", function () {
         },
       };
 
-      // Verifica se tem imagem para upload
+      // Se tiver arquivo selecionado, anexa
       if (fileInput && fileInput.files[0]) {
         formData.append("file", fileInput.files[0]);
         embed.image = { url: "attachment://" + fileInput.files[0].name };
@@ -552,10 +580,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       formData.append("payload_json", JSON.stringify({ embeds: [embed] }));
 
-      // ENVIAR
+      // ENVIA
       fetch(webhookURL, {
         method: "POST",
-        body: formData, // Nota: Não setar Content-Type, o browser faz isso automaticamente para FormData
+        body: formData,
       })
         .then((response) => {
           if (response.ok)
@@ -569,5 +597,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Inicializa
   calculateSentence();
 });
