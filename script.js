@@ -26,12 +26,43 @@ document.addEventListener("DOMContentLoaded", function () {
   var WEBHOOK_URL_FIXA =
     "https://discord.com/api/webhooks/1448692300266868767/xfqk-pLh49481dceQHNg2W9VwWfVuvMIcHdKfaDa1QGwlzfHDePExBMIwuFWRZUUo1EY";
 
-  // CADASTRO DE OFICIAIS
-  var LISTA_OFICIAIS = [
-    { nome: "Comandante 01", id: "123456789012345678" },
-    { nome: "Cabo Exemplo", id: "987654321098765432" },
-  ];
-  LISTA_OFICIAIS.sort((a, b) => a.nome.localeCompare(b.nome));
+  // --- CARREGAR OFICIAIS AUTOMATICAMENTE ---
+  var selectOficial = document.getElementById("select-oficial");
+  var LISTA_OFICIAIS = []; // Começa vazia
+
+  // Função para buscar da API
+  async function carregarOficiaisDiscord() {
+    if (!selectOficial) return;
+
+    // Coloca um "Carregando..." enquanto busca
+    selectOficial.innerHTML = '<option value="">Carregando lista...</option>';
+
+    try {
+      const response = await fetch("/api/membros"); // Chama o nosso arquivo api/membros.js
+      if (!response.ok) throw new Error("Erro na API");
+
+      LISTA_OFICIAIS = await response.json();
+
+      // Limpa e popula o select
+      selectOficial.innerHTML =
+        '<option value="">Selecione um oficial...</option>';
+
+      LISTA_OFICIAIS.forEach((oficial) => {
+        var option = document.createElement("option");
+        option.value = oficial.id;
+        option.textContent = oficial.nome;
+        selectOficial.appendChild(option);
+      });
+    } catch (error) {
+      console.error("Erro ao carregar oficiais:", error);
+      selectOficial.innerHTML =
+        '<option value="">Erro ao carregar lista</option>';
+      // Fallback: Se der erro, você pode deixar uma lista manual de emergência aqui se quiser
+    }
+  }
+
+  // Chama a função assim que o site carrega
+  carregarOficiaisDiscord();
 
   var ARTIGOS_COM_ITENS = [
     "121",
