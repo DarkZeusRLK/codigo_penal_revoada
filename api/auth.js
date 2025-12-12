@@ -8,8 +8,8 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
 
   const userToken = req.headers.authorization; // Token do usuário (que veio do login)
-  const botToken = process.env.DISCORD_BOT_TOKEN; // Token do seu Bot (Vercel)
-  const guildId = process.env.DISCORD_GUILD_ID; // ID do Servidor (Vercel)
+  const botToken = process.env.Discord_Bot_Token; // Token do seu Bot (Vercel)
+  const guildId = process.env.Discord_Guild_ID; // ID do Servidor (Vercel)
 
   if (!userToken) return res.status(401).json({ error: "Token ausente." });
 
