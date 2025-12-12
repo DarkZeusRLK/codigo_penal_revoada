@@ -10,42 +10,68 @@ export default async function handler(req, res) {
   const botToken = process.env.DISCORD_BOT_TOKEN;
   const guildId = process.env.DISCORD_GUILD_ID;
 
-  if (!botToken || !guildId || !userToken) {
-    return res.status(401).json({ error: "Configuração ou Token ausente." });
+  // Verificação 1: Variáveis da Vercel
+  if (!botToken || !guildId) {
+    return res.status(500).json({
+      error:
+        "Erro de Configuração: Faltam variáveis na Vercel (Token ou Guild ID).",
+    });
   }
 
+  if (!userToken)
+    return res.status(401).json({ error: "Token de usuário não recebido." });
+
   try {
-    // 1. Identifica o Usuário
+    // PASSO 1: Descobrir quem é o usuário
     const userRes = await fetch("https://discord.com/api/users/@me", {
       headers: { Authorization: userToken },
     });
 
-    if (!userRes.ok) return res.status(401).json({ error: "Token inválido." });
-    const userData = await userRes.json();
+    if (!userRes.ok)
+      return res.status(401).json({
+        error: "Login expirou ou token inválido. Tente logar novamente.",
+      });
 
-    // 2. Busca o Membro no Servidor (COM CARGOS)
-    const memberUrl = `https://discord.com/api/v10/guilds/${guildId}/members/${userData.id}`;
+    const userData = await userRes.json();
+    const userId = userData.id;
+
+    // PASSO 2: Verificar se ele está no servidor (Usando o Bot)
+    const memberUrl = `https://discord.com/api/v10/guilds/${guildId}/members/${userId}`;
+
     const memberRes = await fetch(memberUrl, {
       headers: { Authorization: `Bot ${botToken}` },
     });
 
-    if (memberRes.status === 200) {
-      const memberData = await memberRes.json();
+    // --- ANÁLISE DO RESULTADO DO DISCORD ---
 
+    if (memberRes.status === 200) {
+      // SUCESSO!
       return res.status(200).json({
         authorized: true,
         username: userData.username,
         avatar: userData.avatar,
         id: userData.id,
-        roles: memberData.roles, // <--- O SEGREDINHO: Devolvemos os cargos aqui
-        nick: memberData.nick,
+      });
+    } else if (memberRes.status === 404) {
+      // O Discord disse "Não encontrado". Isso significa que o usuário NÃO está no servidor.
+      // OU que o ID do servidor está errado.
+      return res.status(403).json({
+        error: `Acesso Negado: O usuário ${userData.username} não foi encontrado no Servidor (ID: ${guildId}). Entre no Discord da Polícia.`,
+      });
+    } else if (memberRes.status === 401 || memberRes.status === 403) {
+      // O Bot não tem permissão para olhar.
+      return res.status(500).json({
+        error:
+          "Erro do Bot: O Bot não tem permissão ou o Token está errado. Verifique as 'Intents' no Developer Portal.",
       });
     } else {
+      // Outro erro
       return res
-        .status(403)
-        .json({ error: "Você não está no servidor da Polícia." });
+        .status(500)
+        .json({ error: `Erro inesperado do Discord: ${memberRes.status}` });
     }
   } catch (error) {
-    return res.status(500).json({ error: "Erro interno." });
+    console.error(error);
+    return res.status(500).json({ error: "Erro interno na verificação." });
   }
 }
