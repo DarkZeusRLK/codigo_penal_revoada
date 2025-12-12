@@ -1,14 +1,13 @@
 // api/enviar.js
 
-// 1. Configuração OBRIGATÓRIA para Vercel aceitar arquivos
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: false, // OBRIGATÓRIO: Desativa processamento para aceitar arquivos
   },
 };
 
 export default async function handler(req, res) {
-  // 2. Permissões de CORS (Para o site falar com a API)
+  // Configurações de CORS
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
@@ -25,7 +24,7 @@ export default async function handler(req, res) {
   try {
     const { tipo } = req.query;
 
-    // 3. Verificação das Chaves Secretas
+    // Pega as chaves secretas
     let webhookUrl;
     const secretPrisao = process.env.WEBHOOK_PRISAO_SECRET;
     const secretFianca = process.env.WEBHOOK_FIANCA_SECRET;
@@ -36,36 +35,31 @@ export default async function handler(req, res) {
       webhookUrl = secretPrisao;
     }
 
-    // DIAGNÓSTICO: Se não achar o link, avisa qual chave está faltando
     if (!webhookUrl) {
       console.error("ERRO: Webhook URL indefinida.");
       return res.status(500).json({
         error: "CONFIGURAÇÃO VERCEL AUSENTE",
         detalhe:
           tipo === "fianca"
-            ? "Falta a variável WEBHOOK_FIANCA_SECRET"
-            : "Falta a variável WEBHOOK_PRISAO_SECRET",
-        status_variaveis: {
-          prisao_definida: !!secretPrisao,
-          fianca_definida: !!secretFianca,
-        },
+            ? "Falta WEBHOOK_FIANCA_SECRET"
+            : "Falta WEBHOOK_PRISAO_SECRET",
       });
     }
 
-    // 4. Envio para o Discord (Proxy)
-    // Filtramos os headers para enviar apenas o necessário e evitar conflito
+    // Filtra headers
     const headersDiscord = {
       "Content-Type": req.headers["content-type"],
     };
-
     if (req.headers["content-length"]) {
       headersDiscord["Content-Length"] = req.headers["content-length"];
     }
 
+    // ENVIO PARA O DISCORD (Com a correção do duplex)
     const discordResponse = await fetch(webhookUrl, {
       method: "POST",
       headers: headersDiscord,
-      body: req, // Stream direta do arquivo
+      body: req,
+      duplex: "half", // <--- A LINHA MÁGICA QUE RESOLVE O ERRO
     });
 
     if (discordResponse.ok) {
