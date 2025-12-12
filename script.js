@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", function () {
   var PORCENTAGEM_MULTA_SUJO = 0.5;
   var PENA_MAXIMA_SERVER = 180;
 
-  // Artigos que exigem descrição de itens
   var ARTIGOS_COM_ITENS = [
     "121",
     "122",
@@ -41,13 +40,12 @@ document.addEventListener("DOMContentLoaded", function () {
     "136",
   ];
 
-  // GRUPOS DE CRIMES MUTUAMENTE EXCLUSIVOS (Só pode escolher 1 por grupo)
+  // GRUPOS DE CRIMES MUTUAMENTE EXCLUSIVOS
+  // Nota: Removi o grupo de Armas daqui para tratar separadamente
   var GRUPOS_CONFLITO = [
-    // Grupo Drogas
+    // Grupo Drogas (Só pode 1)
     ["132", "133", "135"],
-    // Grupo Armas
-    ["123", "125", "126"],
-    // Grupo Munições
+    // Grupo Munições (Só pode 1)
     ["128", "129"],
   ];
 
@@ -60,7 +58,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const response = await fetch("/api/membros");
       if (response.ok) {
         LISTA_OFICIAIS = await response.json();
-        // Lógica de pesquisa usa essa lista
       }
     } catch (error) {
       console.error(error);
@@ -80,10 +77,8 @@ document.addEventListener("DOMContentLoaded", function () {
   var rgInput = document.getElementById("rg");
   var advogadoInput = document.getElementById("advogado");
 
-  // Checkbox Específico de Réu Primário
   var checkPrimario = document.getElementById("atenuante-primario");
   var checkboxAdvogado = document.getElementById("atenuante-advogado");
-
   var itensApreendidosInput = document.querySelector(
     ".itens-apreendidos textarea"
   );
@@ -175,7 +170,7 @@ document.addEventListener("DOMContentLoaded", function () {
       userAvatarImg.classList.remove("hidden");
     }
     if (bgMusic) bgMusic.play().catch((e) => console.log("Autoplay block"));
-    carregarOficiaisDiscord(); // Tenta carregar após logar
+    carregarOficiaisDiscord();
   }
 
   if (btnLoginSimulado)
@@ -186,7 +181,6 @@ document.addEventListener("DOMContentLoaded", function () {
   var fragment = new URLSearchParams(window.location.hash.slice(1));
   var accessToken = fragment.get("access_token");
   if (accessToken) {
-    // Tela de loading...
     var h2Login = document.querySelector(".login-box h2");
     if (h2Login) h2Login.innerText = "VERIFICANDO...";
 
@@ -210,7 +204,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
-  // --- LÓGICA DE ALERTA INAFIANÇÁVEL ---
   if (containerFiancaRadio) {
     containerFiancaRadio.addEventListener(
       "click",
@@ -397,7 +390,7 @@ document.addEventListener("DOMContentLoaded", function () {
     radioFiancaNao.addEventListener("change", checkFiancaState);
   }
 
-  // --- SELEÇÃO DE CRIMES COM VALIDAÇÃO ---
+  // --- SELEÇÃO DE CRIMES (LÓGICA ALTERADA AQUI) ---
   for (var i = 0; i < crimeItems.length; i++) {
     crimeItems[i].addEventListener("click", function () {
       var el = this;
@@ -407,7 +400,6 @@ document.addEventListener("DOMContentLoaded", function () {
       var multa = parseInt(el.dataset.multa);
       var infiancavel = el.dataset.infiancavel === "true";
 
-      // Verifica se o crime já está selecionado
       var existeIndex = -1;
       for (var k = 0; k < selectedCrimes.length; k++) {
         if (selectedCrimes[k].artigo === artigo) {
@@ -416,24 +408,49 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      // SE ESTIVER ADICIONANDO UM NOVO CRIME...
       if (existeIndex === -1) {
-        // 1. Validação Réu Reincidente vs Primário
-        // Se tentar adicionar Art. 161 (Reincidente) e o checkbox Primário estiver marcado
+        // --- VALIDAÇÕES DE CONFLITO ---
+
+        // 1. Reincidente vs Primário
         if (artigo === "161" && checkPrimario.checked) {
           mostrarAlerta(
             "Incoerência: Desmarque 'Réu Primário' antes de adicionar 'Réu Reincidente'!",
             "error"
           );
-          return; // Bloqueia
+          return;
         }
 
-        // 2. Validação Grupos de Conflito (Drogas, Armas, etc)
+        // 2. ARMAS (Lógica Personalizada: Tráfico anula Portes / Portes podem coexistir)
+        if (artigo === "123") {
+          // Tentando adicionar Tráfico
+          var temPorte = selectedCrimes.some(
+            (c) => c.artigo === "125" || c.artigo === "126"
+          );
+          if (temPorte) {
+            mostrarAlerta(
+              "Incoerência: O Tráfico de Armas engloba o Porte. Remova os portes individuais!",
+              "error"
+            );
+            return;
+          }
+        }
+        if (artigo === "125" || artigo === "126") {
+          // Tentando adicionar Porte Pesado ou Leve
+          var temTraficoArmas = selectedCrimes.some((c) => c.artigo === "123");
+          if (temTraficoArmas) {
+            mostrarAlerta(
+              "Incoerência: Já marcou Tráfico de Armas. Não pode adicionar Porte!",
+              "error"
+            );
+            return;
+          }
+        }
+
+        // 3. OUTROS GRUPOS (Drogas, Munições - Apenas 1 permitido)
         var grupoDoCrime = GRUPOS_CONFLITO.find((grupo) =>
           grupo.includes(artigo)
         );
         if (grupoDoCrime) {
-          // Verifica se já tem algum crime desse grupo selecionado
           var conflito = selectedCrimes.find((c) =>
             grupoDoCrime.includes(c.artigo)
           );
@@ -442,11 +459,11 @@ document.addEventListener("DOMContentLoaded", function () {
               `Incoerência: Você já selecionou "${conflito.nome}". Não pode marcar dois crimes do mesmo tipo!`,
               "error"
             );
-            return; // Bloqueia
+            return;
           }
         }
 
-        // Passou das validações, adiciona
+        // Adiciona
         selectedCrimes.push({
           artigo: artigo,
           nome: nome,
@@ -461,7 +478,6 @@ document.addEventListener("DOMContentLoaded", function () {
           if (inputDinheiroSujo) inputDinheiroSujo.focus();
         }
       } else {
-        // Removendo crime
         selectedCrimes.splice(existeIndex, 1);
         el.classList.remove("selected");
         if (artigo === "137" && containerDinheiroSujo) {
@@ -473,23 +489,20 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // --- CHECKBOXES EVENT LISTENER (COM VALIDAÇÃO REVERSA) ---
+  // --- CHECKBOX EVENT (Validação Reversa) ---
   for (var c = 0; c < checkboxes.length; c++) {
     checkboxes[c].addEventListener("change", function () {
-      // Se for o checkbox de Primário
       if (this.id === "atenuante-primario" && this.checked) {
-        // Verifica se tem Art. 161 selecionado
         var temReincidente = selectedCrimes.some((c) => c.artigo === "161");
         if (temReincidente) {
           mostrarAlerta(
             "Incoerência: Remova o crime 'Réu Reincidente' antes de marcar 'Réu Primário'!",
             "error"
           );
-          this.checked = false; // Desmarca automaticamente
+          this.checked = false;
           return;
         }
       }
-
       calculateSentence();
     });
   }
@@ -525,7 +538,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function calculateSentence() {
     var totalPenaRaw = 0;
     var totalMulta = 0;
-    isCrimeInafiancavelGlobal = false; // Reset
+    isCrimeInafiancavelGlobal = false;
 
     for (var i = 0; i < selectedCrimes.length; i++) {
       totalPenaRaw += selectedCrimes[i].pena;
