@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // --- CONFIG ---
   var PORCENTAGEM_MULTA_SUJO = 0.5;
-  var PENA_MAXIMA_SERVER = 150;
+  var PENA_MAXIMA_SERVER = 180;
   var ARTIGOS_COM_ITENS = [
     "121",
     "122",
