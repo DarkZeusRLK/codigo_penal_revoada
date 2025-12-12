@@ -50,17 +50,24 @@ document.addEventListener("DOMContentLoaded", function () {
   ];
 
   // --- CARREGAR OFICIAIS ---
-  var selectOficial = document.getElementById("select-oficial");
+  // Correção: Agora verificamos se o campo de pesquisa existe, em vez do antigo select
+  var searchInputCheck = document.getElementById("search-oficial");
   var LISTA_OFICIAIS = [];
+
   async function carregarOficiaisDiscord() {
-    if (!selectOficial) return;
+    // Se não tiver o campo de pesquisa na tela, não precisa carregar a lista
+    if (!searchInputCheck) return;
+
     try {
       const response = await fetch("/api/membros");
       if (response.ok) {
         LISTA_OFICIAIS = await response.json();
+        console.log(
+          "Lista carregada com sucesso. Total: " + LISTA_OFICIAIS.length
+        );
       }
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao buscar oficiais:", error);
     }
   }
   carregarOficiaisDiscord();
