@@ -642,7 +642,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // ENVIA PARA A API PROXY DA VERCEL (O link do discord nao aparece aqui)
       // Passamos o tipo via Query Param
       var apiEndpoint =
-        "/api/enviar?tipo=" + (pagouFianca ? "fianca" : "prisao");
+        "/api/enviar.js?tipo=" + (pagouFianca ? "fianca" : "prisao");
 
       fetch(apiEndpoint, { method: "POST", body: formData })
         .then((response) => {
