@@ -20,30 +20,33 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+
   // --- CONFIGURAÇÃO ---
   var PORCENTAGEM_MULTA_SUJO = 0.5;
   var PENA_MAXIMA_SERVER = 150;
-  var WEBHOOK_URL_FIXA =
-    "https://discord.com/api/webhooks/1448692300266868767/xfqk-pLh49481dceQHNg2W9VwWfVuvMIcHdKfaDa1QGwlzfHDePExBMIwuFWRZUUo1EY";
+
+  // COLOQUE AQUI OS LINKS FIXOS SE QUISER QUE JÁ CARREGUE PREENCHIDO
+  var WEBHOOK_PRISAO_FIXA =
+    "https://discord.com/api/webhooks/1448869059830481069/FWMKu-3T7Hi-aeXEG-juNouD9UUh16nNjJLHpaXTGatT6r5_A4HCsyoihEHiyl61vCgT";
+  var WEBHOOK_FIANCA_FIXA =
+    "https://discord.com/api/webhooks/1448869207822565476/m8mKtE1ulgXv_tPik6c5cO1PexR1_WDeBcc70ukEXB-4-dgBvCPSffNmUmzKT4mr96Oh";
 
   // --- CARREGAR OFICIAIS AUTOMATICAMENTE ---
   var selectOficial = document.getElementById("select-oficial");
-  var LISTA_OFICIAIS = []; // Começa vazia
+  var LISTA_OFICIAIS = [];
 
   // Função para buscar da API
   async function carregarOficiaisDiscord() {
     if (!selectOficial) return;
 
-    // Coloca um "Carregando..." enquanto busca
     selectOficial.innerHTML = '<option value="">Carregando lista...</option>';
 
     try {
-      const response = await fetch("/api/membros"); // Chama o nosso arquivo api/membros.js
+      const response = await fetch("/api/membros");
       if (!response.ok) throw new Error("Erro na API");
 
       LISTA_OFICIAIS = await response.json();
 
-      // Limpa e popula o select
       selectOficial.innerHTML =
         '<option value="">Selecione um oficial...</option>';
 
@@ -57,11 +60,9 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("Erro ao carregar oficiais:", error);
       selectOficial.innerHTML =
         '<option value="">Erro ao carregar lista</option>';
-      // Fallback: Se der erro, você pode deixar uma lista manual de emergência aqui se quiser
     }
   }
 
-  // Chama a função assim que o site carrega
   carregarOficiaisDiscord();
 
   var ARTIGOS_COM_ITENS = [
@@ -89,8 +90,16 @@ document.addEventListener("DOMContentLoaded", function () {
   );
   var btnLimpar = document.getElementById("btn-limpar");
   var btnEnviar = document.getElementById("btn-enviar");
-  var webhookInput = document.getElementById("webhook-url");
-  if (WEBHOOK_URL_FIXA && webhookInput) webhookInput.value = WEBHOOK_URL_FIXA;
+
+  // NOVOS SELETORES DE WEBHOOK
+  var webhookInputPrisao = document.getElementById("webhook-prisao");
+  var webhookInputFianca = document.getElementById("webhook-fianca");
+
+  // Preenche se tiver valor fixo no código
+  if (WEBHOOK_PRISAO_FIXA && webhookInputPrisao)
+    webhookInputPrisao.value = WEBHOOK_PRISAO_FIXA;
+  if (WEBHOOK_FIANCA_FIXA && webhookInputFianca)
+    webhookInputFianca.value = WEBHOOK_FIANCA_FIXA;
 
   var nomeInput = document.getElementById("nome");
   var rgInput = document.getElementById("rg");
@@ -101,7 +110,6 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 
   // --- ARMAZENAMENTO DE ARQUIVOS (PASTE + INPUT) ---
-  // Vamos guardar o objeto File real aqui, vindo do input ou do paste
   var arquivoPreso = null;
   var arquivoMochila = null;
 
@@ -115,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var imgPreviewMochila = document.getElementById("img-preview-mochila");
 
   // VARIÁVEL PARA SABER ONDE COLAR
-  var activeUploadBox = null; // 'preso' ou 'mochila'
+  var activeUploadBox = null;
 
   // --- LOGIN ---
   var loginScreen = document.getElementById("login-screen");
@@ -134,6 +142,8 @@ document.addEventListener("DOMContentLoaded", function () {
       userAvatarImg.src = avatarUrl;
       userAvatarImg.classList.remove("hidden");
     }
+    // Tenta tocar musica ao logar
+    if (bgMusic) bgMusic.play().catch((e) => console.log("Autoplay bloqueado"));
   }
 
   if (btnLoginSimulado)
@@ -160,9 +170,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch(console.error);
   }
 
-  // --- LÓGICA DE UPLOAD UNIFICADA (INPUT + PASTE) ---
-
-  // 1. Função genérica para atualizar a preview e salvar o arquivo na variavel
+  // --- LÓGICA DE UPLOAD UNIFICADA ---
   function setFile(type, file) {
     var reader = new FileReader();
     reader.onload = function (e) {
@@ -179,7 +187,6 @@ document.addEventListener("DOMContentLoaded", function () {
     reader.readAsDataURL(file);
   }
 
-  // 2. Listeners para Input File (Clique tradicional)
   inputPreso.addEventListener("change", function () {
     if (this.files[0]) setFile("preso", this.files[0]);
   });
@@ -187,39 +194,25 @@ document.addEventListener("DOMContentLoaded", function () {
     if (this.files[0]) setFile("mochila", this.files[0]);
   });
 
-  // 3. Listeners para Foco (Saber onde colar)
   boxPreso.addEventListener("click", function () {
     activeUploadBox = "preso";
     boxPreso.classList.add("active-box");
     boxMochila.classList.remove("active-box");
   });
-  boxPreso.addEventListener("focus", function () {
-    activeUploadBox = "preso";
-    boxPreso.classList.add("active-box");
-    boxMochila.classList.remove("active-box");
-  });
-
   boxMochila.addEventListener("click", function () {
     activeUploadBox = "mochila";
     boxMochila.classList.add("active-box");
     boxPreso.classList.remove("active-box");
   });
-  boxMochila.addEventListener("focus", function () {
-    activeUploadBox = "mochila";
-    boxMochila.classList.add("active-box");
-    boxPreso.classList.remove("active-box");
-  });
 
-  // 4. Listener Global de PASTE
+  // Paste Logic
   document.addEventListener("paste", function (e) {
-    if (!activeUploadBox) return; // Se não clicou em nenhuma caixa, ignora
-
+    if (!activeUploadBox) return;
     if (e.clipboardData && e.clipboardData.items) {
       var items = e.clipboardData.items;
       for (var i = 0; i < items.length; i++) {
         if (items[i].type.indexOf("image") !== -1) {
           var blob = items[i].getAsFile();
-          // Envia para a caixa que está ativa no momento
           setFile(activeUploadBox, blob);
           mostrarAlerta(
             "Imagem colada em: " +
@@ -240,15 +233,6 @@ document.addEventListener("DOMContentLoaded", function () {
     "lista-participantes-visual"
   );
   var participantesSelecionados = [];
-
-  if (selectOficial) {
-    LISTA_OFICIAIS.forEach((oficial) => {
-      var option = document.createElement("option");
-      option.value = oficial.id;
-      option.textContent = oficial.nome;
-      selectOficial.appendChild(option);
-    });
-  }
 
   if (btnAddPart) {
     btnAddPart.addEventListener("click", function () {
@@ -285,7 +269,10 @@ document.addEventListener("DOMContentLoaded", function () {
   var hpNaoBtn = document.getElementById("hp-nao");
   var containerHpMinutos = document.getElementById("container-hp-minutos");
   var inputHpMinutos = document.getElementById("hp-minutos");
+
   var radiosPorte = document.getElementsByName("porte-arma");
+  var radiosFianca = document.getElementsByName("pagou-fianca"); // NOVO
+
   var containerDinheiroSujo = document.getElementById(
     "container-dinheiro-sujo"
   );
@@ -427,6 +414,7 @@ document.addEventListener("DOMContentLoaded", function () {
         '<div class="empty-message">Nenhum crime selecionado</div>';
       return;
     }
+
     selectedCrimes.forEach(function (crime, index) {
       var crimeDiv = document.createElement("div");
       crimeDiv.className = "crime-output-item";
@@ -441,6 +429,7 @@ document.addEventListener("DOMContentLoaded", function () {
         '"><i class="fa-solid fa-xmark"></i></button>';
       crimesListOutput.appendChild(crimeDiv);
     });
+
     var removeBtns = crimesListOutput.querySelectorAll("button");
     for (var i = 0; i < removeBtns.length; i++) {
       removeBtns[i].addEventListener("click", function (e) {
@@ -470,12 +459,14 @@ document.addEventListener("DOMContentLoaded", function () {
       var multa = parseInt(el.dataset.multa);
       var infiancavel = el.dataset.infiancavel === "true";
       var existeIndex = -1;
+
       for (var k = 0; k < selectedCrimes.length; k++) {
         if (selectedCrimes[k].artigo === artigo) {
           existeIndex = k;
           break;
         }
       }
+
       if (existeIndex === -1) {
         selectedCrimes.push({
           artigo: artigo,
@@ -536,6 +527,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (inputDinheiroSujo) inputDinheiroSujo.value = "";
         hpNaoBtn.checked = true;
         document.getElementById("porte-nao").checked = true;
+
+        // RESETAR RADIO DE FIANÇA
+        var radFiancaNao = document.getElementById("fianca-nao");
+        if (radFiancaNao) radFiancaNao.checked = true;
+
         containerHpMinutos.classList.add("hidden");
         inputHpMinutos.value = "";
 
@@ -552,14 +548,34 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
+  // --- LÓGICA DE ENVIO DO WEBHOOK (PRISÃO vs FIANÇA) ---
   if (btnEnviar) {
     btnEnviar.addEventListener("click", function (e) {
       e.preventDefault();
-      var webhookURL = webhookInput ? webhookInput.value.trim() : "";
+
+      // 1. VERIFICA SE PAGOU FIANÇA (LER RADIO BUTTONS)
+      var pagouFianca = false;
+      for (var i = 0; i < radiosFianca.length; i++) {
+        if (radiosFianca[i].checked && radiosFianca[i].value === "sim") {
+          pagouFianca = true;
+        }
+      }
+
+      // 2. SELECIONA O WEBHOOK CORRETO
+      var webhookURL = pagouFianca
+        ? webhookInputFianca.value.trim()
+        : webhookInputPrisao.value.trim();
+
       if (!webhookURL) {
-        mostrarAlerta("Configure a URL do Webhook!", "error");
+        mostrarAlerta(
+          "Configure a URL do Webhook de " +
+            (pagouFianca ? "FIANÇA" : "PRISÃO") +
+            "!",
+          "error"
+        );
         return;
       }
+
       if (nomeInput.value.trim() === "") {
         mostrarAlerta("Preencha o Nome.", "error");
         return;
@@ -568,8 +584,6 @@ document.addEventListener("DOMContentLoaded", function () {
         mostrarAlerta("Preencha o RG.", "error");
         return;
       }
-
-      // Verifica se temos os arquivos nas variaveis (seja por paste ou input)
       if (!arquivoPreso) {
         mostrarAlerta("Falta a foto do PRESO.", "error");
         return;
@@ -595,7 +609,7 @@ document.addEventListener("DOMContentLoaded", function () {
       participantesSelecionados.forEach((p) => {
         participantesStr += "<@" + p.id + "> ";
       });
-      if (participantesStr === "") participantesStr = ".";
+      if (participantesStr === "") participantesStr = "Nenhum adicional.";
 
       var qraContent = "**QRA:** <@" + officerId + "> " + participantesStr;
       var crimesText =
@@ -634,10 +648,16 @@ document.addEventListener("DOMContentLoaded", function () {
       formData.append("file1", arquivoPreso, "preso.png");
       formData.append("file2", arquivoMochila, "mochila.png");
 
+      // DEFINE A COR E O TÍTULO DO EMBED BASEADO NA ESCOLHA
+      var embedColor = pagouFianca ? 3066993 : 3447003; // Verde (3066993) ou Azul/Padrão (3447003)
+      var embedTitle = pagouFianca
+        ? "💰 RELATÓRIO DE FIANÇA"
+        : "🚔 RELATÓRIO DE PRISÃO";
+
       var embeds = [
         {
-          title: "📑 RELATÓRIO DE PRISÃO - REVOADA RJ",
-          color: 3447003,
+          title: embedTitle,
+          color: embedColor,
           image: { url: "attachment://preso.png" },
           fields: [
             { name: "👮 OFICIAL RESPONSÁVEL", value: oficial, inline: false },
@@ -660,13 +680,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 "\n**Porte:** " +
                 porteTexto +
                 "\n**Dinheiro Sujo:** " +
-                valorSujo,
+                valorSujo +
+                "\n**Fiança Paga:** " +
+                (pagouFianca ? "SIM" : "NÃO"),
             },
           ],
         },
         {
           title: "📦 FOTO DO INVENTÁRIO",
-          color: 3447003,
+          color: embedColor, // Mesma cor
           image: { url: "attachment://mochila.png" },
           footer: {
             text:
@@ -684,7 +706,12 @@ document.addEventListener("DOMContentLoaded", function () {
       fetch(webhookURL, { method: "POST", body: formData })
         .then((response) => {
           if (response.ok)
-            mostrarAlerta("Relatório enviado para o Discord!", "success");
+            mostrarAlerta(
+              "Enviado para o canal de " +
+                (pagouFianca ? "FIANÇA" : "PRISÃO") +
+                "!",
+              "success"
+            );
           else mostrarAlerta("Erro ao enviar. Verifique o Webhook.", "error");
         })
         .catch((err) => {
