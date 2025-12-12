@@ -309,7 +309,60 @@ textarea {
   flex-direction: column;
   gap: 15px;
 }
+/* ... [MANTENHA TODO O SEU CSS ANTERIOR AQUI] ... */
 
+/* CAMPO DE PESQUISA (DROPDOWN) */
+.search-container {
+  position: relative;
+  width: 100%;
+}
+
+.form-search {
+  width: 100%;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.95em;
+}
+
+.dropdown-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  z-index: 1000;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background-color 0.2s;
+  font-size: 0.9em;
+}
+
+.dropdown-item:hover {
+  background-color: var(--color-revoada);
+  color: white;
+}
+
+.dropdown-item small {
+  display: block;
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ... [RESTO DO CSS IGUAL] ... */
 .upload-box {
   background-color: var(--bg-main);
   border: 1px solid var(--border-color);
