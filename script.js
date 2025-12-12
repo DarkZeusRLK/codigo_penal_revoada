@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // --- MUSICA ---
+  // --- MÚSICA ---
   var bgMusic = document.getElementById("bg-music");
   var btnMusic = document.getElementById("btn-music-toggle");
   if (bgMusic) bgMusic.volume = 0.1;
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // --- CONFIG ---
   var PORCENTAGEM_MULTA_SUJO = 0.5;
-  var PENA_MAXIMA_SERVER = 180;
+  var PENA_MAXIMA_SERVER = 150;
   var ARTIGOS_COM_ITENS = [
     "121",
     "122",
@@ -40,19 +40,111 @@ document.addEventListener("DOMContentLoaded", function () {
   ];
 
   // --- CARREGAR OFICIAIS ---
+  var selectOficial = document.getElementById("select-oficial");
   var LISTA_OFICIAIS = [];
   async function carregarOficiaisDiscord() {
     try {
+      // Tenta carregar, mas se não estiver logado a API pode bloquear (depende da sua config)
+      // Aqui carregamos a lista publica
       const response = await fetch("/api/membros");
-      if (!response.ok) throw new Error("Erro API");
-      LISTA_OFICIAIS = await response.json();
+      if (response.ok) LISTA_OFICIAIS = await response.json();
     } catch (error) {
       console.error(error);
     }
   }
-  carregarOficiaisDiscord();
+  // Carrega apenas se passar do login
 
-  // --- SELETORES ---
+  // --- SELETORES GERAIS ---
+  var loginScreen = document.getElementById("login-screen");
+  var btnLoginSimulado = document.getElementById("btn-login-simulado"); // Se quiser remover o simulado para segurança total, delete o botão no HTML
+  var appContent = document.getElementById("app-content");
+  var userNameSpan = document.getElementById("user-name");
+  var userAvatarImg = document.getElementById("user-avatar");
+  var userIdHidden = document.getElementById("user-id-hidden");
+
+  // --- FUNÇÃO DE ALERTA ---
+  function mostrarAlerta(mensagem, tipo) {
+    if (!tipo) tipo = "error";
+    var div = document.createElement("div");
+    div.className = "custom-alert " + tipo;
+    var icone =
+      tipo === "success" ? "fa-circle-check" : "fa-triangle-exclamation";
+    div.innerHTML = `<i class="fa-solid ${icone}"></i><div class="alert-content"><span class="alert-title">${
+      tipo === "success" ? "SUCESSO" : "ATENÇÃO"
+    }</span><span class="alert-msg">${mensagem}</span></div>`;
+    document.body.appendChild(div);
+    setTimeout(function () {
+      if (div.parentNode) div.parentNode.removeChild(div);
+    }, 4000);
+  }
+
+  // --- LOGICA DE LOGIN SEGURO ---
+  function liberarAcesso(username, avatarUrl, userId) {
+    loginScreen.style.display = "none";
+    appContent.classList.remove("hidden");
+    userNameSpan.textContent = username;
+    userIdHidden.value = userId;
+    if (avatarUrl) {
+      userAvatarImg.src = avatarUrl;
+      userAvatarImg.classList.remove("hidden");
+    }
+    if (bgMusic) bgMusic.play().catch((e) => console.log("Autoplay block"));
+
+    // Carrega a lista de oficiais só depois de logar
+    carregarOficiaisDiscord();
+  }
+
+  // Login Simulado (REMOVER EM PRODUÇÃO SE QUISER SEGURANÇA MÁXIMA)
+  if (btnLoginSimulado) {
+    btnLoginSimulado.addEventListener("click", function () {
+      // Aviso: O simulado burla a verificação de servidor.
+      // Para segurança real, apague o botão "Simular" do HTML.
+      liberarAcesso("Oficial. Padrao", "Imagens/image.png", "0000000000");
+    });
+  }
+
+  // VERIFICAÇÃO REAL DO DISCORD
+  var fragment = new URLSearchParams(window.location.hash.slice(1));
+  var accessToken = fragment.get("access_token");
+
+  if (accessToken) {
+    // Mostra loading no botão de login ou na tela
+    var loginTitle = document.querySelector(".login-box h2");
+    if (loginTitle) loginTitle.innerText = "VERIFICANDO PERMISSÃO...";
+
+    // Chama nossa API de Segurança
+    fetch("/api/auth", {
+      method: "GET",
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+      .then(async (response) => {
+        const data = await response.json();
+
+        if (response.status === 200 && data.authorized) {
+          // SUCESSO: É MEMBRO DA POLÍCIA
+          var avatar = data.avatar
+            ? `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.png`
+            : "Imagens/image.png";
+
+          liberarAcesso(data.username, avatar, data.id);
+          history.pushState("", document.title, window.location.pathname); // Limpa URL
+        } else {
+          // ERRO: NÃO É MEMBRO OU TOKEN INVÁLIDO
+          mostrarAlerta(
+            data.error || "Acesso negado. Você não está no Discord da Polícia.",
+            "error"
+          );
+          if (loginTitle) loginTitle.innerText = "ACESSO NEGADO 🚫";
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        mostrarAlerta("Erro ao verificar permissão.", "error");
+        if (loginTitle) loginTitle.innerText = "ERRO DE CONEXÃO";
+      });
+  }
+
+  // --- SELETORES CALCULADORA ---
   var crimeItems = document.querySelectorAll(".crime-item");
   var checkboxes = document.querySelectorAll(
     '.atenuantes input[type="checkbox"]'
@@ -68,25 +160,22 @@ document.addEventListener("DOMContentLoaded", function () {
     ".itens-apreendidos textarea"
   );
 
-  // UPLOADS
+  // Uploads
   var boxPreso = document.getElementById("box-upload-preso");
   var inputPreso = document.getElementById("upload-preso");
   var imgPreviewPreso = document.getElementById("img-preview-preso");
-
   var boxMochila = document.getElementById("box-upload-mochila");
   var inputMochila = document.getElementById("upload-mochila");
   var imgPreviewMochila = document.getElementById("img-preview-mochila");
-
   var boxDeposito = document.getElementById("box-upload-deposito");
   var inputDeposito = document.getElementById("upload-deposito");
   var imgPreviewDeposito = document.getElementById("img-preview-deposito");
-
   var arquivoPreso = null;
   var arquivoMochila = null;
   var arquivoDeposito = null;
   var activeUploadBox = null;
 
-  // PESQUISA DE PARTICIPANTES
+  // Pesquisa
   var searchInput = document.getElementById("search-oficial");
   var dropdownResults = document.getElementById("dropdown-oficiais");
   var selectedOficialIdInput = document.getElementById("selected-oficial-id");
@@ -96,15 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
   );
   var participantesSelecionados = [];
 
-  // Login
-  var loginScreen = document.getElementById("login-screen");
-  var btnLoginSimulado = document.getElementById("btn-login-simulado");
-  var appContent = document.getElementById("app-content");
-  var userNameSpan = document.getElementById("user-name");
-  var userAvatarImg = document.getElementById("user-avatar");
-  var userIdHidden = document.getElementById("user-id-hidden");
-
-  // Calculo
+  // Calculo Vars
   var hpSimBtn = document.getElementById("hp-sim");
   var hpNaoBtn = document.getElementById("hp-nao");
   var containerHpMinutos = document.getElementById("container-hp-minutos");
@@ -113,6 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var radiosFianca = document.getElementsByName("pagou-fianca");
   var radioFiancaSim = document.getElementById("fianca-sim");
   var radioFiancaNao = document.getElementById("fianca-nao");
+  var containerFiancaRadio = document.getElementById("container-radio-fianca"); // O Container que adicionamos o ID
 
   var containerDinheiroSujo = document.getElementById(
     "container-dinheiro-sujo"
@@ -129,79 +211,42 @@ document.addEventListener("DOMContentLoaded", function () {
   var valAdvogado = document.getElementById("valor-advogado");
 
   var selectedCrimes = [];
+  var isCrimeInafiancavelGlobal = false; // Variavel de controle global
 
-  // --- FUNCOES ---
-  function doLogin(username, avatarUrl, userId) {
-    loginScreen.style.display = "none";
-    appContent.classList.remove("hidden");
-    userNameSpan.textContent = username;
-    userIdHidden.value = userId;
-    if (avatarUrl) {
-      userAvatarImg.src = avatarUrl;
-      userAvatarImg.classList.remove("hidden");
-    }
-    if (bgMusic) bgMusic.play().catch((e) => console.log("Autoplay block"));
+  // --- LÓGICA DE ALERTA AO CLICAR NA FIANÇA ---
+  if (containerFiancaRadio) {
+    containerFiancaRadio.addEventListener(
+      "click",
+      function (e) {
+        // Se tiver crime inafiançavel, mostra o alerta
+        if (isCrimeInafiancavelGlobal) {
+          mostrarAlerta("⚠️ HÁ CRIMES INAFIANÇÁVEIS SELECIONADOS!", "error");
+          // Força visualmente o 'Não'
+          radioFiancaNao.checked = true;
+          radioFiancaSim.checked = false;
+          checkFiancaState(); // Atualiza upload
+        }
+      },
+      true
+    ); // UseCapture para pegar o clique antes
   }
 
-  if (btnLoginSimulado)
-    btnLoginSimulado.addEventListener("click", function () {
-      doLogin("Oficial. Padrao", "Imagens/image.png", "0000000000");
-    });
-
-  var fragment = new URLSearchParams(window.location.hash.slice(1));
-  var accessToken = fragment.get("access_token");
-  if (accessToken) {
-    fetch("https://discord.com/api/users/@me", {
-      headers: { authorization: `Bearer ${accessToken}` },
-    })
-      .then((result) => result.json())
-      .then((response) => {
-        var avatar = `https://cdn.discordapp.com/avatars/${response.id}/${response.avatar}.png`;
-        doLogin(response.username, avatar, response.id);
-        history.pushState(
-          "",
-          document.title,
-          window.location.pathname + window.location.search
-        );
-      })
-      .catch(console.error);
-  }
-
-  function mostrarAlerta(mensagem, tipo) {
-    if (!tipo) tipo = "error";
-    var div = document.createElement("div");
-    div.className = "custom-alert " + tipo;
-    var icone =
-      tipo === "success" ? "fa-circle-check" : "fa-triangle-exclamation";
-    div.innerHTML = `<i class="fa-solid ${icone}"></i><div class="alert-content"><span class="alert-title">${
-      tipo === "success" ? "SUCESSO" : "ATENÇÃO"
-    }</span><span class="alert-msg">${mensagem}</span></div>`;
-    document.body.appendChild(div);
-    setTimeout(function () {
-      if (div.parentNode) div.parentNode.removeChild(div);
-    }, 4000);
-  }
-
-  // --- LOGICA DE PESQUISA (AUTOCOMPLETE) ---
+  // --- FUNÇÕES DE AUTOCOMPLETE ---
   if (searchInput) {
     searchInput.addEventListener("input", function () {
       var termo = this.value.toLowerCase();
       dropdownResults.innerHTML = "";
-
       if (termo.length < 1) {
         dropdownResults.classList.add("hidden");
         return;
       }
-
       var filtrados = LISTA_OFICIAIS.filter(
         (o) => o.nome.toLowerCase().includes(termo) || o.id.includes(termo)
       );
-
       if (filtrados.length === 0) {
         dropdownResults.classList.add("hidden");
         return;
       }
-
       dropdownResults.classList.remove("hidden");
       filtrados.forEach((oficial) => {
         var div = document.createElement("div");
@@ -215,37 +260,29 @@ document.addEventListener("DOMContentLoaded", function () {
         dropdownResults.appendChild(div);
       });
     });
-
-    // Esconder dropdown se clicar fora
     document.addEventListener("click", function (e) {
-      if (e.target !== searchInput && e.target !== dropdownResults) {
+      if (e.target !== searchInput && e.target !== dropdownResults)
         dropdownResults.classList.add("hidden");
-      }
     });
   }
 
-  // Adicionar Participante (Botão +)
   if (btnAddPart) {
     btnAddPart.addEventListener("click", function () {
       var id = selectedOficialIdInput.value;
       var nome = searchInput.value;
-
       if (!id || !nome) {
-        mostrarAlerta("Pesquise e selecione um oficial na lista.", "error");
+        mostrarAlerta("Pesquise e selecione um oficial.", "error");
         return;
       }
       if (participantesSelecionados.some((p) => p.id === id)) {
         alert("Já adicionado.");
         return;
       }
-
       participantesSelecionados.push({ id: id, nome: nome });
       var tag = document.createElement("div");
       tag.className = "officer-tag";
       tag.innerHTML = `<span>${nome}</span> <button onclick="removerParticipante('${id}', this)">×</button>`;
       listaParticipantesVisual.appendChild(tag);
-
-      // Limpa inputs
       searchInput.value = "";
       selectedOficialIdInput.value = "";
     });
@@ -257,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function () {
     btnElement.parentElement.remove();
   };
 
-  // --- COMPRESSAO ---
+  // --- UPLOAD ---
   function comprimirImagem(file, callback) {
     var reader = new FileReader();
     reader.readAsDataURL(file);
@@ -283,8 +320,6 @@ document.addEventListener("DOMContentLoaded", function () {
       };
     };
   }
-
-  // --- UPLOAD LOGIC ---
   function setFile(type, file) {
     var reader = new FileReader();
     reader.onload = function (e) {
@@ -313,8 +348,6 @@ document.addEventListener("DOMContentLoaded", function () {
   inputDeposito.addEventListener("change", function () {
     if (this.files[0]) setFile("deposito", this.files[0]);
   });
-
-  // Focus Logic
   boxPreso.addEventListener("click", function () {
     activeUploadBox = "preso";
     boxPreso.classList.add("active-box");
@@ -333,16 +366,13 @@ document.addEventListener("DOMContentLoaded", function () {
     boxPreso.classList.remove("active-box");
     boxMochila.classList.remove("active-box");
   });
-
   document.addEventListener("paste", function (e) {
     if (!activeUploadBox) return;
-    // Se o box de deposito estiver oculto, não permite colar nele
     if (
       activeUploadBox === "deposito" &&
       boxDeposito.classList.contains("hidden")
     )
       return;
-
     if (e.clipboardData && e.clipboardData.items) {
       for (var i = 0; i < e.clipboardData.items.length; i++) {
         if (e.clipboardData.items[i].type.indexOf("image") !== -1) {
@@ -355,13 +385,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // --- TOGGLE DO CAMPO DE DEPÓSITO ---
   function checkFiancaState() {
     if (radioFiancaSim.checked) {
       boxDeposito.classList.remove("hidden");
     } else {
       boxDeposito.classList.add("hidden");
-      arquivoDeposito = null; // Limpa o arquivo se mudar de ideia
+      arquivoDeposito = null;
       imgPreviewDeposito.src = "";
       imgPreviewDeposito.classList.add("hidden");
     }
@@ -394,12 +423,15 @@ document.addEventListener("DOMContentLoaded", function () {
   function calculateSentence() {
     var totalPenaRaw = 0;
     var totalMulta = 0;
-    var isInafiancavelTotal = false;
+    // Reseta flag global
+    isCrimeInafiancavelGlobal = false;
+
     for (var i = 0; i < selectedCrimes.length; i++) {
       totalPenaRaw += selectedCrimes[i].pena;
       totalMulta += selectedCrimes[i].multa;
-      if (selectedCrimes[i].infiancavel) isInafiancavelTotal = true;
+      if (selectedCrimes[i].infiancavel) isCrimeInafiancavelGlobal = true;
     }
+
     var valorSujo = 0;
     if (
       inputDinheiroSujo &&
@@ -409,6 +441,7 @@ document.addEventListener("DOMContentLoaded", function () {
       valorSujo = parseFloat(valorSujoString) || 0;
       totalMulta += valorSujo * PORCENTAGEM_MULTA_SUJO;
     }
+
     var penaBaseCalculo = totalPenaRaw;
     if (penaBaseCalculo > PENA_MAXIMA_SERVER) {
       penaBaseCalculo = PENA_MAXIMA_SERVER;
@@ -416,6 +449,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       if (alertaPenaMaxima) alertaPenaMaxima.classList.add("hidden");
     }
+
     var totalDiscountPercent = 0;
     for (var k = 0; k < checkboxes.length; k++) {
       if (checkboxes[k].checked)
@@ -434,24 +468,24 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     totalPenaFinal = Math.max(0, totalPenaFinal - hpReduction);
 
-    if (isInafiancavelTotal) {
+    // LOGICA INAFIANCAVEL
+    if (isCrimeInafiancavelGlobal) {
       if (fiancaOutputEl) fiancaOutputEl.value = "INAFIANÇÁVEL";
-      if (radioFiancaSim) {
-        radioFiancaSim.disabled = true;
-        radioFiancaSim.checked = false;
-      }
-      if (radioFiancaNao) {
-        radioFiancaNao.checked = true;
-      }
-      checkFiancaState(); // Garante que a caixa de deposito suma
+
+      // Bloqueia e reseta
+      radioFiancaSim.disabled = true;
+      radioFiancaSim.checked = false;
+      radioFiancaNao.checked = true;
+      checkFiancaState();
     } else {
       if (fiancaOutputEl)
         fiancaOutputEl.value = "R$ " + totalMulta.toLocaleString("pt-BR");
-      if (radioFiancaSim) radioFiancaSim.disabled = false;
+      // Libera
+      radioFiancaSim.disabled = false;
     }
 
     if (
-      !isInafiancavelTotal &&
+      !isCrimeInafiancavelGlobal &&
       checkboxAdvogado &&
       checkboxAdvogado.checked &&
       totalMulta > 0
@@ -623,7 +657,6 @@ document.addEventListener("DOMContentLoaded", function () {
           pagouFianca = true;
       }
 
-      // VALIDAÇÃO DO TERCEIRO ARQUIVO
       if (pagouFianca && !arquivoDeposito) {
         mostrarAlerta(
           "Se pagou fiança, a foto do COMPROVANTE é obrigatória!",
@@ -635,10 +668,8 @@ document.addEventListener("DOMContentLoaded", function () {
       btnEnviar.disabled = true;
       btnEnviar.textContent = "ENVIANDO...";
 
-      // Encadeamento de Compressões (Preso -> Mochila -> Depósito)
       comprimirImagem(arquivoPreso, function (presoBlob) {
         comprimirImagem(arquivoMochila, function (mochilaBlob) {
-          // Função para prosseguir com envio (para lidar com o 3o arquivo opcional)
           var finalizarEnvio = function (depositoBlob) {
             var nome = nomeInput.value;
             var rg = rgInput.value;
@@ -746,7 +777,6 @@ document.addEventListener("DOMContentLoaded", function () {
               },
             ];
 
-            // Se tiver deposito, adiciona o terceiro embed
             if (depositoBlob) {
               embeds.push({
                 title: "💸 COMPROVANTE DE DEPÓSITO",
@@ -759,7 +789,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
               });
             } else {
-              // Se não tiver, o footer vai no segundo
               embeds[1].footer = {
                 text:
                   "Sistema Policial Revoada • " +
@@ -771,7 +800,6 @@ document.addEventListener("DOMContentLoaded", function () {
               "payload_json",
               JSON.stringify({ content: qraContent, embeds: embeds })
             );
-
             var apiEndpoint =
               "/api/enviar?tipo=" + (pagouFianca ? "fianca" : "prisao");
 
@@ -793,7 +821,6 @@ document.addEventListener("DOMContentLoaded", function () {
               });
           };
 
-          // Se tem deposito, comprime ele também. Se não, manda nulo.
           if (arquivoDeposito) {
             comprimirImagem(arquivoDeposito, function (depositoBlob) {
               finalizarEnvio(depositoBlob);
@@ -801,8 +828,8 @@ document.addEventListener("DOMContentLoaded", function () {
           } else {
             finalizarEnvio(null);
           }
-        }); // Fim mochila
-      }); // Fim preso
+        });
+      });
     });
   }
 
