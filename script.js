@@ -19,27 +19,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // --- CONFIG ---
   var PORCENTAGEM_MULTA_SUJO = 0.5;
-  var PENA_MAXIMA_SERVER = 180;
+  var PENA_MAXIMA_SERVER = 150;
 
-  // LISTA DE ARTIGOS QUE EXIGEM ITENS APREENDIDOS (Adicionei Disparo, Porte, Trafico conforme seu pedido)
-  // Verifique se os números dos artigos no HTML batem com esses
+  // ARTIGOS COM ITENS
   var ARTIGOS_COM_ITENS = [
     "121",
     "122",
     "123",
     "124",
     "125",
-    "126", // Posses e Traficos
-    "127", // Disparo
+    "126",
+    "127",
     "128",
-    "129", // Municoes
-    "130", // Coletes
-    "131", // Porte Arma Branca
+    "129",
+    "130",
+    "131",
     "132",
     "133",
     "134",
     "135",
-    "136", // Drogas e aviao
+    "136",
   ];
 
   // --- CARREGAR OFICIAIS ---
@@ -135,7 +134,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   var selectedCrimes = [];
 
-  // --- FUNCOES ---
+  // --- FUNCOES AUXILIARES ---
   function doLogin(username, avatarUrl, userId) {
     loginScreen.style.display = "none";
     appContent.classList.remove("hidden");
@@ -187,7 +186,42 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 4000);
   }
 
-  // Upload Logic
+  // --- FUNÇÃO DE COMPRESSÃO DE IMAGEM ---
+  // Reduz imagens grandes para evitar erro 413/403 na Vercel
+  function comprimirImagem(file, callback) {
+    var reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function (event) {
+      var img = new Image();
+      img.src = event.target.result;
+      img.onload = function () {
+        var canvas = document.createElement("canvas");
+        var ctx = canvas.getContext("2d");
+
+        // Redimensiona se for muito grande (Max 1280px de largura)
+        var maxWidth = 1280;
+        var scale = 1;
+        if (img.width > maxWidth) {
+          scale = maxWidth / img.width;
+        }
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        // Converte para JPEG com qualidade 0.7 (reduz muito o tamanho)
+        canvas.toBlob(
+          function (blob) {
+            callback(blob);
+          },
+          "image/jpeg",
+          0.7
+        );
+      };
+    };
+  }
+
+  // --- LOGICA DE UPLOAD ---
   function setFile(type, file) {
     var reader = new FileReader();
     reader.onload = function (e) {
@@ -258,7 +292,7 @@ document.addEventListener("DOMContentLoaded", function () {
     btnElement.parentElement.remove();
   };
 
-  // --- CALCULO E LOGICA PRINCIPAL ---
+  // --- CALCULO ---
   function toggleHpInput() {
     if (hpSimBtn.checked) {
       containerHpMinutos.classList.remove("hidden");
@@ -327,11 +361,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     totalPenaFinal = Math.max(0, totalPenaFinal - hpReduction);
 
-    // --- LOGICA INAFIANCAVEL ---
+    // LOGICA INAFIANCAVEL
     if (isInafiancavelTotal) {
       if (fiancaOutputEl) fiancaOutputEl.value = "INAFIANÇÁVEL";
-
-      // Bloqueia e força "Não"
       if (radioFiancaSim) {
         radioFiancaSim.disabled = true;
         radioFiancaSim.checked = false;
@@ -342,12 +374,9 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       if (fiancaOutputEl)
         fiancaOutputEl.value = "R$ " + totalMulta.toLocaleString("pt-BR");
-
-      // Libera
       if (radioFiancaSim) radioFiancaSim.disabled = false;
     }
 
-    // Calcula breakdown se não for inafiancavel e tiver advogado
     if (
       !isInafiancavelTotal &&
       checkboxAdvogado &&
@@ -438,7 +467,6 @@ document.addEventListener("DOMContentLoaded", function () {
           break;
         }
       }
-
       if (existeIndex === -1) {
         selectedCrimes.push({
           artigo: artigo,
@@ -479,16 +507,15 @@ document.addEventListener("DOMContentLoaded", function () {
   if (btnLimpar)
     btnLimpar.addEventListener("click", function () {
       if (confirm("Tem certeza?")) {
-        location.reload(); // Maneira mais limpa de resetar tudo
+        location.reload();
       }
     });
 
-  // --- ENVIO SEGURO PARA API ---
+  // --- ENVIO COM COMPRESSÃO ---
   if (btnEnviar) {
     btnEnviar.addEventListener("click", function (e) {
       e.preventDefault();
 
-      // Verifica itens apreendidos obrigatórios
       var temCrimeDeItem = false;
       for (var x = 0; x < selectedCrimes.length; x++) {
         if (ARTIGOS_COM_ITENS.includes(selectedCrimes[x].artigo)) {
@@ -497,10 +524,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
       if (temCrimeDeItem && itensApreendidosInput.value.trim() === "") {
-        mostrarAlerta(
-          "É obrigatório listar os ITENS APREENDIDOS para os crimes selecionados!",
-          "error"
-        );
+        mostrarAlerta("É obrigatório listar os ITENS APREENDIDOS!", "error");
         itensApreendidosInput.focus();
         return;
       }
@@ -522,142 +546,158 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // Decide URL da API (Fianca ou Prisao)
-      var pagouFianca = false;
-      for (var i = 0; i < radiosFianca.length; i++) {
-        if (radiosFianca[i].checked && radiosFianca[i].value === "sim")
-          pagouFianca = true;
-      }
+      // Feedback visual de carregamento
+      btnEnviar.disabled = true;
+      btnEnviar.textContent = "ENVIANDO...";
 
-      // Monta dados
-      var nome = nomeInput.value;
-      var rg = rgInput.value;
-      var advogado = advogadoInput.value || "Nenhum";
-      var penaStr = penaTotalEl.textContent;
-      var multaStr = multaTotalEl.textContent;
-      var itens = itensApreendidosInput.value || "Nenhum item apreendido";
-      var valorSujo = !containerDinheiroSujo.classList.contains("hidden")
-        ? inputDinheiroSujo.value
-        : "Nenhum";
-      var oficial = userNameSpan.textContent;
-      var officerId = userIdHidden.value || "000000";
+      // Comprime as imagens antes de enviar
+      comprimirImagem(arquivoPreso, function (presoBlob) {
+        comprimirImagem(arquivoMochila, function (mochilaBlob) {
+          // Aqui começa o envio com as imagens já comprimidas
+          var pagouFianca = false;
+          for (var i = 0; i < radiosFianca.length; i++) {
+            if (radiosFianca[i].checked && radiosFianca[i].value === "sim")
+              pagouFianca = true;
+          }
 
-      var participantesStr = "";
-      participantesSelecionados.forEach((p) => {
-        participantesStr += "<@" + p.id + "> ";
-      });
-      if (participantesStr === "") participantesStr = "Nenhum adicional.";
+          var nome = nomeInput.value;
+          var rg = rgInput.value;
+          var advogado = advogadoInput.value || "Nenhum";
+          var penaStr = penaTotalEl.textContent;
+          var multaStr = multaTotalEl.textContent;
+          var itens = itensApreendidosInput.value || "Nenhum item apreendido";
+          var valorSujo = !containerDinheiroSujo.classList.contains("hidden")
+            ? inputDinheiroSujo.value
+            : "Nenhum";
+          var oficial = userNameSpan.textContent;
+          var officerId = userIdHidden.value || "000000";
 
-      var qraContent = "**QRA:** <@" + officerId + "> " + participantesStr;
-      var crimesText =
-        selectedCrimes.length > 0
-          ? selectedCrimes
-              .map(function (c) {
-                return (
-                  c.nome.replace(/\*\*/g, "").trim() +
-                  (c.infiancavel ? "**" : "")
+          var participantesStr = "";
+          participantesSelecionados.forEach((p) => {
+            participantesStr += "<@" + p.id + "> ";
+          });
+          if (participantesStr === "") participantesStr = "Nenhum adicional.";
+
+          var qraContent = "**QRA:** <@" + officerId + "> " + participantesStr;
+          var crimesText =
+            selectedCrimes.length > 0
+              ? selectedCrimes
+                  .map(function (c) {
+                    return (
+                      c.nome.replace(/\*\*/g, "").trim() +
+                      (c.infiancavel ? "**" : "")
+                    );
+                  })
+                  .join("\n")
+              : "Nenhum crime aplicado.";
+
+          var atenuantesText = "";
+          for (var cb = 0; cb < checkboxes.length; cb++) {
+            if (checkboxes[cb].checked) {
+              var lbl = document
+                .querySelector('label[for="' + checkboxes[cb].id + '"]')
+                .textContent.trim();
+              atenuantesText += "🔹 " + lbl + "\n";
+            }
+          }
+          if (hpSimBtn && hpSimBtn.checked && inputHpMinutos.value)
+            atenuantesText +=
+              "🔹 Reanimado no HP (-" + inputHpMinutos.value + "m)\n";
+          if (atenuantesText === "") atenuantesText = "Nenhum.";
+
+          var porteTexto = "Não";
+          for (var p = 0; p < radiosPorte.length; p++) {
+            if (radiosPorte[p].checked && radiosPorte[p].value === "sim")
+              porteTexto = "Sim";
+          }
+
+          var formData = new FormData();
+          formData.append("file1", presoBlob, "preso.jpg"); // Usa o Blob comprimido
+          formData.append("file2", mochilaBlob, "mochila.jpg"); // Usa o Blob comprimido
+
+          var embedColor = pagouFianca ? 3066993 : 3447003;
+          var embedTitle = pagouFianca
+            ? "💰 RELATÓRIO DE FIANÇA"
+            : "🚔 RELATÓRIO DE PRISÃO";
+
+          var embeds = [
+            {
+              title: embedTitle,
+              color: embedColor,
+              image: { url: "attachment://preso.jpg" },
+              fields: [
+                {
+                  name: "👮 OFICIAL RESPONSÁVEL",
+                  value: oficial,
+                  inline: false,
+                },
+                {
+                  name: "👤 PRESO",
+                  value: "**Nome:** " + nome + "\n**RG:** " + rg,
+                  inline: true,
+                },
+                {
+                  name: "⚖️ SENTENÇA",
+                  value: "**Pena:** " + penaStr + "\n**Multa:** " + multaStr,
+                  inline: true,
+                },
+                { name: "🛡️ ADVOGADO", value: advogado, inline: true },
+                { name: "📜 CRIMES", value: "```\n" + crimesText + "\n```" },
+                {
+                  name: "🔻 ATENUANTES / STATUS",
+                  value:
+                    atenuantesText +
+                    "\n**Porte:** " +
+                    porteTexto +
+                    "\n**Dinheiro Sujo:** " +
+                    valorSujo +
+                    "\n**Fiança Paga:** " +
+                    (pagouFianca ? "SIM" : "NÃO"),
+                },
+              ],
+            },
+            {
+              title: "📦 FOTO DO INVENTÁRIO",
+              color: embedColor,
+              image: { url: "attachment://mochila.jpg" },
+              footer: {
+                text:
+                  "Sistema Policial Revoada • " +
+                  new Date().toLocaleString("pt-BR"),
+              },
+            },
+          ];
+
+          formData.append(
+            "payload_json",
+            JSON.stringify({ content: qraContent, embeds: embeds })
+          );
+
+          var apiEndpoint =
+            "/api/enviar?tipo=" + (pagouFianca ? "fianca" : "prisao");
+
+          fetch(apiEndpoint, { method: "POST", body: formData })
+            .then((response) => {
+              btnEnviar.disabled = false;
+              btnEnviar.innerHTML =
+                '<i class="fa-brands fa-discord"></i> ENVIAR RELATÓRIO';
+              if (response.ok)
+                mostrarAlerta("Relatório enviado com sucesso!", "success");
+              else
+                mostrarAlerta(
+                  "Erro ao enviar. Verifique o Webhook na Vercel.",
+                  "error"
                 );
-              })
-              .join("\n")
-          : "Nenhum crime aplicado.";
-
-      var atenuantesText = "";
-      for (var cb = 0; cb < checkboxes.length; cb++) {
-        if (checkboxes[cb].checked) {
-          var lbl = document
-            .querySelector('label[for="' + checkboxes[cb].id + '"]')
-            .textContent.trim();
-          atenuantesText += "🔹 " + lbl + "\n";
-        }
-      }
-      if (hpSimBtn && hpSimBtn.checked && inputHpMinutos.value)
-        atenuantesText +=
-          "🔹 Reanimado no HP (-" + inputHpMinutos.value + "m)\n";
-      if (atenuantesText === "") atenuantesText = "Nenhum.";
-
-      var porteTexto = "Não";
-      for (var p = 0; p < radiosPorte.length; p++) {
-        if (radiosPorte[p].checked && radiosPorte[p].value === "sim")
-          porteTexto = "Sim";
-      }
-
-      var formData = new FormData();
-      formData.append("file1", arquivoPreso, "preso.png");
-      formData.append("file2", arquivoMochila, "mochila.png");
-
-      var embedColor = pagouFianca ? 3066993 : 3447003;
-      var embedTitle = pagouFianca
-        ? "💰 RELATÓRIO DE FIANÇA"
-        : "🚔 RELATÓRIO DE PRISÃO";
-
-      var embeds = [
-        {
-          title: embedTitle,
-          color: embedColor,
-          image: { url: "attachment://preso.png" },
-          fields: [
-            { name: "👮 OFICIAL RESPONSÁVEL", value: oficial, inline: false },
-            {
-              name: "👤 PRESO",
-              value: "**Nome:** " + nome + "\n**RG:** " + rg,
-              inline: true,
-            },
-            {
-              name: "⚖️ SENTENÇA",
-              value: "**Pena:** " + penaStr + "\n**Multa:** " + multaStr,
-              inline: true,
-            },
-            { name: "🛡️ ADVOGADO", value: advogado, inline: true },
-            { name: "📜 CRIMES", value: "```\n" + crimesText + "\n```" },
-            {
-              name: "🔻 ATENUANTES / STATUS",
-              value:
-                atenuantesText +
-                "\n**Porte:** " +
-                porteTexto +
-                "\n**Dinheiro Sujo:** " +
-                valorSujo +
-                "\n**Fiança Paga:** " +
-                (pagouFianca ? "SIM" : "NÃO"),
-            },
-          ],
-        },
-        {
-          title: "📦 FOTO DO INVENTÁRIO",
-          color: embedColor,
-          image: { url: "attachment://mochila.png" },
-          footer: {
-            text:
-              "Sistema Policial Revoada • " +
-              new Date().toLocaleString("pt-BR"),
-          },
-        },
-      ];
-
-      formData.append(
-        "payload_json",
-        JSON.stringify({ content: qraContent, embeds: embeds })
-      );
-
-      // ENVIA PARA A API PROXY DA VERCEL (O link do discord nao aparece aqui)
-      // Passamos o tipo via Query Param
-      var apiEndpoint =
-        "/api/enviar?tipo=" + (pagouFianca ? "fianca" : "prisao");
-
-      fetch(apiEndpoint, { method: "POST", body: formData })
-        .then((response) => {
-          if (response.ok)
-            mostrarAlerta("Relatório enviado com sucesso!", "success");
-          else
-            mostrarAlerta(
-              "Erro ao enviar. Verifique a configuração na Vercel.",
-              "error"
-            );
-        })
-        .catch((err) => {
-          console.error(err);
-          mostrarAlerta("Erro de conexão.", "error");
+            })
+            .catch((err) => {
+              console.error(err);
+              btnEnviar.disabled = false;
+              btnEnviar.innerHTML =
+                '<i class="fa-brands fa-discord"></i> ENVIAR RELATÓRIO';
+              mostrarAlerta("Erro de conexão.", "error");
+            });
         });
+      });
     });
   }
 
