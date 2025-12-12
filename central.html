@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intranet - Polícia Revoada</title>
+  <link rel="stylesheet" href="style-central.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="shortcut icon" href="Imagens/image.png" type="image/x-icon">
+</head>
+
+<body>
+
+  <div id="auth-loading" class="auth-overlay">
+    <div class="spinner"></div>
+    <p>Autenticando Credenciais...</p>
+  </div>
+
+  <nav class="navbar">
+    <div class="nav-brand">
+      <img src="Imagens/image.png" alt="Logo">
+      <span>CENTRAL <b>REVOADA</b></span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-item active" onclick="showTab('tab-home')"><i class="fa-solid fa-newspaper"></i> Jornal & Notícias</button>
+      <button class="nav-item" onclick="window.location.href='index.html'"><i class="fa-solid fa-calculator"></i> Calculadora Penal</button>
+      <button class="nav-item hidden" id="nav-aviso" onclick="showTab('tab-aviso')"><i class="fa-solid fa-bullhorn"></i> Emitir Comunicado</button>
+      <button class="nav-item hidden" id="nav-jornal" onclick="showTab('tab-postar-jornal')"><i class="fa-solid fa-pen-nib"></i> Redação</button>
+    </div>
+    <div class="nav-user">
+      <span id="user-display">Oficial</span>
+      <img id="user-avatar" src="" alt="">
+      <button onclick="logout()" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+  </nav>
+
+  <div class="main-container">
+
+    <section id="tab-home" class="tab-content active">
+      <div class="welcome-header">
+        <h1>Diário Oficial da Polícia</h1>
+        <p>Acompanhe as últimas ocorrências e comunicados oficiais.</p>
+      </div>
+
+      <div class="news-grid">
+        <article class="news-card featured">
+          <div class="news-image" style="background-image: url('https://i.imgur.com/example1.jpg');">
+            <span class="badge-news">DESTAQUE</span>
+          </div>
+          <div class="news-body">
+            <h3>Operação Revoada Segura apreende 500kg de ilícitos</h3>
+            <p>Uma grande operação realizada na noite de ontem resultou na prisão de...</p>
+            <span class="news-meta"><i class="fa-regular fa-clock"></i> Há 2 horas • Por Tenente Silva</span>
+          </div>
+        </article>
+
+        <article class="news-card">
+          <div class="news-body">
+            <h3>Novas diretrizes de patrulhamento</h3>
+            <p>O comando informa que as rotas de patrulhamento foram alteradas para...</p>
+            <span class="news-meta"><i class="fa-regular fa-clock"></i> Ontem • Comando Geral</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="tab-aviso" class="tab-content">
+      <div class="form-card">
+        <div class="card-header-blue">
+          <i class="fa-solid fa-triangle-exclamation"></i> EMITIR COMUNICADO OFICIAL
+        </div>
+        <div class="card-body">
+          <div class="input-group">
+            <label>Título do Comunicado</label>
+            <input type="text" id="aviso-titulo" placeholder="Ex: Alteração no Código Penal">
+          </div>
+          <div class="input-group">
+            <label>Mensagem</label>
+            <textarea id="aviso-texto" placeholder="Digite o comunicado oficial aqui..."></textarea>
+          </div>
+          <div class="input-group">
+            <label>Cor do Comunicado</label>
+            <select id="aviso-cor">
+              <option value="azul">Azul (Informativo)</option>
+              <option value="amarelo">Amarelo (Atenção)</option>
+              <option value="vermelho">Vermelho (Urgente)</option>
+            </select>
+          </div>
+          <button id="btn-enviar-aviso" class="btn-submit">PUBLICAR COMUNICADO</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-postar-jornal" class="tab-content">
+      <div class="form-card">
+        <div class="card-header-blue">
+          <i class="fa-solid fa-camera"></i> REDAÇÃO JORNALÍSTICA
+        </div>
+        <div class="card-body">
+          <div class="input-group">
+            <label>Manchete (Título)</label>
+            <input type="text" id="jornal-titulo" placeholder="Ex: Prisão cinematográfica no Norte">
+          </div>
+
+          <div class="upload-area" id="box-upload-noticia">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <p>Clique ou Cole (Ctrl+V) a Foto da Matéria</p>
+            <img id="preview-noticia" class="hidden">
+            <input type="file" id="input-noticia" hidden accept="image/*">
+          </div>
+
+          <div class="input-group">
+            <label>Corpo da Matéria</label>
+            <textarea id="jornal-texto" style="height: 200px;" placeholder="Escreva a matéria jornalística completa..."></textarea>
+          </div>
+
+          <div class="input-group">
+            <label>Assinatura</label>
+            <input type="text" id="jornal-autor" placeholder="Ex: Repórter Sd. Souza" readonly>
+          </div>
+
+          <button id="btn-enviar-jornal" class="btn-submit">PUBLICAR MATÉRIA</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="script-central.js"></script>
+</body>
+
+</html>

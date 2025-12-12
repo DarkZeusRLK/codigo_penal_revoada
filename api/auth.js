@@ -1,55 +1,51 @@
 export default async function handler(req, res) {
-  // Configuração CORS
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
   if (req.method === "OPTIONS") return res.status(200).end();
 
-  const userToken = req.headers.authorization; // Token do usuário (que veio do login)
-  const botToken = process.env.Discord_Bot_Token; // Token do seu Bot (Vercel)
-  const guildId = process.env.Discord_Guild_ID; // ID do Servidor (Vercel)
+  const userToken = req.headers.authorization;
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+  const guildId = process.env.DISCORD_GUILD_ID;
 
-  if (!userToken) return res.status(401).json({ error: "Token ausente." });
+  if (!botToken || !guildId || !userToken) {
+    return res.status(401).json({ error: "Configuração ou Token ausente." });
+  }
 
   try {
-    // 1. Descobrir o ID do usuário usando o Token dele
-    const userResponse = await fetch("https://discord.com/api/users/@me", {
-      headers: { Authorization: userToken }, // Usa o token do usuário aqui (Bearer ...)
+    // 1. Identifica o Usuário
+    const userRes = await fetch("https://discord.com/api/users/@me", {
+      headers: { Authorization: userToken },
     });
 
-    if (!userResponse.ok)
-      return res.status(401).json({ error: "Token de usuário inválido." });
-    const userData = await userResponse.json();
-    const userId = userData.id;
+    if (!userRes.ok) return res.status(401).json({ error: "Token inválido." });
+    const userData = await userRes.json();
 
-    // 2. Perguntar ao Bot se esse ID está no servidor da Polícia
-    const memberResponse = await fetch(
-      `https://discord.com/api/v10/guilds/${guildId}/members/${userId}`,
-      {
-        headers: { Authorization: `Bot ${botToken}` }, // Usa o token do BOT aqui
-      }
-    );
+    // 2. Busca o Membro no Servidor (COM CARGOS)
+    const memberUrl = `https://discord.com/api/v10/guilds/${guildId}/members/${userData.id}`;
+    const memberRes = await fetch(memberUrl, {
+      headers: { Authorization: `Bot ${botToken}` },
+    });
 
-    if (memberResponse.status === 200) {
-      // SUCESSO: Está no servidor!
+    if (memberRes.status === 200) {
+      const memberData = await memberRes.json();
+
       return res.status(200).json({
         authorized: true,
         username: userData.username,
         avatar: userData.avatar,
         id: userData.id,
+        roles: memberData.roles, // <--- O SEGREDINHO: Devolvemos os cargos aqui
+        nick: memberData.nick,
       });
-    } else if (memberResponse.status === 404) {
-      // ERRO: Não está no servidor
+    } else {
       return res
         .status(403)
-        .json({ error: "Você não é membro do Discord da Polícia." });
-    } else {
-      throw new Error("Erro ao verificar membro.");
+        .json({ error: "Você não está no servidor da Polícia." });
     }
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Erro interno de verificação." });
+    return res.status(500).json({ error: "Erro interno." });
   }
 }
