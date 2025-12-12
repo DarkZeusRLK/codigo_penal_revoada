@@ -7,8 +7,8 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
 
   const userToken = req.headers.authorization;
-  const botToken = process.env.DISCORD_BOT_TOKEN;
-  const guildId = process.env.DISCORD_GUILD_ID;
+  const botToken = process.env.Discord_Bot_Token;
+  const guildId = process.env.Discord_Guild_ID;
 
   // Verificação 1: Variáveis da Vercel
   if (!botToken || !guildId) {
