@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // --- CONFIG ---
   var PORCENTAGEM_MULTA_SUJO = 0.5;
-  var PENA_MAXIMA_SERVER = 150;
+  var PENA_MAXIMA_SERVER = 180;
 
   // LISTA DE ARTIGOS QUE EXIGEM ITENS APREENDIDOS (Adicionei Disparo, Porte, Trafico conforme seu pedido)
   // Verifique se os números dos artigos no HTML batem com esses
