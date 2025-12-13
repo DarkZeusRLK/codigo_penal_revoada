@@ -891,12 +891,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
             fetch(apiEndpoint, { method: "POST", body: formData })
               .then((response) => {
+                // Reabilita o botão para casos de erro, mas se der sucesso a página vai recarregar
                 btnEnviar.disabled = false;
                 btnEnviar.innerHTML =
                   '<i class="fa-brands fa-discord"></i> ENVIAR RELATÓRIO';
-                if (response.ok)
-                  mostrarAlerta("Relatório enviado com sucesso!", "success");
-                else mostrarAlerta("Erro ao enviar.", "error");
+
+                if (response.ok) {
+                  // SUCESSO: Mostra mensagem e recarrega a página após 2 segundos
+                  mostrarAlerta(
+                    "Relatório enviado com sucesso! Limpando...",
+                    "success"
+                  );
+
+                  setTimeout(function () {
+                    window.location.reload(); // <--- AQUI ESTÁ A MÁGICA
+                  }, 2000);
+                } else {
+                  // ERRO: Apenas avisa, não limpa nada para o usuário tentar corrigir
+                  mostrarAlerta(
+                    "Erro ao enviar (Status: " + response.status + ").",
+                    "error"
+                  );
+                }
               })
               .catch((err) => {
                 console.error(err);
