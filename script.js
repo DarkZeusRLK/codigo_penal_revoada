@@ -686,6 +686,28 @@ document.addEventListener("DOMContentLoaded", function () {
     btnEnviar.addEventListener("click", function (e) {
       e.preventDefault();
 
+      // --- NOVA TRAVA: PRIMÁRIO OU REINCIDENTE ---
+      var isPrimario = checkPrimario.checked;
+      var isReincidente = selectedCrimes.some((c) => c.artigo === "161");
+
+      // 1. Verifica se ambos estão marcados (segurança extra)
+      if (isPrimario && isReincidente) {
+        mostrarAlerta(
+          "ERRO: O réu não pode ser Primário e Reincidente ao mesmo tempo!",
+          "error"
+        );
+        return;
+      }
+
+      // 2. Verifica se NENHUM está marcado (O que você pediu)
+      if (!isPrimario && !isReincidente) {
+        mostrarAlerta(
+          "OBRIGATÓRIO: Selecione se o réu é Primário ou adicione o crime de Reincidente (Art. 161).",
+          "error"
+        );
+        return;
+      }
+
       var temCrimeDeItem = false;
       for (var x = 0; x < selectedCrimes.length; x++) {
         if (ARTIGOS_COM_ITENS.includes(selectedCrimes[x].artigo)) {
