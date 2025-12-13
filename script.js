@@ -260,24 +260,47 @@ document.addEventListener("DOMContentLoaded", function () {
         dropdownResults.classList.add("hidden");
     });
   }
-
   if (btnAddPart) {
     btnAddPart.addEventListener("click", function () {
       var id = selectedOficialIdInput.value;
       var nome = searchInput.value;
+      var myId = userIdHidden.value; // ID do oficial que está fazendo o relatório
+
+      // 1. Validação se está vazio
       if (!id || !nome) {
-        mostrarAlerta("Pesquise e selecione um oficial.", "error");
+        mostrarAlerta("Pesquise e selecione um oficial na lista.", "error");
         return;
       }
-      if (participantesSelecionados.some((p) => p.id === id)) {
-        alert("Já adicionado.");
+
+      // 2. Validação: Impedir adicionar a si mesmo
+      if (id === myId) {
+        mostrarAlerta(
+          "Você não pode se adicionar. Você já é o relator!",
+          "error"
+        );
+        searchInput.value = "";
+        selectedOficialIdInput.value = "";
         return;
       }
+
+      // 3. Validação: Impedir duplicados na lista
+      var jaExiste = participantesSelecionados.some((p) => p.id === id);
+      if (jaExiste) {
+        mostrarAlerta("Este oficial já foi adicionado.", "error");
+        searchInput.value = "";
+        selectedOficialIdInput.value = "";
+        return;
+      }
+
+      // Se passou por tudo, adiciona
       participantesSelecionados.push({ id: id, nome: nome });
+
       var tag = document.createElement("div");
       tag.className = "officer-tag";
       tag.innerHTML = `<span>${nome}</span> <button onclick="removerParticipante('${id}', this)">×</button>`;
       listaParticipantesVisual.appendChild(tag);
+
+      // Limpa os campos para o próximo
       searchInput.value = "";
       selectedOficialIdInput.value = "";
     });
@@ -415,6 +438,26 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
+      var idDoloso = "121"; // Exemplo: Homicídio Doloso
+      var idCulposo = "122"; // Exemplo: Homicídio Culposo
+      var idQualificado = "123"; // Exemplo: Homicídio Qualificado
+      // A "Tentativa" NÃO entra nesta lista, pois ela pode acumular.
+
+      var grupoHomicidios = [idDoloso, idCulposo, idQualificado];
+
+      if (grupoHomicidios.includes(artigo)) {
+        var conflitoHomicidio = selectedCrimes.find((c) =>
+          grupoHomicidios.includes(c.artigo)
+        );
+
+        if (conflitoHomicidio) {
+          mostrarAlerta(
+            `Incoerência: Você já marcou "${conflitoHomicidio.nome}". Não é possível marcar dois tipos de homicídio consumado juntos! (Apenas Tentativa é permitida)`,
+            "error"
+          );
+          return;
+        }
+      }
       if (existeIndex === -1) {
         // --- VALIDAÇÕES DE CONFLITO ---
 
