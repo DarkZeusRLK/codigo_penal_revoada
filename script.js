@@ -438,9 +438,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      var idDoloso = "121"; // Exemplo: Homicídio Doloso
-      var idCulposo = "122"; // Exemplo: Homicídio Culposo
-      var idQualificado = "123"; // Exemplo: Homicídio Qualificado
+      var idDoloso = "105"; // Exemplo: Homicídio Doloso
+      var idCulposo = "107"; // Exemplo: Homicídio Culposo
+      var idQualificado = "104"; // Exemplo: Homicídio Qualificado
       // A "Tentativa" NÃO entra nesta lista, pois ela pode acumular.
 
       var grupoHomicidios = [idDoloso, idCulposo, idQualificado];
