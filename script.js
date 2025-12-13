@@ -41,17 +41,23 @@ document.addEventListener("DOMContentLoaded", function () {
   ];
 
   // GRUPOS DE CRIMES MUTUAMENTE EXCLUSIVOS
+  // Nota: Removi o grupo de Armas daqui para tratar separadamente
   var GRUPOS_CONFLITO = [
-    ["132", "133", "135"], // Grupo Drogas
-    ["128", "129"], // Grupo Munições
+    // Grupo Drogas (Só pode 1)
+    ["132", "133", "135"],
+    // Grupo Munições (Só pode 1)
+    ["128", "129"],
   ];
 
   // --- CARREGAR OFICIAIS ---
+  // Correção: Agora verificamos se o campo de pesquisa existe, em vez do antigo select
   var searchInputCheck = document.getElementById("search-oficial");
   var LISTA_OFICIAIS = [];
 
   async function carregarOficiaisDiscord() {
+    // Se não tiver o campo de pesquisa na tela, não precisa carregar a lista
     if (!searchInputCheck) return;
+
     try {
       const response = await fetch("/api/membros");
       if (response.ok) {
@@ -161,56 +167,26 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 4000);
   }
 
-  // --- LOGIN E DB ---
-  // ALTERAÇÃO: Adicionado parâmetro 'job'
-  function doLogin(username, avatarUrl, userId, job) {
+  function doLogin(username, avatarUrl, userId) {
     loginScreen.style.display = "none";
     appContent.classList.remove("hidden");
     userNameSpan.textContent = username;
     userIdHidden.value = userId;
-
     if (avatarUrl) {
       userAvatarImg.src = avatarUrl;
       userAvatarImg.classList.remove("hidden");
     }
-
     if (bgMusic) bgMusic.play().catch((e) => console.log("Autoplay block"));
-
-    // ALTERAÇÃO: Salvar no Banco de Dados (Exemplo Firebase/Firestore)
-    // Garante que o cargo (Policial ou Advogado) fique salvo para consultas futuras
-    if (typeof db !== "undefined" && db.collection) {
-      db.collection("users")
-        .doc(userId)
-        .set(
-          {
-            username: username,
-            avatar: avatarUrl || "",
-            id: userId,
-            job: job || "Policial", // Salva o cargo
-            lastLogin: new Date(),
-          },
-          { merge: true }
-        )
-        .then(() => {
-          console.log("Usuário salvo/atualizado como: " + job);
-          carregarOficiaisDiscord(); // Recarrega lista após salvar
-        })
-        .catch((err) => console.error("Erro ao salvar usuário:", err));
-    } else {
-      // Se não tiver DB configurado no escopo global, apenas carrega
-      carregarOficiaisDiscord();
-    }
+    carregarOficiaisDiscord();
   }
 
   if (btnLoginSimulado)
     btnLoginSimulado.addEventListener("click", function () {
-      // ALTERAÇÃO: Passando "Policial" como padrão no teste
-      doLogin("Oficial. Padrao", "Imagens/image.png", "0000000000", "Policial");
+      doLogin("Oficial. Padrao", "Imagens/image.png", "0000000000");
     });
 
   var fragment = new URLSearchParams(window.location.hash.slice(1));
   var accessToken = fragment.get("access_token");
-
   if (accessToken) {
     var h2Login = document.querySelector(".login-box h2");
     if (h2Login) h2Login.innerText = "VERIFICANDO...";
@@ -222,13 +198,7 @@ document.addEventListener("DOMContentLoaded", function () {
           var avatar = data.avatar
             ? `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.png`
             : "Imagens/image.png";
-
-          // ALTERAÇÃO: Pegando o job da API
-          var userJob = data.job || "Policial";
-
-          // Passando o job para o doLogin
-          doLogin(data.username, avatar, data.id, userJob);
-
+          doLogin(data.username, avatar, data.id);
           history.pushState("", document.title, window.location.pathname);
         } else {
           mostrarAlerta(data.error || "Acesso negado.", "error");
@@ -256,7 +226,7 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  // --- AUTOCOMPLETE COM FILTRO ---
+  // --- AUTOCOMPLETE ---
   if (searchInput) {
     searchInput.addEventListener("input", function () {
       var termo = this.value.toLowerCase();
@@ -265,21 +235,14 @@ document.addEventListener("DOMContentLoaded", function () {
         dropdownResults.classList.add("hidden");
         return;
       }
-
-      // ALTERAÇÃO: Filtrando para remover Advogados da lista
-      // Verifica se o nome ou ID batem E se o job NÃO é Advogado
       var filtrados = LISTA_OFICIAIS.filter(
-        (o) =>
-          (o.nome.toLowerCase().includes(termo) || o.id.includes(termo)) &&
-          o.job !== "Advogado" // <-- A MÁGICA ACONTECE AQUI
+        (o) => o.nome.toLowerCase().includes(termo) || o.id.includes(termo)
       );
-
       if (filtrados.length === 0) {
         dropdownResults.classList.add("hidden");
         return;
       }
       dropdownResults.classList.remove("hidden");
-
       filtrados.forEach((oficial) => {
         var div = document.createElement("div");
         div.className = "dropdown-item";
@@ -297,19 +260,19 @@ document.addEventListener("DOMContentLoaded", function () {
         dropdownResults.classList.add("hidden");
     });
   }
-
-  // ... (RESTO DO CÓDIGO - MANTIDO IGUAL ATÉ O BOTÃO DE ADICIONAR PARTICIPANTE) ...
-
   if (btnAddPart) {
     btnAddPart.addEventListener("click", function () {
       var id = selectedOficialIdInput.value;
       var nome = searchInput.value;
-      var myId = userIdHidden.value;
+      var myId = userIdHidden.value; // ID do oficial que está fazendo o relatório
 
+      // 1. Validação se está vazio
       if (!id || !nome) {
         mostrarAlerta("Pesquise e selecione um oficial na lista.", "error");
         return;
       }
+
+      // 2. Validação: Impedir adicionar a si mesmo
       if (id === myId) {
         mostrarAlerta(
           "Você não pode se adicionar. Você já é o relator!",
@@ -319,6 +282,8 @@ document.addEventListener("DOMContentLoaded", function () {
         selectedOficialIdInput.value = "";
         return;
       }
+
+      // 3. Validação: Impedir duplicados na lista
       var jaExiste = participantesSelecionados.some((p) => p.id === id);
       if (jaExiste) {
         mostrarAlerta("Este oficial já foi adicionado.", "error");
@@ -327,6 +292,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
+      // Se passou por tudo, adiciona
       participantesSelecionados.push({ id: id, nome: nome });
 
       var tag = document.createElement("div");
@@ -334,6 +300,7 @@ document.addEventListener("DOMContentLoaded", function () {
       tag.innerHTML = `<span>${nome}</span> <button onclick="removerParticipante('${id}', this)">×</button>`;
       listaParticipantesVisual.appendChild(tag);
 
+      // Limpa os campos para o próximo
       searchInput.value = "";
       selectedOficialIdInput.value = "";
     });
@@ -453,7 +420,7 @@ document.addEventListener("DOMContentLoaded", function () {
     radioFiancaNao.addEventListener("change", checkFiancaState);
   }
 
-  // --- LÓGICA DE CRIMES ---
+  // --- SELEÇÃO DE CRIMES (LÓGICA ALTERADA AQUI) ---
   for (var i = 0; i < crimeItems.length; i++) {
     crimeItems[i].addEventListener("click", function () {
       var el = this;
@@ -471,10 +438,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      var idDoloso = "105";
-      var idCulposo = "107";
-      var idQualificado = "104";
+      var idDoloso = "105"; // Exemplo: Homicídio Doloso
+      var idCulposo = "107"; // Exemplo: Homicídio Culposo
+      var idQualificado = "104"; // Exemplo: Homicídio Qualificado
       var idCulposoTransito = "108";
+      // A "Tentativa" NÃO entra nesta lista, pois ela pode acumular.
+
       var grupoHomicidios = [
         idDoloso,
         idCulposo,
@@ -486,6 +455,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var conflitoHomicidio = selectedCrimes.find((c) =>
           grupoHomicidios.includes(c.artigo)
         );
+
         if (conflitoHomicidio) {
           mostrarAlerta(
             `Incoerência: Você já marcou "${conflitoHomicidio.nome}". Não é possível marcar dois tipos de homicídio consumado juntos! (Apenas Tentativa é permitida)`,
@@ -495,6 +465,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
       if (existeIndex === -1) {
+        // --- VALIDAÇÕES DE CONFLITO ---
+
+        // 1. Reincidente vs Primário
         if (artigo === "161" && checkPrimario.checked) {
           mostrarAlerta(
             "Incoerência: Desmarque 'Réu Primário' antes de adicionar 'Réu Reincidente'!",
@@ -502,7 +475,10 @@ document.addEventListener("DOMContentLoaded", function () {
           );
           return;
         }
+
+        // 2. ARMAS (Lógica Personalizada: Tráfico anula Portes / Portes podem coexistir)
         if (artigo === "123") {
+          // Tentando adicionar Tráfico
           var temPorte = selectedCrimes.some(
             (c) => c.artigo === "125" || c.artigo === "126"
           );
@@ -515,6 +491,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
         if (artigo === "125" || artigo === "126") {
+          // Tentando adicionar Porte Pesado ou Leve
           var temTraficoArmas = selectedCrimes.some((c) => c.artigo === "123");
           if (temTraficoArmas) {
             mostrarAlerta(
@@ -524,6 +501,8 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
           }
         }
+
+        // 3. OUTROS GRUPOS (Drogas, Munições - Apenas 1 permitido)
         var grupoDoCrime = GRUPOS_CONFLITO.find((grupo) =>
           grupo.includes(artigo)
         );
@@ -540,6 +519,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
 
+        // Adiciona
         selectedCrimes.push({
           artigo: artigo,
           nome: nome,
@@ -548,6 +528,7 @@ document.addEventListener("DOMContentLoaded", function () {
           infiancavel: infiancavel,
         });
         el.classList.add("selected");
+
         if (artigo === "137" && containerDinheiroSujo) {
           containerDinheiroSujo.classList.remove("hidden");
           if (inputDinheiroSujo) inputDinheiroSujo.focus();
@@ -564,7 +545,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // --- ATENUANTES ---
+  // --- CHECKBOX EVENT (Validação Reversa) ---
   for (var c = 0; c < checkboxes.length; c++) {
     checkboxes[c].addEventListener("change", function () {
       if (this.id === "atenuante-primario" && this.checked) {
@@ -582,7 +563,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // --- CÁLCULO ---
+  // --- CALCULO ---
   function toggleHpInput() {
     if (hpSimBtn.checked) {
       containerHpMinutos.classList.remove("hidden");
@@ -754,9 +735,11 @@ document.addEventListener("DOMContentLoaded", function () {
     btnEnviar.addEventListener("click", function (e) {
       e.preventDefault();
 
+      // --- NOVA TRAVA: PRIMÁRIO OU REINCIDENTE ---
       var isPrimario = checkPrimario.checked;
       var isReincidente = selectedCrimes.some((c) => c.artigo === "161");
 
+      // 1. Verifica se ambos estão marcados (segurança extra)
       if (isPrimario && isReincidente) {
         mostrarAlerta(
           "ERRO: O réu não pode ser Primário e Reincidente ao mesmo tempo!",
@@ -764,6 +747,8 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         return;
       }
+
+      // 2. Verifica se NENHUM está marcado (O que você pediu)
       if (!isPrimario && !isReincidente) {
         mostrarAlerta(
           "OBRIGATÓRIO: Selecione se o réu é Primário ou adicione o crime de Reincidente (Art. 161).",
@@ -820,7 +805,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       comprimirImagem(arquivoPreso, function (presoBlob) {
         comprimirImagem(arquivoMochila, function (mochilaBlob) {
-          // Função para finalizar
           var finalizarEnvio = function (depositoBlob) {
             var nome = nomeInput.value;
             var rg = rgInput.value;
@@ -840,6 +824,8 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             if (participantesStr === "") participantesStr = "Nenhum adicional.";
 
+            var qraContent =
+              "**QRA:** <@" + officerId + "> " + participantesStr;
             var crimesText =
               selectedCrimes.length > 0
                 ? selectedCrimes
@@ -878,34 +864,117 @@ document.addEventListener("DOMContentLoaded", function () {
             if (depositoBlob)
               formData.append("file3", depositoBlob, "deposito.jpg");
 
-            // Montando o payload para webhook ou API
-            formData.append("oficial", oficial);
-            formData.append("officerId", officerId);
-            formData.append("nomePreso", nome);
-            formData.append("rgPreso", rg);
-            // ... adicione os outros campos conforme necessário para seu backend
+            var embedColor = pagouFianca ? 3066993 : 3447003;
+            var embedTitle = pagouFianca
+              ? "💰 RELATÓRIO DE FIANÇA"
+              : "🚔 RELATÓRIO DE PRISÃO";
 
-            // Exemplo de envio (AJUSTE A URL CONFORME SUA ROTA)
-            fetch("/api/enviar-relatorio", {
-              method: "POST",
-              body: formData,
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                mostrarAlerta("Relatório enviado com sucesso!", "success");
-                setTimeout(() => location.reload(), 2000);
+            var embeds = [
+              {
+                title: embedTitle,
+                color: embedColor,
+                image: { url: "attachment://preso.jpg" },
+                fields: [
+                  {
+                    name: "👮 OFICIAL RESPONSÁVEL",
+                    value: oficial,
+                    inline: false,
+                  },
+                  {
+                    name: "👤 PRESO",
+                    value: "**Nome:** " + nome + "\n**RG:** " + rg,
+                    inline: true,
+                  },
+                  {
+                    name: "⚖️ SENTENÇA",
+                    value: "**Pena:** " + penaStr + "\n**Multa:** " + multaStr,
+                    inline: true,
+                  },
+                  { name: "🛡️ ADVOGADO", value: advogado, inline: true },
+                  { name: "📜 CRIMES", value: "```\n" + crimesText + "\n```" },
+                  {
+                    name: "🔻 ATENUANTES / STATUS",
+                    value:
+                      atenuantesText +
+                      "\n**Porte:** " +
+                      porteTexto +
+                      "\n**Dinheiro Sujo:** " +
+                      valorSujo +
+                      "\n**Fiança Paga:** " +
+                      (pagouFianca ? "SIM" : "NÃO"),
+                  },
+                ],
+              },
+              {
+                title: "📦 FOTO DO INVENTÁRIO",
+                color: embedColor,
+                image: { url: "attachment://mochila.jpg" },
+              },
+            ];
+
+            if (depositoBlob) {
+              embeds.push({
+                title: "💸 COMPROVANTE DE DEPÓSITO",
+                color: embedColor,
+                image: { url: "attachment://deposito.jpg" },
+                footer: {
+                  text:
+                    "Sistema Policial Revoada • " +
+                    new Date().toLocaleString("pt-BR"),
+                },
+              });
+            } else {
+              embeds[1].footer = {
+                text:
+                  "Sistema Policial Revoada • " +
+                  new Date().toLocaleString("pt-BR"),
+              };
+            }
+
+            formData.append(
+              "payload_json",
+              JSON.stringify({ content: qraContent, embeds: embeds })
+            );
+            var apiEndpoint =
+              "/api/enviar?tipo=" + (pagouFianca ? "fianca" : "prisao");
+
+            fetch(apiEndpoint, { method: "POST", body: formData })
+              .then((response) => {
+                // Reabilita o botão para casos de erro, mas se der sucesso a página vai recarregar
+                btnEnviar.disabled = false;
+                btnEnviar.innerHTML =
+                  '<i class="fa-brands fa-discord"></i> ENVIAR RELATÓRIO';
+
+                if (response.ok) {
+                  // SUCESSO: Mostra mensagem e recarrega a página após 2 segundos
+                  mostrarAlerta(
+                    "Relatório enviado com sucesso! Limpando...",
+                    "success"
+                  );
+
+                  setTimeout(function () {
+                    window.location.reload(); // <--- AQUI ESTÁ A MÁGICA
+                  }, 2000);
+                } else {
+                  // ERRO: Apenas avisa, não limpa nada para o usuário tentar corrigir
+                  mostrarAlerta(
+                    "Erro ao enviar (Status: " + response.status + ").",
+                    "error"
+                  );
+                }
               })
               .catch((err) => {
                 console.error(err);
-                mostrarAlerta("Erro ao enviar relatório.", "error");
                 btnEnviar.disabled = false;
-                btnEnviar.textContent = "ENVIAR";
+                btnEnviar.innerHTML =
+                  '<i class="fa-brands fa-discord"></i> ENVIAR RELATÓRIO';
+                mostrarAlerta("Erro de conexão.", "error");
               });
-          }; // Fim da função finalizarEnvio
+          };
 
           if (arquivoDeposito) {
-            comprimirImagem(arquivoDeposito, function (blob) {
-              finalizarEnvio(blob);
+            comprimirImagem(arquivoDeposito, function (depositoBlob) {
+              finalizarEnvio(depositoBlob);
             });
           } else {
             finalizarEnvio(null);
@@ -914,4 +983,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
+
+  calculateSentence();
 });
