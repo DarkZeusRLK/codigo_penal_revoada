@@ -8,13 +8,16 @@ export default async function handler(req, res) {
 
   const userToken = req.headers.authorization;
   const botToken = process.env.Discord_Bot_Token;
-  const guildId = process.env.Discord_Guild_ID;
+
+  // IDs dos Servidores
+  const guildIdPolicia = process.env.Discord_Guild_ID;
+  const guildIdOAB = process.env.Discord_Guild_ID_OAB;
 
   // Verificação 1: Variáveis da Vercel
-  if (!botToken || !guildId) {
+  if (!botToken || !guildIdPolicia) {
     return res.status(500).json({
       error:
-        "Erro de Configuração: Faltam variáveis na Vercel (Token ou Guild ID).",
+        "Erro de Configuração: Faltam variáveis na Vercel (Token ou Guild ID da Polícia).",
     });
   }
 
@@ -35,41 +38,60 @@ export default async function handler(req, res) {
     const userData = await userRes.json();
     const userId = userData.id;
 
-    // PASSO 2: Verificar se ele está no servidor (Usando o Bot)
-    const memberUrl = `https://discord.com/api/v10/guilds/${guildId}/members/${userId}`;
+    // --- FUNÇÃO AUXILIAR PARA CHECAR SERVIDOR ---
+    async function checarServidor(guildId) {
+      if (!guildId) return { status: 404 }; // Se não tiver ID configurado, ignora
+      const url = `https://discord.com/api/v10/guilds/${guildId}/members/${userId}`;
+      return await fetch(url, {
+        headers: { Authorization: `Bot ${botToken}` },
+      });
+    }
 
-    const memberRes = await fetch(memberUrl, {
-      headers: { Authorization: `Bot ${botToken}` },
-    });
+    // PASSO 2: Verificar POLÍCIA
+    const resPolicia = await checarServidor(guildIdPolicia);
 
-    // --- ANÁLISE DO RESULTADO DO DISCORD ---
-
-    if (memberRes.status === 200) {
-      // SUCESSO!
+    if (resPolicia.status === 200) {
+      // É POLICIAL!
       return res.status(200).json({
         authorized: true,
         username: userData.username,
         avatar: userData.avatar,
         id: userData.id,
+        job: "Policial", // Identificador para o front-end
       });
-    } else if (memberRes.status === 404) {
-      // O Discord disse "Não encontrado". Isso significa que o usuário NÃO está no servidor.
-      // OU que o ID do servidor está errado.
-      return res.status(403).json({
-        error: `Acesso Negado: O usuário ${userData.username} não foi encontrado no Servidor (ID: ${guildId}). Entre no Discord da Polícia.`,
-      });
-    } else if (memberRes.status === 401 || memberRes.status === 403) {
-      // O Bot não tem permissão para olhar.
+    }
+
+    // PASSO 3: Se não for polícia, Verificar OAB
+    // Só verifica se a variável da OAB estiver configurada
+    if (guildIdOAB) {
+      const resOAB = await checarServidor(guildIdOAB);
+
+      if (resOAB.status === 200) {
+        // É ADVOGADO!
+        return res.status(200).json({
+          authorized: true,
+          username: userData.username,
+          avatar: userData.avatar,
+          id: userData.id,
+          job: "Advogado", // Identificador para o front-end
+        });
+      }
+    }
+
+    // PASSO 4: Se chegou aqui, não é nem Polícia nem OAB
+
+    // Verifica erros de permissão do Bot (códigos 401/403 no request da API)
+    if (resPolicia.status === 401 || resPolicia.status === 403) {
       return res.status(500).json({
         error:
-          "Erro do Bot: O Bot não tem permissão ou o Token está errado. Verifique as 'Intents' no Developer Portal.",
+          "Erro do Bot: O Bot não tem permissão para ler os membros. Verifique se o Bot está no servidor.",
       });
-    } else {
-      // Outro erro
-      return res
-        .status(500)
-        .json({ error: `Erro inesperado do Discord: ${memberRes.status}` });
     }
+
+    // Retorna erro de acesso negado padrão
+    return res.status(403).json({
+      error: `Acesso Negado: O usuário ${userData.username} não foi encontrado na Polícia nem na OAB.`,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Erro interno na verificação." });
