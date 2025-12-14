@@ -911,7 +911,9 @@ document.addEventListener("DOMContentLoaded", function () {
             var payload = {
               content: mensagemFinal,
               allowed_mentions: {
-                users: uniqueMentions, // Garante que só quem está na lista seja notificado
+                // MUDANÇA AQUI: Em vez de tentar listar quem pode ser mencionado,
+                // vamos permitir que o Discord notifique QUALQUER usuário citado no texto.
+                parse: ["users"],
               },
             };
 
