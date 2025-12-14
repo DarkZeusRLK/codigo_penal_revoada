@@ -41,7 +41,6 @@ document.addEventListener("DOMContentLoaded", function () {
   ];
 
   // GRUPOS DE CRIMES MUTUAMENTE EXCLUSIVOS
-  // Nota: Removi o grupo de Armas daqui para tratar separadamente
   var GRUPOS_CONFLITO = [
     // Grupo Drogas (Só pode 1)
     ["132", "133", "135"],
@@ -50,14 +49,11 @@ document.addEventListener("DOMContentLoaded", function () {
   ];
 
   // --- CARREGAR OFICIAIS ---
-  // Correção: Agora verificamos se o campo de pesquisa existe, em vez do antigo select
   var searchInputCheck = document.getElementById("search-oficial");
   var LISTA_OFICIAIS = [];
 
   async function carregarOficiaisDiscord() {
-    // Se não tiver o campo de pesquisa na tela, não precisa carregar a lista
     if (!searchInputCheck) return;
-
     try {
       const response = await fetch("/api/membros");
       if (response.ok) {
@@ -264,15 +260,12 @@ document.addEventListener("DOMContentLoaded", function () {
     btnAddPart.addEventListener("click", function () {
       var id = selectedOficialIdInput.value;
       var nome = searchInput.value;
-      var myId = userIdHidden.value; // ID do oficial que está fazendo o relatório
+      var myId = userIdHidden.value;
 
-      // 1. Validação se está vazio
       if (!id || !nome) {
         mostrarAlerta("Pesquise e selecione um oficial na lista.", "error");
         return;
       }
-
-      // 2. Validação: Impedir adicionar a si mesmo
       if (id === myId) {
         mostrarAlerta(
           "Você não pode se adicionar. Você já é o relator!",
@@ -282,8 +275,6 @@ document.addEventListener("DOMContentLoaded", function () {
         selectedOficialIdInput.value = "";
         return;
       }
-
-      // 3. Validação: Impedir duplicados na lista
       var jaExiste = participantesSelecionados.some((p) => p.id === id);
       if (jaExiste) {
         mostrarAlerta("Este oficial já foi adicionado.", "error");
@@ -291,16 +282,11 @@ document.addEventListener("DOMContentLoaded", function () {
         selectedOficialIdInput.value = "";
         return;
       }
-
-      // Se passou por tudo, adiciona
       participantesSelecionados.push({ id: id, nome: nome });
-
       var tag = document.createElement("div");
       tag.className = "officer-tag";
       tag.innerHTML = `<span>${nome}</span> <button onclick="removerParticipante('${id}', this)">×</button>`;
       listaParticipantesVisual.appendChild(tag);
-
-      // Limpa os campos para o próximo
       searchInput.value = "";
       selectedOficialIdInput.value = "";
     });
@@ -420,7 +406,7 @@ document.addEventListener("DOMContentLoaded", function () {
     radioFiancaNao.addEventListener("change", checkFiancaState);
   }
 
-  // --- SELEÇÃO DE CRIMES (LÓGICA ALTERADA AQUI) ---
+  // --- SELEÇÃO DE CRIMES ---
   for (var i = 0; i < crimeItems.length; i++) {
     crimeItems[i].addEventListener("click", function () {
       var el = this;
@@ -438,12 +424,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      var idDoloso = "105"; // Exemplo: Homicídio Doloso
-      var idCulposo = "107"; // Exemplo: Homicídio Culposo
-      var idQualificado = "104"; // Exemplo: Homicídio Qualificado
+      var idDoloso = "105";
+      var idCulposo = "107";
+      var idQualificado = "104";
       var idCulposoTransito = "108";
-      // A "Tentativa" NÃO entra nesta lista, pois ela pode acumular.
-
       var grupoHomicidios = [
         idDoloso,
         idCulposo,
@@ -455,19 +439,15 @@ document.addEventListener("DOMContentLoaded", function () {
         var conflitoHomicidio = selectedCrimes.find((c) =>
           grupoHomicidios.includes(c.artigo)
         );
-
         if (conflitoHomicidio) {
           mostrarAlerta(
-            `Incoerência: Você já marcou "${conflitoHomicidio.nome}". Não é possível marcar dois tipos de homicídio consumado juntos! (Apenas Tentativa é permitida)`,
+            `Incoerência: Você já marcou "${conflitoHomicidio.nome}".`,
             "error"
           );
           return;
         }
       }
       if (existeIndex === -1) {
-        // --- VALIDAÇÕES DE CONFLITO ---
-
-        // 1. Reincidente vs Primário
         if (artigo === "161" && checkPrimario.checked) {
           mostrarAlerta(
             "Incoerência: Desmarque 'Réu Primário' antes de adicionar 'Réu Reincidente'!",
@@ -475,34 +455,25 @@ document.addEventListener("DOMContentLoaded", function () {
           );
           return;
         }
-
-        // 2. ARMAS (Lógica Personalizada: Tráfico anula Portes / Portes podem coexistir)
         if (artigo === "123") {
-          // Tentando adicionar Tráfico
           var temPorte = selectedCrimes.some(
             (c) => c.artigo === "125" || c.artigo === "126"
           );
           if (temPorte) {
             mostrarAlerta(
-              "Incoerência: O Tráfico de Armas engloba o Porte. Remova os portes individuais!",
+              "Incoerência: O Tráfico de Armas engloba o Porte.",
               "error"
             );
             return;
           }
         }
         if (artigo === "125" || artigo === "126") {
-          // Tentando adicionar Porte Pesado ou Leve
           var temTraficoArmas = selectedCrimes.some((c) => c.artigo === "123");
           if (temTraficoArmas) {
-            mostrarAlerta(
-              "Incoerência: Já marcou Tráfico de Armas. Não pode adicionar Porte!",
-              "error"
-            );
+            mostrarAlerta("Incoerência: Já marcou Tráfico de Armas.", "error");
             return;
           }
         }
-
-        // 3. OUTROS GRUPOS (Drogas, Munições - Apenas 1 permitido)
         var grupoDoCrime = GRUPOS_CONFLITO.find((grupo) =>
           grupo.includes(artigo)
         );
@@ -512,14 +483,13 @@ document.addEventListener("DOMContentLoaded", function () {
           );
           if (conflito) {
             mostrarAlerta(
-              `Incoerência: Você já selecionou "${conflito.nome}". Não pode marcar dois crimes do mesmo tipo!`,
+              `Incoerência: Você já selecionou "${conflito.nome}".`,
               "error"
             );
             return;
           }
         }
 
-        // Adiciona
         selectedCrimes.push({
           artigo: artigo,
           nome: nome,
@@ -545,7 +515,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // --- CHECKBOX EVENT (Validação Reversa) ---
+  // --- CHECKBOX EVENT ---
   for (var c = 0; c < checkboxes.length; c++) {
     checkboxes[c].addEventListener("change", function () {
       if (this.id === "atenuante-primario" && this.checked) {
@@ -591,17 +561,20 @@ document.addEventListener("DOMContentLoaded", function () {
       calculateSentence();
     });
 
+  // --- CORREÇÃO 1: Lógica de Cálculo Ajustada (Soma -> Desconto -> Teto) ---
   function calculateSentence() {
     var totalPenaRaw = 0;
     var totalMulta = 0;
     isCrimeInafiancavelGlobal = false;
 
+    // 1. Soma Bruta
     for (var i = 0; i < selectedCrimes.length; i++) {
       totalPenaRaw += selectedCrimes[i].pena;
       totalMulta += selectedCrimes[i].multa;
       if (selectedCrimes[i].infiancavel) isCrimeInafiancavelGlobal = true;
     }
 
+    // 2. Dinheiro Sujo
     var valorSujo = 0;
     if (
       inputDinheiroSujo &&
@@ -612,21 +585,18 @@ document.addEventListener("DOMContentLoaded", function () {
       totalMulta += valorSujo * PORCENTAGEM_MULTA_SUJO;
     }
 
-    var penaBaseCalculo = totalPenaRaw;
-    if (penaBaseCalculo > PENA_MAXIMA_SERVER) {
-      penaBaseCalculo = PENA_MAXIMA_SERVER;
-      if (alertaPenaMaxima) alertaPenaMaxima.classList.remove("hidden");
-    } else {
-      if (alertaPenaMaxima) alertaPenaMaxima.classList.add("hidden");
-    }
-
+    // 3. Aplica Descontos (Atenuantes)
     var totalDiscountPercent = 0;
     for (var k = 0; k < checkboxes.length; k++) {
       if (checkboxes[k].checked)
         totalDiscountPercent += parseFloat(checkboxes[k].dataset.percent);
     }
     var descontoDecimal = Math.abs(totalDiscountPercent) / 100;
-    var totalPenaFinal = Math.max(0, penaBaseCalculo * (1 - descontoDecimal));
+
+    // Pena com desconto, mas SEM TETO ainda
+    var totalPenaFinal = Math.max(0, totalPenaRaw * (1 - descontoDecimal));
+
+    // 4. Redução HP
     var hpReduction = 0;
     if (
       hpSimBtn &&
@@ -638,6 +608,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     totalPenaFinal = Math.max(0, totalPenaFinal - hpReduction);
 
+    // 5. Aplica Teto Máximo (180) NO FINAL
+    if (totalPenaFinal > PENA_MAXIMA_SERVER) {
+      totalPenaFinal = PENA_MAXIMA_SERVER;
+      if (alertaPenaMaxima) alertaPenaMaxima.classList.remove("hidden");
+    } else {
+      if (alertaPenaMaxima) alertaPenaMaxima.classList.add("hidden");
+    }
+
+    // Interface Fiança
     if (isCrimeInafiancavelGlobal) {
       if (fiancaOutputEl) fiancaOutputEl.value = "INAFIANÇÁVEL";
       radioFiancaSim.disabled = true;
@@ -650,6 +629,7 @@ document.addEventListener("DOMContentLoaded", function () {
       radioFiancaSim.disabled = false;
     }
 
+    // Interface Advogado
     if (
       !isCrimeInafiancavelGlobal &&
       checkboxAdvogado &&
@@ -735,11 +715,9 @@ document.addEventListener("DOMContentLoaded", function () {
     btnEnviar.addEventListener("click", function (e) {
       e.preventDefault();
 
-      // --- NOVA TRAVA: PRIMÁRIO OU REINCIDENTE ---
       var isPrimario = checkPrimario.checked;
       var isReincidente = selectedCrimes.some((c) => c.artigo === "161");
 
-      // 1. Verifica se ambos estão marcados (segurança extra)
       if (isPrimario && isReincidente) {
         mostrarAlerta(
           "ERRO: O réu não pode ser Primário e Reincidente ao mesmo tempo!",
@@ -747,8 +725,6 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         return;
       }
-
-      // 2. Verifica se NENHUM está marcado (O que você pediu)
       if (!isPrimario && !isReincidente) {
         mostrarAlerta(
           "OBRIGATÓRIO: Selecione se o réu é Primário ou adicione o crime de Reincidente (Art. 161).",
@@ -805,6 +781,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       comprimirImagem(arquivoPreso, function (presoBlob) {
         comprimirImagem(arquivoMochila, function (mochilaBlob) {
+          // Função interna para finalizar após imagens
           var finalizarEnvio = function (depositoBlob) {
             var nome = nomeInput.value;
             var rg = rgInput.value;
@@ -824,8 +801,10 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             if (participantesStr === "") participantesStr = "Nenhum adicional.";
 
+            // Este conteúdo será usado fora do embed para pingar o bot
             var qraContent =
               "**QRA:** <@" + officerId + "> " + participantesStr;
+
             var crimesText =
               selectedCrimes.length > 0
                 ? selectedCrimes
@@ -912,66 +891,40 @@ document.addEventListener("DOMContentLoaded", function () {
               },
             ];
 
-            if (depositoBlob) {
-              embeds.push({
-                title: "💸 COMPROVANTE DE DEPÓSITO",
-                color: embedColor,
-                image: { url: "attachment://deposito.jpg" },
-                footer: {
-                  text:
-                    "Sistema Policial Revoada • " +
-                    new Date().toLocaleString("pt-BR"),
-                },
-              });
-            } else {
-              embeds[1].footer = {
-                text:
-                  "Sistema Policial Revoada • " +
-                  new Date().toLocaleString("pt-BR"),
-              };
-            }
+            // --- CORREÇÃO 2: Webhook com Menção no Content ---
+            var payload = {
+              content: qraContent, // <--- Isso garante que a menção <@ID> funcione
+              embeds: embeds,
+              allowed_mentions: { parse: ["users"] }, // Permite que o bot leia como user mention
+            };
 
-            formData.append(
-              "payload_json",
-              JSON.stringify({ content: qraContent, embeds: embeds })
-            );
-            var apiEndpoint =
-              "/api/enviar?tipo=" + (pagouFianca ? "fianca" : "prisao");
+            formData.append("payload_json", JSON.stringify(payload));
 
-            fetch(apiEndpoint, { method: "POST", body: formData })
-              .then((response) => {
-                // Reabilita o botão para casos de erro, mas se der sucesso a página vai recarregar
-                btnEnviar.disabled = false;
-                btnEnviar.innerHTML =
-                  '<i class="fa-brands fa-discord"></i> ENVIAR RELATÓRIO';
-
+            fetch("/api/webhook", {
+              method: "POST",
+              body: formData,
+            })
+              .then(function (response) {
                 if (response.ok) {
-                  // SUCESSO: Mostra mensagem e recarrega a página após 2 segundos
-                  mostrarAlerta(
-                    "Relatório enviado com sucesso! Limpando...",
-                    "success"
-                  );
-
+                  mostrarAlerta("Relatório enviado com sucesso!", "success");
                   setTimeout(function () {
-                    window.location.reload(); // <--- AQUI ESTÁ A MÁGICA
+                    location.reload();
                   }, 2000);
                 } else {
-                  // ERRO: Apenas avisa, não limpa nada para o usuário tentar corrigir
-                  mostrarAlerta(
-                    "Erro ao enviar (Status: " + response.status + ").",
-                    "error"
-                  );
+                  mostrarAlerta("Erro ao enviar relatório.", "error");
+                  btnEnviar.disabled = false;
+                  btnEnviar.textContent = "ENVIAR RELATÓRIO";
                 }
               })
-              .catch((err) => {
-                console.error(err);
-                btnEnviar.disabled = false;
-                btnEnviar.innerHTML =
-                  '<i class="fa-brands fa-discord"></i> ENVIAR RELATÓRIO';
+              .catch(function (error) {
+                console.error(error);
                 mostrarAlerta("Erro de conexão.", "error");
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = "ENVIAR RELATÓRIO";
               });
-          };
+          }; // Fim finalizarEnvio
 
+          // Lógica para processar imagem 3 (se houver) e chamar finalizarEnvio
           if (arquivoDeposito) {
             comprimirImagem(arquivoDeposito, function (depositoBlob) {
               finalizarEnvio(depositoBlob);
@@ -979,10 +932,8 @@ document.addEventListener("DOMContentLoaded", function () {
           } else {
             finalizarEnvio(null);
           }
-        });
-      });
-    });
+        }); // Fim mochila
+      }); // Fim preso
+    }); // Fim click listener
   }
-
-  calculateSentence();
-});
+}); // Fim DOMContentLoaded
