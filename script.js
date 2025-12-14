@@ -560,7 +560,7 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 
   // =========================================================
-  // 8. MODAL E ENVIO
+  // 8. MODAL E ENVIO (CORRIGIDO PARA EXIBIR ATENUANTES)
   // =========================================================
   var btnEnviar = document.getElementById("btn-enviar");
   var modalConf = document.getElementById("modal-confirmacao");
@@ -583,6 +583,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
+      // Preenche modal (Cabeçalho)
       document.getElementById("conf-oficiais").textContent =
         userNameSpan.textContent +
         (participantesSelecionados.length > 0
@@ -595,14 +596,56 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("conf-multa").textContent =
         "Multa: " + multaTotalEl.textContent;
 
-      var ul = document.getElementById("conf-crimes");
-      ul.innerHTML = "";
+      // Preenche lista de crimes
+      var ulCrimes = document.getElementById("conf-crimes");
+      ulCrimes.innerHTML = "";
       selectedCrimes.forEach((c) => {
         var li = document.createElement("li");
         li.textContent = c.nome;
-        ul.appendChild(li);
+        ulCrimes.appendChild(li);
       });
 
+      // CORREÇÃO: Preenche lista de Atenuantes e Detalhes
+      var ulDetalhes = document.getElementById("conf-detalhes");
+      ulDetalhes.innerHTML = "";
+
+      checkboxes.forEach((cb) => {
+        if (cb.checked) {
+          var li = document.createElement("li");
+          var label = document.querySelector(
+            `label[for="${cb.id}"]`
+          ).textContent;
+          li.innerHTML = `<span style="color:var(--color-success)">✔</span> ${label}`;
+          ulDetalhes.appendChild(li);
+        }
+      });
+
+      // HP
+      if (hpSimBtn.checked) {
+        var li = document.createElement("li");
+        li.innerHTML = `🏥 Reanimado no HP (-${inputHpMinutos.value}m)`;
+        ulDetalhes.appendChild(li);
+      }
+
+      // Dinheiro Sujo
+      if (
+        inputDinheiroSujo.value &&
+        !containerDinheiroSujo.classList.contains("hidden")
+      ) {
+        var li = document.createElement("li");
+        li.innerHTML = `💸 Dinheiro Sujo: R$ ${inputDinheiroSujo.value}`;
+        ulDetalhes.appendChild(li);
+      }
+
+      // Fiança Status
+      var pagouFianca = document.getElementById("fianca-sim").checked;
+      var liFianca = document.createElement("li");
+      liFianca.innerHTML = pagouFianca
+        ? `<b style="color:var(--color-success)">PAGOU FIANÇA</b>`
+        : `<b>NÃO PAGOU FIANÇA</b>`;
+      ulDetalhes.appendChild(liFianca);
+
+      // Imagens Modal
       var imgP = document.getElementById("img-preview-preso");
       var imgM = document.getElementById("img-preview-mochila");
       var imgD = document.getElementById("img-preview-deposito");
@@ -610,7 +653,6 @@ document.addEventListener("DOMContentLoaded", function () {
       if (imgM.src) document.getElementById("conf-img-mochila").src = imgM.src;
 
       var boxConfDep = document.getElementById("box-conf-deposito");
-      var pagouFianca = document.getElementById("fianca-sim").checked;
       if (pagouFianca && imgD.src && !imgD.classList.contains("hidden")) {
         document.getElementById("conf-img-deposito").src = imgD.src;
         boxConfDep.classList.remove("hidden");
@@ -631,6 +673,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function comprimirImagemAsync(file) {
     return new Promise((resolve) => {
       if (!file) return resolve(null);
+
       var reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = function (e) {
@@ -661,6 +704,19 @@ document.addEventListener("DOMContentLoaded", function () {
       btnConfirmar.textContent = "PROCESSANDO...";
       btnConfirmar.disabled = true;
       document.getElementById("btn-cancelar-conf").style.display = "none";
+
+      // SEGURANÇA: Tenta pegar o elemento de itens, se falhar, define padrão
+      var elItens = document.getElementById("itens-apreendidos");
+      if (!elItens) {
+        console.error(
+          "ERRO CRÍTICO: Textarea 'itens-apreendidos' não encontrada. Verifique o HTML."
+        );
+        mostrarAlerta(
+          "Erro interno no formulário. Contate o suporte.",
+          "error"
+        );
+        return;
+      }
 
       try {
         const blobPreso = await comprimirImagemAsync(arquivoPreso);
@@ -701,8 +757,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (atenuantesTexto === "") atenuantesTexto = "Nenhum";
 
         // --- DADOS ADICIONAIS PARA O EMBED ---
-        var itensApreendidos =
-          document.getElementById("itens-apreendidos").value || "Nenhum";
+        var itensApreendidos = elItens.value || "Nenhum";
         var dinheiroSujoDisplay = "Não informado";
         if (
           !containerDinheiroSujo.classList.contains("hidden") &&
