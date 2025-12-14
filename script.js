@@ -18,13 +18,14 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   // --- SISTEMA DE CACHE DE SESSÃO (LOGIN AUTOMÁTICO) ---
   const SESSION_KEY = "policia_session_v1";
-  const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 1 semana em milissegundos
+  const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 1 semana
 
-  // Função para salvar o login
-  function salvarSessao(nome, id) {
+  // Função para salvar o login (CORRIGIDA: Agora aceita 3 argumentos)
+  function salvarSessao(nome, avatar, id) {
     const dados = {
       nome: nome,
-      id: id,
+      avatar: avatar, // Agora salvamos o avatar corretamente
+      id: id, // E o ID vai para o campo certo
       timestamp: new Date().getTime(),
     };
     localStorage.setItem(SESSION_KEY, JSON.stringify(dados));
@@ -45,40 +46,34 @@ document.addEventListener("DOMContentLoaded", function () {
         const sessao = JSON.parse(dadosSalvos);
         const agora = new Date().getTime();
 
-        // Verifica se a sessão ainda é válida (menos de 1 semana)
+        // Verifica se a sessão ainda é válida
         if (agora - sessao.timestamp < SESSION_DURATION) {
-          // --- CORREÇÃO AQUI: IDs corretos do seu HTML ---
           const userNameSpan = document.getElementById("user-name");
-          const userIdHidden = document.getElementById("user-id-hidden"); // Era user-id, corrigido para user-id-hidden
+          const userIdHidden = document.getElementById("user-id-hidden");
           const loginScreen = document.getElementById("login-screen");
-          const appContent = document.getElementById("app-content"); // CORRIGIDO: de main-content para app-content
+          const appContent = document.getElementById("app-content");
+          const userAvatarImg = document.getElementById("user-avatar");
 
           if (userNameSpan) userNameSpan.textContent = sessao.nome;
+
+          // IMPORTANTE: Aqui ele vai colocar o ID certo, e não o link da imagem
           if (userIdHidden) userIdHidden.value = sessao.id;
 
-          // Se tiver foto salva e o elemento de imagem existir
-          const userAvatarImg = document.getElementById("user-avatar");
+          // Restaura a foto se existir
           if (userAvatarImg && sessao.avatar) {
             userAvatarImg.src = sessao.avatar;
             userAvatarImg.classList.remove("hidden");
           }
 
-          // Troca a tela de login pelo conteúdo principal
-          if (loginScreen) loginScreen.style.display = "none"; // Garante que suma
+          // Troca a tela
+          if (loginScreen) loginScreen.style.display = "none";
           if (appContent) {
             appContent.classList.remove("hidden");
-          } else {
-            // Se não achar o app-content, mostra erro no console para debug
-            console.error(
-              "ERRO: Não foi possível encontrar a div 'app-content'."
-            );
           }
 
-          // Notificação discreta
           console.log("Sessão restaurada para: " + sessao.nome);
           return true;
         } else {
-          // Sessão expirada
           localStorage.removeItem(SESSION_KEY);
         }
       } catch (e) {
