@@ -233,7 +233,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!nome) return mostrarAlerta("Digite o nome do oficial.", "error");
 
-      // 1. Não pode adicionar a si mesmo
       if (id === idLogado || nome === nomeLogado) {
         return mostrarAlerta(
           "Você já é o relator, não pode se adicionar!",
@@ -241,15 +240,13 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       }
 
-      // 2. Limite máximo de 6
-      if (participantesSelecionados.length >= 6) {
+      if (participantesSelecionados.length >= 5) {
         return mostrarAlerta(
           "Limite máximo de 6 participantes atingido!",
           "error"
         );
       }
 
-      // 3. Duplicidade
       if (participantesSelecionados.some((p) => p.nome === nome))
         return mostrarAlerta("Oficial já adicionado.", "error");
 
@@ -271,7 +268,7 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   // =========================================================
-  // 6. LÓGICA DA CALCULADORA E FORMATAÇÃO DINHEIRO
+  // 6. LÓGICA DA CALCULADORA (CORRIGIDA) E FORMATAÇÃO
   // =========================================================
   var selectedCrimes = [];
   var crimeItems = document.querySelectorAll(".crime-item");
@@ -293,12 +290,13 @@ document.addEventListener("DOMContentLoaded", function () {
   var alertPenaMaxima = document.getElementById("alerta-pena-maxima");
 
   function calculateSentence() {
-    var totalPena = 0;
+    var totalPenaRaw = 0; // Soma bruta
     var totalMulta = 0;
     var isInfiancavel = false;
 
+    // 1. Soma simples de todos os crimes
     selectedCrimes.forEach((c) => {
-      totalPena += c.pena;
+      totalPenaRaw += c.pena;
       totalMulta += c.multa;
       if (c.infiancavel) isInfiancavel = true;
     });
@@ -314,15 +312,30 @@ document.addEventListener("DOMContentLoaded", function () {
       totalMulta += sujo * 0.5; // 50%
     }
 
+    // 2. APLICA O TETO DE 180 ANTES DOS DESCONTOS
+    // Se a soma deu 500, a base de cálculo vira 180.
+    var penaBaseCalculo = totalPenaRaw;
+
+    if (totalPenaRaw > 180) {
+      penaBaseCalculo = 180;
+      if (alertPenaMaxima) alertPenaMaxima.classList.remove("hidden");
+    } else {
+      if (alertPenaMaxima) alertPenaMaxima.classList.add("hidden");
+    }
+
+    // 3. APLICA ATENUANTES (Advogado, etc) SOBRE A BASE (MÁX 180)
     var descontoPercent = 0;
     checkboxes.forEach((cb) => {
       if (cb.checked) descontoPercent += parseFloat(cb.dataset.percent);
     });
+
+    // Ex: 180 * (1 - 0.20) = 144
     var penaComDesconto = Math.max(
       0,
-      totalPena * (1 - Math.abs(descontoPercent) / 100)
+      penaBaseCalculo * (1 - Math.abs(descontoPercent) / 100)
     );
 
+    // 4. REDUÇÃO DE HP (Se houver)
     if (hpSimBtn && hpSimBtn.checked && inputHpMinutos.value) {
       penaComDesconto = Math.max(
         0,
@@ -330,15 +343,9 @@ document.addEventListener("DOMContentLoaded", function () {
       );
     }
 
-    var penaFinal = penaComDesconto;
-    if (penaFinal > 180) {
-      penaFinal = 180;
-      if (alertPenaMaxima) alertPenaMaxima.classList.remove("hidden");
-    } else {
-      if (alertPenaMaxima) alertPenaMaxima.classList.add("hidden");
-    }
+    var penaFinal = Math.ceil(penaComDesconto);
 
-    penaTotalEl.textContent = Math.round(penaFinal) + " meses";
+    penaTotalEl.textContent = penaFinal + " meses";
     multaTotalEl.textContent = "R$" + totalMulta.toLocaleString("pt-BR");
 
     // Interface Fiança
@@ -419,35 +426,30 @@ document.addEventListener("DOMContentLoaded", function () {
     calculateSentence();
   };
 
-  // --- LOGICA DE SELEÇÃO E TRAVA DE HOMICÍDIOS ---
+  // --- TRAVA DE HOMICÍDIOS ---
   crimeItems.forEach((item) => {
     item.addEventListener("click", function () {
       var artigo = this.dataset.artigo;
 
-      // Se o crime já foi selecionado, remove
       if (selectedCrimes.some((c) => c.artigo === artigo)) {
         var idx = selectedCrimes.findIndex((c) => c.artigo === artigo);
         window.removerCrime(idx);
       } else {
-        // --- NOVA TRAVA: EXCLUSIVIDADE DE HOMICÍDIOS ---
-        // Grupo de exclusão (Consumados): 104, 105, 107, 108
-        // O 106 (Tentativa) não está aqui, então pode acumular.
+        // Grupo Homicídios Consumados: 104, 105, 107, 108
+        // Tentativa (106) pode acumular
         const HOMICIDIOS_CONFLITANTES = ["104", "105", "107", "108"];
 
         if (HOMICIDIOS_CONFLITANTES.includes(artigo)) {
-          // Verifica se já existe algum crime desse grupo na lista
           const temConflito = selectedCrimes.some((c) =>
             HOMICIDIOS_CONFLITANTES.includes(c.artigo)
           );
-
           if (temConflito) {
             return mostrarAlerta(
-              "Conflito: Não é possível marcar múltiplos homicídios consumados. Apenas a Tentativa é acumulável.",
+              "Conflito: Não é possível marcar múltiplos homicídios consumados.",
               "error"
             );
           }
         }
-        // ------------------------------------------------
 
         var nome = this.querySelector(".crime-name").textContent;
         var pena = parseInt(this.dataset.pena);
@@ -602,7 +604,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // TRAVA: DINHEIRO SUJO OBRIGATÓRIO
+      // TRAVA: DINHEIRO SUJO
       var temDinheiroSujo = selectedCrimes.some((c) => c.artigo === "137");
       if (
         temDinheiroSujo &&
@@ -833,7 +835,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   value: dinheiroSujoDisplay,
                   inline: true,
                 },
-                { name: "📝 Atenuantes/Outros", value: atenuantesTexto },
+                { name: "📝 Detalhes", value: atenuantesTexto },
               ],
               footer: {
                 text:
