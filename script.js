@@ -812,7 +812,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   value: dinheiroSujoDisplay,
                   inline: true,
                 },
-                { name: "📝 Detalhes", value: atenuantesTexto },
+                { name: "📝 Atenunantes/Outros", value: atenuantesTexto },
               ],
               footer: {
                 text:
