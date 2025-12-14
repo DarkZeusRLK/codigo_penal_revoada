@@ -861,8 +861,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 fields: [
                   {
                     name: "👮 OFICIAL RESPONSÁVEL",
-                    value:
-                      oficial + (officerId ? " (<@" + officerId + ">)" : ""),
+                    value: oficial + (officerId ? " <@" + officerId + ">" : ""),
                     inline: false,
                   },
                   {
