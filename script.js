@@ -780,7 +780,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       comprimirImagem(arquivoPreso, function (presoBlob) {
         comprimirImagem(arquivoMochila, function (mochilaBlob) {
-          // --- FUNÇÃO FINALIZAR ENVIO CORRIGIDA ---
           // --- FUNÇÃO FINALIZAR ENVIO (VERSÃO MARKDOWN / TEXTO PURO) ---
           var finalizarEnvio = function (depositoBlob) {
             var nome = nomeInput.value;
@@ -792,7 +791,8 @@ document.addEventListener("DOMContentLoaded", function () {
               ? inputDinheiroSujo.value
               : "Nenhum";
             var oficial = userNameSpan.textContent;
-            var officerId = userIdHidden.value || "000000";
+            // Garante que o ID do oficial seja válido para menção
+            var officerId = userIdHidden.value;
 
             // Monta lista de participantes
             var participantesStr = "";
@@ -837,17 +837,19 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             // --- CONSTRUÇÃO DA MENSAGEM EM MARKDOWN ---
+            // O uso de # cria um título grande. Os asteriscos fazem negrito.
             var titulo = pagouFianca
               ? "# 💰 RELATÓRIO DE FIANÇA"
               : "# 🚔 RELATÓRIO DE PRISÃO";
 
-            // Aqui montamos o texto corrido. O '\n' quebra a linha.
+            var mencaoOficial = officerId ? "<@" + officerId + ">" : oficial;
+
             var mensagemFinal =
               titulo +
               "\n\n" +
-              "**👮 RESPONSÁVEL:** <@" +
-              officerId +
-              ">\n" +
+              "**👮 RESPONSÁVEL:** " +
+              mencaoOficial +
+              "\n" +
               "**👥 PARTICIPANTES:** " +
               participantesStr +
               "\n" +
@@ -889,30 +891,19 @@ document.addEventListener("DOMContentLoaded", function () {
             // --- PREPARAÇÃO DO FORMDATA ---
             var formData = new FormData();
 
-            // Anexa as imagens (Elas aparecerão automaticamente abaixo do texto)
+            // Anexa as imagens (sem embed, o Discord mostra elas automaticamente no final)
             formData.append("file1", presoBlob, "preso.jpg");
             formData.append("file2", mochilaBlob, "mochila.jpg");
             if (depositoBlob) {
               formData.append("file3", depositoBlob, "deposito.jpg");
             }
 
-            // --- CORREÇÃO DE MENÇÕES ---
-            // Mantendo sua lógica de filtrar IDs para evitar erro 400
-            var mentionsArray = [];
-            if (officerId && officerId.length > 5)
-              mentionsArray.push(officerId);
-            participantesSelecionados.forEach(function (p) {
-              if (p.id) mentionsArray.push(p.id);
-            });
-            var uniqueMentions = mentionsArray.filter(function (item, pos) {
-              return mentionsArray.indexOf(item) == pos;
-            });
-
+            // --- CORREÇÃO DEFINITIVA DE MENÇÕES ---
+            // Não usamos mais Embeds. Usamos 'content'.
+            // 'parse: ["users"]' diz ao Discord para notificar qualquer <@ID> que ele achar no texto.
             var payload = {
               content: mensagemFinal,
               allowed_mentions: {
-                // MUDANÇA AQUI: Em vez de tentar listar quem pode ser mencionado,
-                // vamos permitir que o Discord notifique QUALQUER usuário citado no texto.
                 parse: ["users"],
               },
             };
