@@ -800,7 +800,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (participantesStr === "") participantesStr = "Nenhum adicional.";
 
             var qraContent =
-              "**QRA:** <@" + officerId + "> " + participantesStr;
+              "**teste1:** <@" + officerId + "> " + participantesStr;
 
             var crimesText =
               selectedCrimes.length > 0
