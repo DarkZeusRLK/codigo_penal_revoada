@@ -923,7 +923,10 @@ document.addEventListener("DOMContentLoaded", function () {
             // Envia para a API
             // Use "/api/webhook" se for um proxy direto ou "/api/enviar" se for seu backend customizado
             // Mantive "/api/webhook" conforme seu último código
-            fetch("/api/webhook", {
+            var endpoint =
+              "/api/enviar?tipo=" + (pagouFianca ? "fianca" : "prisao");
+
+            fetch(endpoint, {
               method: "POST",
               body: formData,
             })
