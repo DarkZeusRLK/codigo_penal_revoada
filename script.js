@@ -561,7 +561,6 @@ document.addEventListener("DOMContentLoaded", function () {
       calculateSentence();
     });
 
-  // --- CORREÇÃO 1: Lógica de Cálculo Ajustada (Soma -> Desconto -> Teto) ---
   function calculateSentence() {
     var totalPenaRaw = 0;
     var totalMulta = 0;
@@ -781,14 +780,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
       comprimirImagem(arquivoPreso, function (presoBlob) {
         comprimirImagem(arquivoMochila, function (mochilaBlob) {
-          // Função interna para finalizar após imagens
+          // --- FUNÇÃO FINALIZAR ENVIO CORRIGIDA ---
           var finalizarEnvio = function (depositoBlob) {
             var nome = nomeInput.value;
             var rg = rgInput.value;
             var advogado = advogadoInput.value || "Nenhum";
             var penaStr = penaTotalEl.textContent;
             var multaStr = multaTotalEl.textContent;
-            var itens = itensApreendidosInput.value || "Nenhum item apreendido";
             var valorSujo = !containerDinheiroSujo.classList.contains("hidden")
               ? inputDinheiroSujo.value
               : "Nenhum";
@@ -801,7 +799,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             if (participantesStr === "") participantesStr = "Nenhum adicional.";
 
-            // Este conteúdo será usado fora do embed para pingar o bot
             var qraContent =
               "**QRA:** <@" + officerId + "> " + participantesStr;
 
@@ -838,16 +835,17 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             var formData = new FormData();
+
+            // Adiciona imagens obrigatórias
             formData.append("file1", presoBlob, "preso.jpg");
             formData.append("file2", mochilaBlob, "mochila.jpg");
-            if (depositoBlob)
-              formData.append("file3", depositoBlob, "deposito.jpg");
 
             var embedColor = pagouFianca ? 3066993 : 3447003;
             var embedTitle = pagouFianca
               ? "💰 RELATÓRIO DE FIANÇA"
               : "🚔 RELATÓRIO DE PRISÃO";
 
+            // Cria os embeds iniciais
             var embeds = [
               {
                 title: embedTitle,
@@ -891,15 +889,40 @@ document.addEventListener("DOMContentLoaded", function () {
               },
             ];
 
-            // --- CORREÇÃO 2: Webhook com Menção no Content ---
+            // Lógica do Depósito (CORRIGIDA)
+            if (depositoBlob) {
+              // 1. Adiciona o arquivo ao FormData
+              formData.append("file3", depositoBlob, "deposito.jpg");
+
+              // 2. Adiciona o Embed visual
+              embeds.push({
+                title: "💸 COMPROVANTE DE DEPÓSITO",
+                color: embedColor,
+                image: { url: "attachment://deposito.jpg" },
+              });
+            }
+
+            // Adiciona o Footer SEMPRE ao último embed da lista (seja mochila ou depósito)
+            if (embeds.length > 0) {
+              embeds[embeds.length - 1].footer = {
+                text:
+                  "Sistema Policial Revoada • " +
+                  new Date().toLocaleString("pt-BR"),
+              };
+            }
+
+            // Monta o Payload JSON
             var payload = {
-              content: qraContent, // <--- Isso garante que a menção <@ID> funcione
+              content: qraContent,
               embeds: embeds,
-              allowed_mentions: { parse: ["users"] }, // Permite que o bot leia como user mention
+              allowed_mentions: { parse: ["users"] },
             };
 
             formData.append("payload_json", JSON.stringify(payload));
 
+            // Envia para a API
+            // Use "/api/webhook" se for um proxy direto ou "/api/enviar" se for seu backend customizado
+            // Mantive "/api/webhook" conforme seu último código
             fetch("/api/webhook", {
               method: "POST",
               body: formData,
@@ -911,7 +934,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     location.reload();
                   }, 2000);
                 } else {
-                  mostrarAlerta("Erro ao enviar relatório.", "error");
+                  console.error("Status erro:", response.status);
+                  mostrarAlerta(
+                    "Erro ao enviar relatório (Status " +
+                      response.status +
+                      ").",
+                    "error"
+                  );
                   btnEnviar.disabled = false;
                   btnEnviar.textContent = "ENVIAR RELATÓRIO";
                 }
@@ -924,7 +953,6 @@ document.addEventListener("DOMContentLoaded", function () {
               });
           }; // Fim finalizarEnvio
 
-          // Lógica para processar imagem 3 (se houver) e chamar finalizarEnvio
           if (arquivoDeposito) {
             comprimirImagem(arquivoDeposito, function (depositoBlob) {
               finalizarEnvio(depositoBlob);
@@ -932,8 +960,8 @@ document.addEventListener("DOMContentLoaded", function () {
           } else {
             finalizarEnvio(null);
           }
-        }); // Fim mochila
-      }); // Fim preso
-    }); // Fim click listener
+        });
+      });
+    });
   }
-}); // Fim DOMContentLoaded
+});
