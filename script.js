@@ -989,7 +989,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             var mentionString = "";
             if (officerId && officerId.length > 5) {
-              mentionString += "<@" + officerId + "> ";
+              mentionString += "QRA:" + "<@" + officerId + "> ";
             }
             mentionString += participantesStr;
 
