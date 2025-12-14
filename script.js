@@ -46,43 +46,37 @@ document.addEventListener("DOMContentLoaded", function () {
         const sessao = JSON.parse(dadosSalvos);
         const agora = new Date().getTime();
 
-        // --- CORREÇÃO AUTOMÁTICA DE BUG ---
-        // Se o ID salvo for um link (contiver 'http') ou for muito curto, o cache está estragado.
-        // Limpamos tudo para forçar um login limpo.
+        // --- PROTEÇÃO ANTI-TELA PRETA ---
+        // Se o ID for um link (contiver http) ou não existir, o cache está estragado.
         if (
-          sessao.id &&
-          (sessao.id.toString().includes("http") || sessao.id.length < 5)
+          !sessao.id ||
+          sessao.id.toString().includes("http") ||
+          sessao.id.length < 5
         ) {
-          console.warn("Cache corrompido detectado. Limpando...");
+          console.warn("Cache corrompido detectado. Resetando...");
           localStorage.removeItem(SESSION_KEY);
-          return false;
+          return false; // Força o login novamente
         }
-        // ----------------------------------
+        // -------------------------------
 
-        // Verifica se a sessão ainda é válida (menos de 7 dias)
+        // Verifica se a sessão ainda é válida (menos de 1 semana)
         if (agora - sessao.timestamp < SESSION_DURATION) {
-          // IDs do seu HTML (Verifique se no index.html o input hidden tem id="user-id-hidden")
           const userNameSpan = document.getElementById("user-name");
-          // Tenta achar pelo ID novo ou pelo antigo para garantir
+          // Tenta pegar o input hidden pelo ID correto ou variações antigas
           const userIdHidden =
             document.getElementById("user-id-hidden") ||
             document.getElementById("user-id");
+          const userAvatarImg = document.getElementById("user-avatar");
           const loginScreen = document.getElementById("login-screen");
+
+          // Tenta pegar o conteúdo principal
           const appContent =
             document.getElementById("app-content") ||
             document.getElementById("main-content");
-          const userAvatarImg = document.getElementById("user-avatar");
 
+          // Preenche os dados
           if (userNameSpan) userNameSpan.textContent = sessao.nome;
-
-          // Preenche o ID corretamente
-          if (userIdHidden) {
-            userIdHidden.value = sessao.id;
-          } else {
-            console.error(
-              "ERRO CRÍTICO: Não encontrei o elemento <input id='user-id-hidden'> no HTML."
-            );
-          }
+          if (userIdHidden) userIdHidden.value = sessao.id;
 
           // Restaura a foto
           if (userAvatarImg && sessao.avatar) {
@@ -90,20 +84,19 @@ document.addEventListener("DOMContentLoaded", function () {
             userAvatarImg.classList.remove("hidden");
           }
 
-          // Troca a tela de login pelo conteúdo principal
-          if (loginScreen) loginScreen.style.display = "none";
-
+          // --- O MOMENTO DA TROCA DE TELA ---
           if (appContent) {
+            // 1. Esconde o login
+            if (loginScreen) loginScreen.style.display = "none";
+            // 2. Mostra o app
             appContent.classList.remove("hidden");
+            console.log("Sessão restaurada com sucesso: " + sessao.nome);
+            return true;
           } else {
-            // Se a tela ficar preta, é porque este ID não existe no HTML
-            alert(
-              "Erro: Conteúdo principal não encontrado. Verifique se a div principal tem id='app-content'"
-            );
+            console.error("ERRO CRÍTICO: Div 'app-content' não encontrada.");
+            // Se não achou o app, NÃO esconde o login para não dar tela preta
+            return false;
           }
-
-          console.log("Sessão restaurada para: " + sessao.nome);
-          return true;
         } else {
           localStorage.removeItem(SESSION_KEY); // Sessão expirada
         }
