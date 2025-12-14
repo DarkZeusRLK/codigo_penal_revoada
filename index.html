@@ -416,6 +416,66 @@
       </section>
     </main>
   </div>
+  <div id="modal-confirmacao" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-clipboard-check"></i> CONFIRMAR RELATÓRIO</h3>
+      </div>
+
+      <div class="modal-body">
+        <div class="confirm-section">
+          <h4>👮 Oficiais Envolvidos</h4>
+          <p id="conf-oficiais" class="info-text"></p>
+        </div>
+
+        <div class="confirm-row">
+          <div class="confirm-section half">
+            <h4>👤 Preso</h4>
+            <p id="conf-preso" class="info-text"></p>
+          </div>
+          <div class="confirm-section half">
+            <h4>🛡️ Advogado</h4>
+            <p id="conf-advogado" class="info-text"></p>
+          </div>
+        </div>
+
+        <div class="confirm-row">
+          <div class="confirm-section half">
+            <h4>⚖️ Sentença</h4>
+            <p id="conf-sentenca" class="info-text highlight"></p>
+          </div>
+          <div class="confirm-section half">
+            <h4>💰 Multa Total</h4>
+            <p id="conf-multa" class="info-text highlight"></p>
+          </div>
+        </div>
+
+        <div class="confirm-section">
+          <h4>📜 Crimes Selecionados</h4>
+          <ul id="conf-crimes" class="confirm-list"></ul>
+        </div>
+
+        <div class="confirm-section">
+          <h4>🔻 Atenuantes & Detalhes</h4>
+          <ul id="conf-detalhes" class="confirm-list"></ul>
+        </div>
+
+        <div class="confirm-section">
+          <h4>📷 Evidências</h4>
+          <div class="confirm-imgs">
+            <div><small>Preso</small><img id="conf-img-preso" src=""></div>
+            <div><small>Inventário</small><img id="conf-img-mochila" src=""></div>
+            <div id="box-conf-deposito" class="hidden"><small>Depósito</small><img id="conf-img-deposito" src=""></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="btn-cancelar-conf" class="btn-cancelar">VOLTAR</button>
+        <button id="btn-confirmar-envio" class="btn-confirmar">CONFIRMAR E ENVIAR</button>
+      </div>
+    </div>
+  </div>
   <script src="script.js"></script>
 </body>
 
