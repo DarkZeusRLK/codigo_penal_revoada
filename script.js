@@ -910,29 +910,36 @@ document.addEventListener("DOMContentLoaded", function () {
               };
             }
 
-            // --- CORREÇÃO DA MENTIONS ---
+            // --- CORREÇÃO DE MENÇÕES (SEM ERRO 400) ---
             var mentionsArray = [];
 
-            // Adiciona Oficial (Evita ID simulado ou vazio)
+            // 1. Adiciona Oficial (apenas se ID for válido)
             if (
               officerId &&
-              officerId !== "000000" &&
+              officerId.length > 5 &&
               officerId !== "0000000000"
             ) {
               mentionsArray.push(officerId);
             }
 
-            // Adiciona Participantes
+            // 2. Adiciona Participantes
             participantesSelecionados.forEach(function (p) {
-              mentionsArray.push(p.id);
+              if (p.id) mentionsArray.push(p.id);
+            });
+
+            // 3. REMOVE DUPLICATAS (Essencial para evitar erro 400)
+            // Cria um "Set" que elimina repetições e volta para array
+            var uniqueMentions = mentionsArray.filter(function (item, pos) {
+              return mentionsArray.indexOf(item) == pos;
             });
 
             var payload = {
               content: qraContent,
               embeds: embeds,
               allowed_mentions: {
-                parse: ["users"],
-                users: mentionsArray,
+                // NÃO USE "parse": ["users"] aqui, pois gera conflito.
+                // Usamos apenas a lista explícita de usuários:
+                users: uniqueMentions,
               },
             };
 
