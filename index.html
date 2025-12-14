@@ -24,19 +24,6 @@
 
       <p class="login-footer">Polícia Revoada • Acesso Restrito</p>
     </div>
-
-    <div class="patch-notes-container">
-      <div class="patch-header"><i class="fa-solid fa-code-commit"></i> ATUALIZAÇÕES</div>
-      <div class="patch-scroll-area">
-        <div class="patch-entry">
-          <div class="patch-title"><span class="version">v2.1</span><span class="date">14/12/2025</span></div>
-          <ul class="patch-list">
-            <li><span class="tag tag-fix">FIX</span> Correção crítica de Login/Tela Preta.</li>
-            <li><span class="tag tag-new">NOVO</span> Cache de sessão blindado (7 dias).</li>
-          </ul>
-        </div>
-      </div>
-    </div>
   </div>
 
   <div id="app-content" class="container hidden">
@@ -44,7 +31,6 @@
     <audio id="bg-music" loop>
       <source src="Música/FusionRj.mp4" type="audio/mpeg">
     </audio>
-
     <button id="btn-music-toggle" class="music-btn" title="Pausar/Tocar Música">
       <i class="fa-solid fa-volume-high"></i>
     </button>
@@ -57,7 +43,7 @@
         <img src="Imagens/PRF_new.png" class="badge">
       </div>
       <div class="logo-area">
-        <img src="Imagens/image.png" alt="REVOADA Logo" class="logo-revoada" style="height: 50px;">
+        <img src="Imagens/image.png" alt="REVOADA Logo" class="logo-revoada">
         <div class="header-text">
           <h1>CALCULADORA PENAL</h1>
           <p class="titulo"><b>Polícia Revoada - Sistema de Sentenciamento</b></p>
@@ -79,26 +65,15 @@
       <div class="dados-inputs">
         <div class="input-group">
           <label>Nome do Preso:</label>
-          <input type="text" id="nome" placeholder="Nome completo">
+          <input type="text" id="nome" placeholder="Nome completo do cidadão">
         </div>
         <div class="input-group">
           <label>RG do Preso:</label>
-          <input type="text" id="rg" placeholder="RG">
+          <input type="text" id="rg" placeholder="Número do Passaporte/RG">
         </div>
         <div class="input-group">
-          <label>Advogado:</label>
-          <input type="text" id="advogado" placeholder="Nome/RG (Opcional)">
-        </div>
-
-        <div class="participantes-section">
-          <label><i class="fa-solid fa-users"></i> Adicionar Participantes:</label>
-          <div class="participante-selector-row search-container">
-            <input type="text" id="search-oficial" class="form-search" placeholder="Pesquisar oficial..." autocomplete="off">
-            <div id="dropdown-oficiais" class="dropdown-results hidden"></div>
-            <input type="hidden" id="selected-oficial-id">
-            <button id="btn-add-participante" class="btn-small"><i class="fa-solid fa-plus"></i></button>
-          </div>
-          <div id="lista-participantes-visual" class="tags-container"></div>
+          <label>Advogado (Opcional):</label>
+          <input type="text" id="advogado" placeholder="Nome do Advogado">
         </div>
       </div>
 
@@ -111,6 +86,7 @@
           </div>
           <input type="file" id="upload-preso" accept="image/*">
         </div>
+
         <div class="upload-box" id="box-upload-mochila" tabindex="0">
           <label>🎒 Inventário</label>
           <div class="preview-area" id="preview-box-mochila">
@@ -119,8 +95,9 @@
           </div>
           <input type="file" id="upload-mochila" accept="image/*">
         </div>
+
         <div class="upload-box hidden" id="box-upload-deposito" tabindex="0" style="border-color: var(--color-success);">
-          <label style="color: var(--color-success);">💸 Comprovante</label>
+          <label style="color: var(--color-success);">💸 Comprovante Fiança</label>
           <div class="preview-area" id="preview-box-deposito">
             <i class="fa-solid fa-receipt placeholder-icon" style="color: var(--color-success);"></i>
             <img id="img-preview-deposito" class="hidden" src="">
@@ -132,19 +109,23 @@
 
     <main class="main-content">
       <section class="card crimes-aplicados">
-        <div class="card-header"><i class="fa-solid fa-gavel"></i> LISTA DE CRIMES</div>
+        <div class="card-header"><i class="fa-solid fa-gavel"></i> CÓDIGO PENAL</div>
         <div class="crimes-list">
+
           <div class="crime-column">
             <div class="category-title">CRIMES CONTRA A VIDA</div>
             <div class="category-content">
               <div class="crime-item" data-artigo="105" data-pena="45" data-multa="40000" data-infiancavel="true"><span class="crime-name">Art. 105 - Homicídio Doloso**</span><button class="btn-info">INF</button></div>
               <div class="crime-item" data-artigo="106" data-pena="40" data-multa="8000" data-infiancavel="true"><span class="crime-name">Art. 106 - Tentativa de Homicídio**</span><button class="btn-info">INF</button></div>
+              <div class="crime-item" data-artigo="107" data-pena="30" data-multa="20000" data-infiancavel="true"><span class="crime-name">Art. 107 - Homicídio Culposo**</span><button class="btn-info">INF</button></div>
             </div>
 
-            <div class="category-title">PORTE E TRÁFICO</div>
+            <div class="category-title">TRÁFICO E PORTE</div>
             <div class="category-content">
               <div class="crime-item" data-artigo="132" data-pena="35" data-multa="30000"><span class="crime-name">Art. 132 - Tráfico de Drogas</span></div>
-              <div class="crime-item" data-artigo="123" data-pena="40" data-multa="50000"><span class="crime-name">Art. 123 - Tráfico de Armas</span></div>
+              <div class="crime-item" data-artigo="123" data-pena="40" data-multa="50000" data-infiancavel="true"><span class="crime-name">Art. 123 - Tráfico de Armas**</span><button class="btn-info">INF</button></div>
+              <div class="crime-item" data-artigo="124" data-pena="25" data-multa="20000"><span class="crime-name">Art. 124 - Porte de Arma Pesada</span></div>
+              <div class="crime-item" data-artigo="125" data-pena="15" data-multa="10000"><span class="crime-name">Art. 125 - Porte de Arma Leve</span></div>
               <div class="crime-item" data-artigo="137" data-pena="20" data-multa="0"><span class="crime-name">Art. 137 - Dinheiro Sujo</span></div>
             </div>
           </div>
@@ -152,68 +133,82 @@
           <div class="crime-column">
             <div class="category-title">CRIMES CONTRA PATRIMÔNIO</div>
             <div class="category-content">
-              <div class="crime-item" data-artigo="157" data-pena="30" data-multa="20000" data-infiancavel="true"><span class="crime-name">Art. 157 - Desacato**</span><button class="btn-info">INF</button></div>
-              <div class="crime-item" data-artigo="161" data-pena="10" data-multa="0"><span class="crime-name">Art. 161 - Réu Reincidente</span></div>
+              <div class="crime-item" data-artigo="157" data-pena="30" data-multa="20000" data-infiancavel="true"><span class="crime-name">Art. 157 - Roubo a Banco**</span><button class="btn-info">INF</button></div>
+              <div class="crime-item" data-artigo="158" data-pena="25" data-multa="15000"><span class="crime-name">Art. 158 - Roubo de Veículo</span></div>
+              <div class="crime-item" data-artigo="159" data-pena="15" data-multa="5000"><span class="crime-name">Art. 159 - Furto</span></div>
+            </div>
+
+            <div class="category-title">ORDEM PÚBLICA</div>
+            <div class="category-content">
+              <div class="crime-item" data-artigo="160" data-pena="20" data-multa="10000"><span class="crime-name">Art. 160 - Desacato</span></div>
+              <div class="crime-item" data-artigo="161" data-pena="25" data-multa="15000"><span class="crime-name">Art. 161 - Desobediência</span></div>
+              <div class="crime-item" data-artigo="162" data-pena="10" data-multa="5000"><span class="crime-name">Art. 162 - Direção Perigosa</span></div>
+              <div class="crime-item" data-artigo="163" data-pena="30" data-multa="20000"><span class="crime-name">Art. 163 - Fuga da Polícia</span></div>
             </div>
           </div>
         </div>
       </section>
 
       <section class="card resumo-sentenca">
-        <div class="card-header"><i class="fa-solid fa-scroll"></i> SENTENÇA</div>
+        <div class="card-header"><i class="fa-solid fa-scroll"></i> SENTENÇA FINAL</div>
 
         <div class="resumo-section crimes-selecionados">
           <div id="crimes-list-output" class="output-list">
-            <div class="empty-message">Nenhum crime selecionado</div>
+            <div class="empty-message">Selecione os crimes na lista...</div>
           </div>
-          <div id="alerta-pena-maxima" class="alert-box hidden"><i class="fa-solid fa-triangle-exclamation"></i> TETO MÁXIMO ATINGIDO</div>
+          <div id="alerta-pena-maxima" class="alert-box hidden"><i class="fa-solid fa-triangle-exclamation"></i> TETO MÁXIMO (180 MESES) ATINGIDO</div>
         </div>
 
         <hr>
         <div class="resumo-section pena-multa">
-          <div><i class="fa-solid fa-hourglass-half"></i> Pena: <span id="pena-total">0 meses</span></div>
-          <div><i class="fa-solid fa-money-bill-wave"></i> Multa: <span id="multa-total">R$0</span></div>
+          <div class="total-box"><i class="fa-solid fa-hourglass-half"></i> <span id="pena-total">0 meses</span></div>
+          <div class="total-box"><i class="fa-solid fa-money-bill-wave"></i> <span id="multa-total">R$ 0</span></div>
         </div>
         <hr>
 
         <div class="resumo-section atenuantes">
-          <div class="atenuante-item"><input type="checkbox" id="atenuante-advogado" data-percent="-20"><label for="atenuante-advogado">Advogado (-20%)</label></div>
+          <div class="atenuante-item"><input type="checkbox" id="atenuante-advogado" data-percent="-20"><label for="atenuante-advogado">Advogado Presente (-20%)</label></div>
           <div class="atenuante-item"><input type="checkbox" id="atenuante-primario" data-percent="-10"><label for="atenuante-primario">Réu Primário (-10%)</label></div>
           <div class="atenuante-item"><input type="checkbox" id="atenuante-confesso" data-percent="-10"><label for="atenuante-confesso">Réu Confesso (-10%)</label></div>
 
-          <div style="margin-top: 10px;">
-            <label>Reanimado HP?</label>
-            <input type="radio" id="hp-nao" name="reanimado-hp" value="nao" checked> Não
-            <input type="radio" id="hp-sim" name="reanimado-hp" value="sim"> Sim
+          <div class="hp-control">
+            <label>Reanimado no HP?</label>
+            <div class="radio-group">
+              <input type="radio" id="hp-nao" name="reanimado-hp" value="nao" checked> <label for="hp-nao">Não</label>
+              <input type="radio" id="hp-sim" name="reanimado-hp" value="sim"> <label for="hp-sim">Sim</label>
+            </div>
           </div>
-          <div id="container-hp-minutos" class="hidden"><input type="number" id="hp-minutos" placeholder="Minutos desc."></div>
+          <div id="container-hp-minutos" class="hidden">
+            <input type="number" id="hp-minutos" placeholder="Minutos gastos no HP">
+          </div>
 
           <hr>
-          <div id="container-radio-fianca" style="background: rgba(16, 185, 129, 0.1); padding: 5px;">
-            <label>Fiança Paga?</label>
-            <input type="radio" id="fianca-nao" name="pagou-fianca" value="nao" checked> Não
-            <input type="radio" id="fianca-sim" name="pagou-fianca" value="sim"> Sim
+          <div class="fianca-control">
+            <label>Status da Fiança:</label>
+            <div class="radio-group">
+              <input type="radio" id="fianca-nao" name="pagou-fianca" value="nao" checked> <label for="fianca-nao">Não Pagou</label>
+              <input type="radio" id="fianca-sim" name="pagou-fianca" value="sim"> <label for="fianca-sim">Pagou</label>
+            </div>
           </div>
-          <div>Valor Fiança: <input type="text" id="fianca-output" readonly value="R$ 0"></div>
-          <div id="fianca-breakdown" class="hidden">
-            <small>Policial: <span id="valor-policial">0</span> | Painel: <span id="valor-painel">0</span> | Adv: <span id="valor-advogado">0</span></small>
+          <div class="fianca-valor">
+            Valor Fiança: <input type="text" id="fianca-output" readonly value="R$ 0">
           </div>
         </div>
 
         <hr>
         <div class="resumo-section">
           <label>Itens Apreendidos:</label>
-          <textarea class="itens-apreendidos" placeholder="Liste os itens..."></textarea>
+          <textarea id="itens-apreendidos" class="itens-apreendidos" placeholder="Liste os itens ilegais apreendidos..."></textarea>
         </div>
 
         <div id="container-dinheiro-sujo" class="hidden">
-          <label>Dinheiro Sujo:</label>
-          <input type="text" id="input-dinheiro-sujo" placeholder="Valor">
+          <label>Valor em Dinheiro Sujo:</label>
+          <input type="text" id="input-dinheiro-sujo" placeholder="Digite o valor">
         </div>
 
         <div class="action-buttons">
-          <button id="btn-enviar" class="btn-action">ENVIAR RELATÓRIO</button>
-          <button id="btn-limpar" class="btn-action btn-limpar">LIMPAR</button>
+          <button id="btn-enviar" class="btn-action">GERAR RELATÓRIO</button>
+          <button id="btn-limpar" class="btn-action btn-limpar">LIMPAR TUDO</button>
         </div>
       </section>
     </main>
@@ -222,24 +217,27 @@
   <div id="modal-confirmacao" class="modal-overlay hidden">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>CONFIRMAR ENVIO</h3>
+        <h3>CONFIRMAR PRISÃO</h3>
       </div>
       <div class="modal-body">
-        <p><strong>Oficiais:</strong> <span id="conf-oficiais"></span></p>
+        <p><strong>Oficial:</strong> <span id="conf-oficial"></span></p>
         <p><strong>Preso:</strong> <span id="conf-preso"></span></p>
-        <p><strong>Sentença:</strong> <span id="conf-sentenca"></span> | <span id="conf-multa"></span></p>
+        <div class="conf-values">
+          <span id="conf-sentenca"></span>
+          <span id="conf-multa"></span>
+        </div>
         <hr>
+        <h4>Crimes:</h4>
         <ul id="conf-crimes"></ul>
-        <ul id="conf-detalhes"></ul>
         <div class="confirm-imgs">
-          <img id="conf-img-preso" src="">
-          <img id="conf-img-mochila" src="">
-          <div id="box-conf-deposito" class="hidden"><img id="conf-img-deposito" src=""></div>
+          <div class="img-wrapper"><small>Preso</small><img id="conf-img-preso" src=""></div>
+          <div class="img-wrapper"><small>Mochila</small><img id="conf-img-mochila" src=""></div>
+          <div id="box-conf-deposito" class="hidden"><small>Comprovante</small><img id="conf-img-deposito" src=""></div>
         </div>
       </div>
       <div class="modal-footer">
         <button id="btn-cancelar-conf" class="btn-cancelar">VOLTAR</button>
-        <button id="btn-confirmar-envio" class="btn-confirmar">ENVIAR</button>
+        <button id="btn-confirmar-envio" class="btn-confirmar">ENVIAR DISCORD</button>
       </div>
     </div>
   </div>
