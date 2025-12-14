@@ -240,7 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       }
 
-      if (participantesSelecionados.length >= 5) {
+      if (participantesSelecionados.length >= 6) {
         return mostrarAlerta(
           "Limite máximo de 6 participantes atingido!",
           "error"
@@ -268,7 +268,7 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   // =========================================================
-  // 6. LÓGICA DA CALCULADORA (CORRIGIDA) E FORMATAÇÃO
+  // 6. LÓGICA DA CALCULADORA
   // =========================================================
   var selectedCrimes = [];
   var crimeItems = document.querySelectorAll(".crime-item");
@@ -289,19 +289,36 @@ document.addEventListener("DOMContentLoaded", function () {
   var containerHp = document.getElementById("container-hp-minutos");
   var alertPenaMaxima = document.getElementById("alerta-pena-maxima");
 
+  // --- TRAVA DE CHECKBOX (PRIMÁRIO vs REINCIDENTE) ---
+  var chkPrimario = document.getElementById("atenuante-primario");
+  if (chkPrimario) {
+    chkPrimario.addEventListener("change", function () {
+      if (this.checked) {
+        // Se marcar Primário, verifica se Reincidente (161) está selecionado
+        var isReincidente = selectedCrimes.some((c) => c.artigo === "161");
+        if (isReincidente) {
+          mostrarAlerta(
+            "Conflito: Remova o crime de Reincidente antes de marcar Primário.",
+            "error"
+          );
+          this.checked = false; // Desmarca
+          calculateSentence();
+        }
+      }
+    });
+  }
+
   function calculateSentence() {
-    var totalPenaRaw = 0; // Soma bruta
+    var totalPenaRaw = 0;
     var totalMulta = 0;
     var isInfiancavel = false;
 
-    // 1. Soma simples de todos os crimes
     selectedCrimes.forEach((c) => {
       totalPenaRaw += c.pena;
       totalMulta += c.multa;
       if (c.infiancavel) isInfiancavel = true;
     });
 
-    // Cálculo Dinheiro Sujo
     if (
       inputDinheiroSujo &&
       inputDinheiroSujo.value &&
@@ -309,13 +326,11 @@ document.addEventListener("DOMContentLoaded", function () {
     ) {
       var valorLimpo = inputDinheiroSujo.value.replace(/\D/g, "");
       var sujo = parseFloat(valorLimpo) || 0;
-      totalMulta += sujo * 0.5; // 50%
+      totalMulta += sujo * 0.5;
     }
 
-    // 2. APLICA O TETO DE 180 ANTES DOS DESCONTOS
-    // Se a soma deu 500, a base de cálculo vira 180.
+    // TETO DE 180 ANTES DO DESCONTO
     var penaBaseCalculo = totalPenaRaw;
-
     if (totalPenaRaw > 180) {
       penaBaseCalculo = 180;
       if (alertPenaMaxima) alertPenaMaxima.classList.remove("hidden");
@@ -323,19 +338,15 @@ document.addEventListener("DOMContentLoaded", function () {
       if (alertPenaMaxima) alertPenaMaxima.classList.add("hidden");
     }
 
-    // 3. APLICA ATENUANTES (Advogado, etc) SOBRE A BASE (MÁX 180)
     var descontoPercent = 0;
     checkboxes.forEach((cb) => {
       if (cb.checked) descontoPercent += parseFloat(cb.dataset.percent);
     });
-
-    // Ex: 180 * (1 - 0.20) = 144
     var penaComDesconto = Math.max(
       0,
       penaBaseCalculo * (1 - Math.abs(descontoPercent) / 100)
     );
 
-    // 4. REDUÇÃO DE HP (Se houver)
     if (hpSimBtn && hpSimBtn.checked && inputHpMinutos.value) {
       penaComDesconto = Math.max(
         0,
@@ -348,7 +359,6 @@ document.addEventListener("DOMContentLoaded", function () {
     penaTotalEl.textContent = penaFinal + " meses";
     multaTotalEl.textContent = "R$" + totalMulta.toLocaleString("pt-BR");
 
-    // Interface Fiança
     var radioFiancaSim = document.getElementById("fianca-sim");
     var radioFiancaNao = document.getElementById("fianca-nao");
     var boxDeposito = document.getElementById("box-upload-deposito");
@@ -426,24 +436,24 @@ document.addEventListener("DOMContentLoaded", function () {
     calculateSentence();
   };
 
-  // --- TRAVA DE HOMICÍDIOS ---
+  // --- TRAVAS DE CRIMES (HOMICIDIOS, ARMAS e REINCIDÊNCIA) ---
   crimeItems.forEach((item) => {
     item.addEventListener("click", function () {
       var artigo = this.dataset.artigo;
 
+      // Se já existe, remove
       if (selectedCrimes.some((c) => c.artigo === artigo)) {
         var idx = selectedCrimes.findIndex((c) => c.artigo === artigo);
         window.removerCrime(idx);
       } else {
-        // Grupo Homicídios Consumados: 104, 105, 107, 108
-        // Tentativa (106) pode acumular
+        // 1. TRAVA DE HOMICÍDIOS
         const HOMICIDIOS_CONFLITANTES = ["104", "105", "107", "108"];
-
         if (HOMICIDIOS_CONFLITANTES.includes(artigo)) {
-          const temConflito = selectedCrimes.some((c) =>
-            HOMICIDIOS_CONFLITANTES.includes(c.artigo)
-          );
-          if (temConflito) {
+          if (
+            selectedCrimes.some((c) =>
+              HOMICIDIOS_CONFLITANTES.includes(c.artigo)
+            )
+          ) {
             return mostrarAlerta(
               "Conflito: Não é possível marcar múltiplos homicídios consumados.",
               "error"
@@ -451,6 +461,38 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
 
+        // 2. TRAVA DE ARMAS (123 vs 125/126)
+        if (artigo === "123") {
+          if (
+            selectedCrimes.some((c) => c.artigo === "125" || c.artigo === "126")
+          ) {
+            return mostrarAlerta(
+              "Conflito: Tráfico de Armas não pode ser marcado junto com Porte.",
+              "error"
+            );
+          }
+        }
+        if (artigo === "125" || artigo === "126") {
+          if (selectedCrimes.some((c) => c.artigo === "123")) {
+            return mostrarAlerta(
+              "Conflito: Porte de Armas não pode ser marcado junto com Tráfico.",
+              "error"
+            );
+          }
+        }
+
+        // 3. TRAVA: REINCIDENTE VS PRIMÁRIO (Checkbox)
+        if (artigo === "161") {
+          var chkPrim = document.getElementById("atenuante-primario");
+          if (chkPrim && chkPrim.checked) {
+            return mostrarAlerta(
+              "Conflito: Réu não pode ser Reincidente e Primário ao mesmo tempo.",
+              "error"
+            );
+          }
+        }
+
+        // ADICIONA O CRIME
         var nome = this.querySelector(".crime-name").textContent;
         var pena = parseInt(this.dataset.pena);
         var multa = parseInt(this.dataset.multa);
@@ -615,6 +657,22 @@ document.addEventListener("DOMContentLoaded", function () {
           "error"
         );
         inputDinheiroSujo.focus();
+        return;
+      }
+
+      // TRAVA: STATUS DO RÉU (PRIMÁRIO/REINCIDENTE)
+      var isPrimario = document.getElementById("atenuante-primario").checked;
+      var isReincidente = selectedCrimes.some((c) => c.artigo === "161");
+
+      if (!isPrimario && !isReincidente) {
+        mostrarAlerta("⚠️ Defina se o Réu é Primário ou Reincidente!", "error");
+        return;
+      }
+      if (isPrimario && isReincidente) {
+        mostrarAlerta(
+          "⚠️ Réu não pode ser Primário e Reincidente ao mesmo tempo!",
+          "error"
+        );
         return;
       }
 
