@@ -574,7 +574,7 @@ document.addEventListener("DOMContentLoaded", function () {
           var textoAtual = textareaItens.value;
           // Regex para encontrar "Dinheiro Sujo (R$ ...)" em qualquer lugar do texto
           var regexDinheiro = /Dinheiro Sujo \(R\$ .*\)\n?/;
-          var novoTextoDinheiro = `Dinheiro Sujo (R$ ${formatado})\n`;
+          var novoTextoDinheiro = `Dinheiro Sujo R$ ${formatado}\n`;
 
           // Se já existe, substitui. Se não, adiciona no topo.
           if (regexDinheiro.test(textoAtual)) {
