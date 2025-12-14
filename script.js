@@ -781,6 +781,7 @@ document.addEventListener("DOMContentLoaded", function () {
       comprimirImagem(arquivoPreso, function (presoBlob) {
         comprimirImagem(arquivoMochila, function (mochilaBlob) {
           // --- FUNÇÃO FINALIZAR ENVIO CORRIGIDA ---
+          // --- FUNÇÃO FINALIZAR ENVIO (VERSÃO MARKDOWN / TEXTO PURO) ---
           var finalizarEnvio = function (depositoBlob) {
             var nome = nomeInput.value;
             var rg = rgInput.value;
@@ -793,41 +794,40 @@ document.addEventListener("DOMContentLoaded", function () {
             var oficial = userNameSpan.textContent;
             var officerId = userIdHidden.value || "000000";
 
-            // Monta lista de participantes para o texto
+            // Monta lista de participantes
             var participantesStr = "";
             participantesSelecionados.forEach((p) => {
               participantesStr += "<@" + p.id + "> ";
             });
-            if (participantesStr === "") participantesStr = "Nenhum adicional.";
+            if (participantesStr === "") participantesStr = "Nenhum.";
 
-            // Conteúdo da mensagem (Texto fora do embed é o que notifica)
-            var qraContent =
-              "**QRA:** <@" + officerId + "> " + participantesStr;
-
+            // Monta lista de crimes
             var crimesText =
               selectedCrimes.length > 0
                 ? selectedCrimes
                     .map(function (c) {
                       return (
+                        "- " +
                         c.nome.replace(/\*\*/g, "").trim() +
-                        (c.infiancavel ? "**" : "")
+                        (c.infiancavel ? " (INF)" : "")
                       );
                     })
                     .join("\n")
                 : "Nenhum crime aplicado.";
 
+            // Monta atenuantes
             var atenuantesText = "";
             for (var cb = 0; cb < checkboxes.length; cb++) {
               if (checkboxes[cb].checked) {
                 var lbl = document
                   .querySelector('label[for="' + checkboxes[cb].id + '"]')
                   .textContent.trim();
-                atenuantesText += "🔹 " + lbl + "\n";
+                atenuantesText += "- " + lbl + "\n";
               }
             }
             if (hpSimBtn && hpSimBtn.checked && inputHpMinutos.value)
               atenuantesText +=
-                "🔹 Reanimado no HP (-" + inputHpMinutos.value + "m)\n";
+                "- Reanimado no HP (-" + inputHpMinutos.value + "m)\n";
             if (atenuantesText === "") atenuantesText = "Nenhum.";
 
             var porteTexto = "Não";
@@ -836,110 +836,82 @@ document.addEventListener("DOMContentLoaded", function () {
                 porteTexto = "Sim";
             }
 
+            // --- CONSTRUÇÃO DA MENSAGEM EM MARKDOWN ---
+            var titulo = pagouFianca
+              ? "# 💰 RELATÓRIO DE FIANÇA"
+              : "# 🚔 RELATÓRIO DE PRISÃO";
+
+            // Aqui montamos o texto corrido. O '\n' quebra a linha.
+            var mensagemFinal =
+              titulo +
+              "\n\n" +
+              "**👮 RESPONSÁVEL:** <@" +
+              officerId +
+              ">\n" +
+              "**👥 PARTICIPANTES:** " +
+              participantesStr +
+              "\n" +
+              "──────────────────────\n" +
+              "**👤 PRESO:** " +
+              nome +
+              " **RG:** " +
+              rg +
+              "\n" +
+              "**⚖️ SENTENÇA:** " +
+              penaStr +
+              " ┃ **MULTA:** " +
+              multaStr +
+              "\n" +
+              "**🛡️ ADVOGADO:** " +
+              advogado +
+              "\n" +
+              "──────────────────────\n" +
+              "**📜 CRIMES:**\n" +
+              "```diff\n" +
+              crimesText +
+              "\n```\n" +
+              "> **ATENUANTES:**\n" +
+              atenuantesText +
+              "\n" +
+              "> **DETALHES:**\n" +
+              "> Porte: " +
+              porteTexto +
+              "\n" +
+              "> Dinheiro Sujo: " +
+              valorSujo +
+              "\n" +
+              "> Fiança Paga: " +
+              (pagouFianca ? "SIM" : "NÃO") +
+              "\n" +
+              "──────────────────────\n" +
+              "📷 *As fotos e comprovantes estão anexados abaixo.*";
+
+            // --- PREPARAÇÃO DO FORMDATA ---
             var formData = new FormData();
 
-            // Adiciona imagens obrigatórias
+            // Anexa as imagens (Elas aparecerão automaticamente abaixo do texto)
             formData.append("file1", presoBlob, "preso.jpg");
             formData.append("file2", mochilaBlob, "mochila.jpg");
-
-            var embedColor = pagouFianca ? 3066993 : 3447003;
-            var embedTitle = pagouFianca
-              ? "💰 RELATÓRIO DE FIANÇA"
-              : "🚔 RELATÓRIO DE PRISÃO";
-
-            // Cria os embeds
-            var embeds = [
-              {
-                title: embedTitle,
-                color: embedColor,
-                image: { url: "attachment://preso.jpg" },
-                fields: [
-                  {
-                    name: "👮 OFICIAL RESPONSÁVEL",
-                    value: oficial,
-                    inline: false,
-                  },
-                  {
-                    name: "👤 PRESO",
-                    value: "**Nome:** " + nome + "\n**RG:** " + rg,
-                    inline: true,
-                  },
-                  {
-                    name: "⚖️ SENTENÇA",
-                    value: "**Pena:** " + penaStr + "\n**Multa:** " + multaStr,
-                    inline: true,
-                  },
-                  { name: "🛡️ ADVOGADO", value: advogado, inline: true },
-                  { name: "📜 CRIMES", value: "```\n" + crimesText + "\n```" },
-                  {
-                    name: "🔻 ATENUANTES / STATUS",
-                    value:
-                      atenuantesText +
-                      "\n**Porte:** " +
-                      porteTexto +
-                      "\n**Dinheiro Sujo:** " +
-                      valorSujo +
-                      "\n**Fiança Paga:** " +
-                      (pagouFianca ? "SIM" : "NÃO"),
-                  },
-                ],
-              },
-              {
-                title: "📦 FOTO DO INVENTÁRIO",
-                color: embedColor,
-                image: { url: "attachment://mochila.jpg" },
-              },
-            ];
-
-            // Lógica do Depósito
             if (depositoBlob) {
               formData.append("file3", depositoBlob, "deposito.jpg");
-              embeds.push({
-                title: "💸 COMPROVANTE DE DEPÓSITO",
-                color: embedColor,
-                image: { url: "attachment://deposito.jpg" },
-              });
             }
 
-            // Footer no último embed
-            if (embeds.length > 0) {
-              embeds[embeds.length - 1].footer = {
-                text:
-                  "Sistema Policial Revoada • " +
-                  new Date().toLocaleString("pt-BR"),
-              };
-            }
-
-            // --- CORREÇÃO DE MENÇÕES (SEM ERRO 400) ---
+            // --- CORREÇÃO DE MENÇÕES ---
+            // Mantendo sua lógica de filtrar IDs para evitar erro 400
             var mentionsArray = [];
-
-            // 1. Adiciona Oficial (apenas se ID for válido)
-            if (
-              officerId &&
-              officerId.length > 5 &&
-              officerId !== "0000000000"
-            ) {
+            if (officerId && officerId.length > 5)
               mentionsArray.push(officerId);
-            }
-
-            // 2. Adiciona Participantes
             participantesSelecionados.forEach(function (p) {
               if (p.id) mentionsArray.push(p.id);
             });
-
-            // 3. REMOVE DUPLICATAS (Essencial para evitar erro 400)
-            // Cria um "Set" que elimina repetições e volta para array
             var uniqueMentions = mentionsArray.filter(function (item, pos) {
               return mentionsArray.indexOf(item) == pos;
             });
 
             var payload = {
-              content: qraContent,
-              embeds: embeds,
+              content: mensagemFinal,
               allowed_mentions: {
-                // NÃO USE "parse": ["users"] aqui, pois gera conflito.
-                // Usamos apenas a lista explícita de usuários:
-                users: uniqueMentions,
+                users: uniqueMentions, // Garante que só quem está na lista seja notificado
               },
             };
 
