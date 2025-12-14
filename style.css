@@ -318,7 +318,7 @@ textarea {
 }
 
 .form-search {
-  width: 100%;
+  width: 40%;
   background-color: var(--bg-main);
   border: 1px solid var(--border-color);
   color: var(--text-primary);

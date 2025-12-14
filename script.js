@@ -16,7 +16,68 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+  // --- SISTEMA DE CACHE DE SESSÃO (LOGIN AUTOMÁTICO) ---
+  const SESSION_KEY = "policia_session_v1";
+  const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 1 semana em milissegundos
 
+  // Função para salvar o login
+  function salvarSessao(nome, id) {
+    const dados = {
+      nome: nome,
+      id: id,
+      timestamp: new Date().getTime(),
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(dados));
+  }
+
+  // Função para limpar o login (Logout)
+  function limparSessao() {
+    localStorage.removeItem(SESSION_KEY);
+    location.reload();
+  }
+
+  // Função que verifica se já existe um login salvo ao abrir a página
+  function verificarSessao() {
+    const dadosSalvos = localStorage.getItem(SESSION_KEY);
+
+    if (dadosSalvos) {
+      try {
+        const sessao = JSON.parse(dadosSalvos);
+        const agora = new Date().getTime();
+
+        // Verifica se a sessão ainda é válida (menos de 1 semana)
+        if (agora - sessao.timestamp < SESSION_DURATION) {
+          // --- PREENCHE OS DADOS DO USUÁRIO ---
+          // Certifique-se que estes IDs batem com o seu HTML
+          const userNameSpan = document.getElementById("user-name");
+          const userIdHidden = document.getElementById("user-id");
+          const loginScreen = document.getElementById("login-screen"); // ID da div de login
+          const mainContent = document.getElementById("main-content"); // ID da div principal
+
+          if (userNameSpan) userNameSpan.textContent = sessao.nome;
+          if (userIdHidden) userIdHidden.value = sessao.id;
+
+          // Troca a tela de login pelo conteúdo principal
+          if (loginScreen) loginScreen.classList.add("hidden");
+          if (mainContent) mainContent.classList.remove("hidden");
+
+          // Notificação discreta
+          console.log("Sessão restaurada para: " + sessao.nome);
+          return true;
+        } else {
+          // Sessão expirada
+          localStorage.removeItem(SESSION_KEY);
+        }
+      } catch (e) {
+        console.error("Erro ao ler sessão", e);
+        localStorage.removeItem(SESSION_KEY);
+      }
+    }
+    return false;
+  }
+
+  // Executa a verificação assim que a página carrega
+  verificarSessao();
   // --- CONFIGURAÇÕES ---
   var PORCENTAGEM_MULTA_SUJO = 0.5;
   var PENA_MAXIMA_SERVER = 180;
@@ -113,7 +174,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Login
   var loginScreen = document.getElementById("login-screen");
-  var btnLoginSimulado = document.getElementById("btn-login-simulado");
   var appContent = document.getElementById("app-content");
   var userNameSpan = document.getElementById("user-name");
   var userAvatarImg = document.getElementById("user-avatar");
@@ -164,6 +224,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function doLogin(username, avatarUrl, userId) {
+    // --- CÓDIGO NOVO: Salva o login para a próxima vez ---
+    salvarSessao(username, avatarUrl, userId);
+    // ----------------------------------------------------
+
     loginScreen.style.display = "none";
     appContent.classList.remove("hidden");
     userNameSpan.textContent = username;
@@ -175,12 +239,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (bgMusic) bgMusic.play().catch((e) => console.log("Autoplay block"));
     carregarOficiaisDiscord();
   }
-
-  if (btnLoginSimulado)
-    btnLoginSimulado.addEventListener("click", function () {
-      doLogin("Oficial. Padrao", "Imagens/image.png", "0000000000");
-    });
-
+  verificarSessao();
   var fragment = new URLSearchParams(window.location.hash.slice(1));
   var accessToken = fragment.get("access_token");
   if (accessToken) {
