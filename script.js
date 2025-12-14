@@ -20,71 +20,89 @@ document.addEventListener("DOMContentLoaded", function () {
   const SESSION_KEY = "policia_session_v1";
   const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 1 semana
 
-  // Função para salvar o login (CORRIGIDA: Agora aceita 3 argumentos)
+  // 1. Função ATUALIZADA para salvar (recebe 3 argumentos)
   function salvarSessao(nome, avatar, id) {
     const dados = {
       nome: nome,
-      avatar: avatar, // Agora salvamos o avatar corretamente
-      id: id, // E o ID vai para o campo certo
+      avatar: avatar,
+      id: id,
       timestamp: new Date().getTime(),
     };
     localStorage.setItem(SESSION_KEY, JSON.stringify(dados));
   }
 
-  // Função para limpar o login (Logout)
-  function limparSessao() {
-    localStorage.removeItem(SESSION_KEY);
-    location.reload();
-  }
-
-  // Função que verifica se já existe um login salvo ao abrir a página
+  // 2. Função para carregar os dados salvos ao abrir a página
   function verificarSessao() {
-    const dadosSalvos = localStorage.getItem(SESSION_KEY);
+    const sessaoSalva = localStorage.getItem(SESSION_KEY);
+    if (sessaoSalva) {
+      const dados = JSON.parse(sessaoSalva);
+      const agora = new Date().getTime();
 
-    if (dadosSalvos) {
-      try {
-        const sessao = JSON.parse(dadosSalvos);
-        const agora = new Date().getTime();
+      // Verifica se a sessão ainda é válida (menos de 7 dias)
+      if (agora - dados.timestamp < SESSION_DURATION) {
+        // Preenche os campos automaticamente
+        if (inputNome) inputNome.value = dados.nome || "";
+        if (inputId) inputId.value = dados.id || "";
 
-        // Verifica se a sessão ainda é válida
-        if (agora - sessao.timestamp < SESSION_DURATION) {
-          const userNameSpan = document.getElementById("user-name");
-          const userIdHidden = document.getElementById("user-id-hidden");
-          const loginScreen = document.getElementById("login-screen");
-          const appContent = document.getElementById("app-content");
-          const userAvatarImg = document.getElementById("user-avatar");
-
-          if (userNameSpan) userNameSpan.textContent = sessao.nome;
-
-          // IMPORTANTE: Aqui ele vai colocar o ID certo, e não o link da imagem
-          if (userIdHidden) userIdHidden.value = sessao.id;
-
-          // Restaura a foto se existir
-          if (userAvatarImg && sessao.avatar) {
-            userAvatarImg.src = sessao.avatar;
-            userAvatarImg.classList.remove("hidden");
-          }
-
-          // Troca a tela
-          if (loginScreen) loginScreen.style.display = "none";
-          if (appContent) {
-            appContent.classList.remove("hidden");
-          }
-
-          console.log("Sessão restaurada para: " + sessao.nome);
-          return true;
-        } else {
-          localStorage.removeItem(SESSION_KEY);
+        // Atualiza a imagem do avatar se existir
+        if (userAvatar && dados.avatar) {
+          userAvatar.src = dados.avatar;
         }
-      } catch (e) {
-        console.error("Erro ao ler sessão", e);
-        localStorage.removeItem(SESSION_KEY);
+
+        // Esconde a tela de login
+        if (loginScreen) loginScreen.style.display = "none";
+        return true; // Sessão válida
       }
     }
-    return false;
+    return false; // Sessão expirada ou inexistente
   }
-  // Executa a verificação assim que a página carrega
+
+  // 3. Executa verificação ao carregar
   verificarSessao();
+
+  // --- LÓGICA DE LOGIN VIA DISCORD (Onde estava o erro provável) ---
+  const fragment = new URLSearchParams(window.location.hash.slice(1));
+  const accessToken = fragment.get("access_token");
+  const tokenType = fragment.get("token_type");
+
+  if (accessToken) {
+    // Remove o hash da URL para ficar limpo
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+    // Busca os dados do usuário no Discord
+    fetch("https://discord.com/api/users/@me", {
+      headers: {
+        authorization: `${tokenType} ${accessToken}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // Pega o nome global ou o username
+        const nickname = data.global_name || data.username;
+        const userId = data.id;
+
+        // Monta a URL do Avatar
+        let avatarUrl = "Imagens/image.png"; // Padrão
+        if (data.avatar) {
+          avatarUrl = `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.png`;
+        }
+
+        // Preenche os inputs
+        if (inputNome) inputNome.value = nickname;
+        if (inputId) inputId.value = userId;
+        if (userAvatar) userAvatar.src = avatarUrl;
+
+        // --- AQUI ESTAVA O ERRO: Chamada corrigida para 3 argumentos ---
+        salvarSessao(nickname, avatarUrl, userId);
+
+        // Remove a tela de login
+        if (loginScreen) loginScreen.style.display = "none";
+      })
+      .catch((error) => {
+        console.error("Erro ao fazer login:", error);
+        alert("Erro ao conectar com Discord. Tente novamente.");
+      });
+  }
   // --- CONFIGURAÇÕES ---
   var PORCENTAGEM_MULTA_SUJO = 0.5;
   var PENA_MAXIMA_SERVER = 180;
@@ -232,7 +250,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function doLogin(username, avatarUrl, userId) {
     // --- CÓDIGO NOVO: Salva o login para a próxima vez ---
-    salvarSessao(username, avatarUrl, userId);
+    salvarSessao(nickname, avatarUrl, userId);
     // ----------------------------------------------------
 
     loginScreen.style.display = "none";
