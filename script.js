@@ -1,31 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // --- REFERÊNCIAS GLOBAIS (Busca no início para garantir) ---
-  var loginScreen = document.getElementById("login-screen");
-  var appContent = document.getElementById("app-content");
-  var userNameSpan = document.getElementById("user-name");
-  var userIdHidden = document.getElementById("user-id-hidden");
-  var userAvatarImg = document.getElementById("user-avatar");
-
-  // --- FUNÇÃO PARA TROCAR TELA (A Mágica acontece aqui) ---
-  function mostrarPainelPrincipal() {
-    console.log("Tentando mostrar painel...");
-
-    // 1. Esconde Login
-    if (loginScreen) {
-      loginScreen.style.display = "none";
-      loginScreen.classList.add("hidden"); // Garante esconder
-    }
-
-    // 2. Mostra Painel (FORÇA BRUTA)
-    if (appContent) {
-      appContent.classList.remove("hidden");
-      appContent.style.display = "block"; // <--- ISSO RESOLVE A TELA PRETA
-      console.log("Painel exibido com sucesso.");
-    } else {
-      console.error("ERRO CRÍTICO: Não achei a div id='app-content'");
-      alert("Erro: id='app-content' não encontrado no HTML!");
-    }
-  }
   // --- MÚSICA ---
   var bgMusic = document.getElementById("bg-music");
   var btnMusic = document.getElementById("btn-music-toggle");
@@ -43,88 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
-  // --- SISTEMA DE CACHE DE SESSÃO (LOGIN AUTOMÁTICO) ---
-  const SESSION_KEY = "policia_session_v1";
-  const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 1 semana
 
-  // Função para salvar o login (CORRIGIDA: Agora aceita 3 argumentos)
-  function salvarSessao(nome, avatar, id) {
-    const dados = {
-      nome: nome,
-      avatar: avatar, // Agora salvamos o avatar corretamente
-      id: id, // E o ID vai para o campo certo
-      timestamp: new Date().getTime(),
-    };
-    localStorage.setItem(SESSION_KEY, JSON.stringify(dados));
-  }
-
-  // Função para limpar o login (Logout)
-  function limparSessao() {
-    localStorage.removeItem(SESSION_KEY);
-    location.reload();
-  }
-
-  function verificarSessao() {
-    const dadosSalvos = localStorage.getItem(SESSION_KEY);
-    if (!dadosSalvos) return false;
-
-    try {
-      const sessao = JSON.parse(dadosSalvos);
-      const agora = new Date().getTime();
-
-      // Validação de segurança
-      if (
-        !sessao.id ||
-        sessao.id.toString().includes("http") ||
-        sessao.id.length < 5
-      ) {
-        throw new Error("ID Inválido");
-      }
-      if (agora - sessao.timestamp > SESSION_DURATION) {
-        throw new Error("Expirado");
-      }
-
-      // --- BUSCA OS ELEMENTOS ---
-      const loginScreen = document.getElementById("login-screen");
-      const appContent = document.getElementById("app-content"); // O HTML PRECISA ter esse ID
-      const userNameSpan = document.getElementById("user-name");
-      const userIdHidden = document.getElementById("user-id-hidden");
-      const userAvatarImg = document.getElementById("user-avatar");
-
-      // --- TRAVA DE SEGURANÇA ---
-      // Se não achar o painel principal, NÃO esconde o login.
-      if (!appContent) {
-        console.error(
-          "ERRO: Não encontrei a div com id='app-content' no HTML."
-        );
-        alert(
-          "Erro de Configuração: Adicione id='app-content' na div principal do HTML."
-        );
-        return false;
-      }
-
-      // Preenche dados
-      if (userNameSpan) userNameSpan.textContent = sessao.nome;
-      if (userIdHidden) userIdHidden.value = sessao.id;
-      if (userAvatarImg && sessao.avatar) {
-        userAvatarImg.src = sessao.avatar;
-        userAvatarImg.classList.remove("hidden");
-      }
-
-      // Se chegou até aqui, pode trocar a tela com segurança
-      if (loginScreen) loginScreen.style.display = "none";
-      appContent.classList.remove("hidden");
-
-      console.log("Logado via cache: " + sessao.nome);
-      return true;
-    } catch (e) {
-      console.log("Sessão inválida, limpando...");
-      localStorage.removeItem(SESSION_KEY);
-      return false;
-    }
-  }
-  // Executa a verificação assim que a página carrega
-  verificarSessao();
   // --- CONFIGURAÇÕES ---
   var PORCENTAGEM_MULTA_SUJO = 0.5;
   var PENA_MAXIMA_SERVER = 180;
@@ -221,6 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Login
   var loginScreen = document.getElementById("login-screen");
+  var btnLoginSimulado = document.getElementById("btn-login-simulado");
   var appContent = document.getElementById("app-content");
   var userNameSpan = document.getElementById("user-name");
   var userAvatarImg = document.getElementById("user-avatar");
@@ -271,23 +164,23 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function doLogin(username, avatarUrl, userId) {
-    salvarSessao(username, avatarUrl, userId);
-
-    if (userNameSpan) userNameSpan.textContent = username;
-    if (userIdHidden) userIdHidden.value = userId;
-    if (avatarUrl && userAvatarImg) {
+    loginScreen.style.display = "none";
+    appContent.classList.remove("hidden");
+    userNameSpan.textContent = username;
+    userIdHidden.value = userId;
+    if (avatarUrl) {
       userAvatarImg.src = avatarUrl;
       userAvatarImg.classList.remove("hidden");
     }
-
-    if (bgMusic) bgMusic.play().catch((e) => console.log("Audio block"));
+    if (bgMusic) bgMusic.play().catch((e) => console.log("Autoplay block"));
     carregarOficiaisDiscord();
-
-    // CHAMA A FUNÇÃO QUE FORÇA A TELA
-    mostrarPainelPrincipal();
   }
 
-  verificarSessao();
+  if (btnLoginSimulado)
+    btnLoginSimulado.addEventListener("click", function () {
+      doLogin("Oficial. Padrao", "Imagens/image.png", "0000000000");
+    });
+
   var fragment = new URLSearchParams(window.location.hash.slice(1));
   var accessToken = fragment.get("access_token");
   if (accessToken) {
@@ -816,118 +709,11 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-  // --- ENVIO E CONFIRMAÇÃO ---
-
-  // Elementos do Modal
-  var modalConfirmacao = document.getElementById("modal-confirmacao");
-  var btnCancelarConf = document.getElementById("btn-cancelar-conf");
-  var btnConfirmarEnvio = document.getElementById("btn-confirmar-envio");
-
-  // Botão "Cancelar" do modal
-  if (btnCancelarConf) {
-    btnCancelarConf.addEventListener("click", function () {
-      modalConfirmacao.classList.add("hidden");
-    });
-  }
-
-  // Função para abrir o modal e preencher dados
-  function abrirModalConfirmacao() {
-    // 1. Oficiais
-    var oficialLogado = userNameSpan.textContent;
-    var listaOficiais = [oficialLogado];
-    participantesSelecionados.forEach((p) => listaOficiais.push(p.nome));
-    document.getElementById("conf-oficiais").textContent =
-      listaOficiais.join(", ");
-
-    // 2. Preso e Advogado
-    document.getElementById("conf-preso").textContent =
-      nomeInput.value + " (RG: " + rgInput.value + ")";
-    document.getElementById("conf-advogado").textContent =
-      advogadoInput.value || "Não informado";
-
-    // 3. Sentença e Multa
-    document.getElementById("conf-sentenca").textContent =
-      penaTotalEl.textContent;
-    document.getElementById("conf-multa").textContent =
-      multaTotalEl.textContent;
-
-    // 4. Crimes
-    var listaCrimes = document.getElementById("conf-crimes");
-    listaCrimes.innerHTML = "";
-    if (selectedCrimes.length === 0)
-      listaCrimes.innerHTML = "<li>Nenhum crime selecionado</li>";
-    selectedCrimes.forEach((c) => {
-      var li = document.createElement("li");
-      li.textContent =
-        c.nome.replace(/\*\*/g, "") + (c.infiancavel ? " (INF)" : "");
-      listaCrimes.appendChild(li);
-    });
-
-    // 5. Detalhes / Atenuantes
-    var listaDetalhes = document.getElementById("conf-detalhes");
-    listaDetalhes.innerHTML = "";
-
-    // Atenuantes marcados
-    checkboxes.forEach((cb) => {
-      if (cb.checked) {
-        var lbl = document
-          .querySelector('label[for="' + cb.id + '"]')
-          .textContent.trim();
-        var li = document.createElement("li");
-        li.innerHTML = `<i class="fa-solid fa-check text-green-400"></i> ${lbl}`;
-        listaDetalhes.appendChild(li);
-      }
-    });
-    // HP
-    if (hpSimBtn && hpSimBtn.checked) {
-      var li = document.createElement("li");
-      li.textContent = "🏥 Reanimado no HP (-" + inputHpMinutos.value + "m)";
-      listaDetalhes.appendChild(li);
-    }
-    // Dinheiro Sujo
-    var sujoVal =
-      !containerDinheiroSujo.classList.contains("hidden") &&
-      inputDinheiroSujo.value
-        ? inputDinheiroSujo.value
-        : "Não";
-    var liSujo = document.createElement("li");
-    liSujo.textContent = "💸 Dinheiro Sujo: " + sujoVal;
-    listaDetalhes.appendChild(liSujo);
-
-    // Fiança
-    var pagouFianca = false;
-    for (var i = 0; i < radiosFianca.length; i++) {
-      if (radiosFianca[i].checked && radiosFianca[i].value === "sim")
-        pagouFianca = true;
-    }
-    var liFianca = document.createElement("li");
-    liFianca.innerHTML = pagouFianca
-      ? "✅ <b>Fiança Paga</b>"
-      : "❌ <b>Fiança Não Paga</b>";
-    listaDetalhes.appendChild(liFianca);
-
-    // 6. Imagens
-    document.getElementById("conf-img-preso").src = imgPreviewPreso.src;
-    document.getElementById("conf-img-mochila").src = imgPreviewMochila.src;
-
-    var boxConfDeposito = document.getElementById("box-conf-deposito");
-    if (pagouFianca && imgPreviewDeposito.src) {
-      boxConfDeposito.classList.remove("hidden");
-      document.getElementById("conf-img-deposito").src = imgPreviewDeposito.src;
-    } else {
-      boxConfDeposito.classList.add("hidden");
-    }
-
-    // Exibe o modal
-    modalConfirmacao.classList.remove("hidden");
-  }
-
-  // Lógica do Botão ENVIAR (Tela Principal) - Só valida e abre modal
+  // --- ENVIO ---
   if (btnEnviar) {
     btnEnviar.addEventListener("click", function (e) {
       e.preventDefault();
 
-      // --- VALIDAÇÕES (Idênticas ao código anterior) ---
       var isPrimario = checkPrimario.checked;
       var isReincidente = selectedCrimes.some((c) => c.artigo === "161");
 
@@ -945,6 +731,7 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         return;
       }
+
       var temCrimeDeItem = false;
       for (var x = 0; x < selectedCrimes.length; x++) {
         if (ARTIGOS_COM_ITENS.includes(selectedCrimes[x].artigo)) {
@@ -957,6 +744,7 @@ document.addEventListener("DOMContentLoaded", function () {
         itensApreendidosInput.focus();
         return;
       }
+
       if (nomeInput.value.trim() === "") {
         mostrarAlerta("Preencha o Nome.", "error");
         return;
@@ -987,30 +775,12 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // Se passou em tudo, abre o modal em vez de enviar
-      abrirModalConfirmacao();
-    });
-  }
+      btnEnviar.disabled = true;
+      btnEnviar.textContent = "ENVIANDO...";
 
-  // --- LÓGICA DE ENVIO REAL (Botão Confirmar do Modal) ---
-  if (btnConfirmarEnvio) {
-    btnConfirmarEnvio.addEventListener("click", function () {
-      // Desabilita botões para evitar duplo clique
-      btnConfirmarEnvio.disabled = true;
-      btnConfirmarEnvio.textContent = "ENVIANDO...";
-      btnCancelarConf.style.display = "none";
-
-      // Recupera variaveis necessarias
-      var pagouFianca = false;
-      for (var i = 0; i < radiosFianca.length; i++) {
-        if (radiosFianca[i].checked && radiosFianca[i].value === "sim")
-          pagouFianca = true;
-      }
-
-      // Inicia processo de compressão e envio
       comprimirImagem(arquivoPreso, function (presoBlob) {
         comprimirImagem(arquivoMochila, function (mochilaBlob) {
-          // Definição da função de envio final
+          // --- FUNÇÃO FINALIZAR ENVIO (VERSÃO EMBED + NOTIFICAÇÃO FUNCIONAL) ---
           var finalizarEnvio = function (depositoBlob) {
             var nome = nomeInput.value;
             var rg = rgInput.value;
@@ -1021,26 +791,23 @@ document.addEventListener("DOMContentLoaded", function () {
               ? inputDinheiroSujo.value
               : "Nenhum";
             var oficial = userNameSpan.textContent;
-            var officerId = userIdHidden.value;
+            var officerId = userIdHidden.value; // ID do oficial logado
 
-            // --- PROTEÇÃO EXTRA ---
-            // Se por acaso o ID for uma URL, ignoramos ele para não quebrar a menção
-            if (officerId && officerId.includes("http")) {
-              officerId = "";
-            }
-            // ----------------------
-
+            // Monta lista de participantes (IDs)
             var participantesStr = "";
             participantesSelecionados.forEach((p) => {
               participantesStr += "<@" + p.id + "> ";
             });
 
+            // Monta a string de menção para o 'content' (Isso garante o PING)
+            // Se tiver ID do oficial, menciona ele. Se tiver participantes, menciona eles.
             var mentionString = "";
             if (officerId && officerId.length > 5) {
-              mentionString += "QRA:" + "<@" + officerId + "> ";
+              mentionString += "<@" + officerId + "> ";
             }
             mentionString += participantesStr;
 
+            // Monta lista de crimes formatada
             var crimesText =
               selectedCrimes.length > 0
                 ? selectedCrimes
@@ -1053,6 +820,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     .join("\n")
                 : "Nenhum crime aplicado.";
 
+            // Monta atenuantes
             var atenuantesText = "";
             for (var cb = 0; cb < checkboxes.length; cb++) {
               if (checkboxes[cb].checked) {
@@ -1073,21 +841,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 porteTexto = "Sim";
             }
 
-            // FormData
+            // --- PREPARAÇÃO DO FORMDATA ---
             var formData = new FormData();
             formData.append("file1", presoBlob, "preso.jpg");
             formData.append("file2", mochilaBlob, "mochila.jpg");
 
-            var embedColor = pagouFianca ? 3066993 : 15158332;
+            // Define cores e títulos
+            var embedColor = pagouFianca ? 3066993 : 15158332; // Verde (Fiança) ou Vermelho (Prisão)
             var embedTitle = pagouFianca
               ? "💰 RELATÓRIO DE FIANÇA"
               : "🚔 RELATÓRIO DE PRISÃO";
 
+            // --- CRIAÇÃO DOS EMBEDS ---
             var embeds = [
               {
                 title: embedTitle,
                 color: embedColor,
-                image: { url: "attachment://preso.jpg" },
+                image: { url: "attachment://preso.jpg" }, // Referencia o arquivo do FormData
                 fields: [
                   {
                     name: "👮 OFICIAL RESPONSÁVEL",
@@ -1135,6 +905,7 @@ document.addEventListener("DOMContentLoaded", function () {
               },
             ];
 
+            // Se tiver comprovante de depósito, adiciona ao FormData e cria 3º Embed
             if (depositoBlob) {
               formData.append("file3", depositoBlob, "deposito.jpg");
               embeds.push({
@@ -1144,18 +915,26 @@ document.addEventListener("DOMContentLoaded", function () {
               });
             }
 
+            // --- CONFIGURAÇÃO DO PAYLOAD ---
             var payload = {
+              // O 'content' carrega as menções para gerar o PING
               content:
                 mentionString.length > 0 ? "|| " + mentionString + " ||" : null,
               embeds: embeds,
-              allowed_mentions: { parse: ["users"] },
+              allowed_mentions: {
+                parse: ["users"], // Permite notificar todos os IDs citados no content
+              },
             };
 
             formData.append("payload_json", JSON.stringify(payload));
+
             var endpoint =
               "/api/enviar?tipo=" + (pagouFianca ? "fianca" : "prisao");
 
-            fetch(endpoint, { method: "POST", body: formData })
+            fetch(endpoint, {
+              method: "POST",
+              body: formData,
+            })
               .then(function (response) {
                 if (response.ok) {
                   mostrarAlerta("Relatório enviado com sucesso!", "success");
@@ -1168,22 +947,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     "Erro ao enviar (Status " + response.status + ").",
                     "error"
                   );
-                  // Restaura botões
-                  btnConfirmarEnvio.disabled = false;
-                  btnConfirmarEnvio.textContent = "CONFIRMAR E ENVIAR";
-                  btnCancelarConf.style.display = "inline-block";
+                  btnEnviar.disabled = false;
+                  btnEnviar.textContent = "ENVIAR RELATÓRIO";
                 }
               })
               .catch(function (error) {
                 console.error(error);
                 mostrarAlerta("Erro de conexão.", "error");
-                btnConfirmarEnvio.disabled = false;
-                btnConfirmarEnvio.textContent = "CONFIRMAR E ENVIAR";
-                btnCancelarConf.style.display = "inline-block";
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = "ENVIAR RELATÓRIO";
               });
-          };
+          }; // FIM DA FUNÇÃO FINALIZAR ENVIO
 
-          // Lógica de compressão do terceiro arquivo (se houver)
+          // --- EXECUÇÃO DO ENVIO (Fora da função) ---
           if (arquivoDeposito) {
             comprimirImagem(arquivoDeposito, function (depositoBlob) {
               finalizarEnvio(depositoBlob);
@@ -1191,8 +967,8 @@ document.addEventListener("DOMContentLoaded", function () {
           } else {
             finalizarEnvio(null);
           }
-        });
-      });
-    });
-  }
+        }); // Fecha a segunda compressão (mochila)
+      }); // Fecha a primeira compressão (preso)
+    }); // Fecha o listener do botão
+  } // Fecha o if(btnEnviar)
 }); // Fecha o DOMContentLoaded
