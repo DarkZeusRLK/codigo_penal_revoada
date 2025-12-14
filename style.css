@@ -1232,3 +1232,31 @@ input[type="radio"] {
   font-weight: bold;
   color: var(--color-success);
 }
+/* --- CORREÇÃO DE VISIBILIDADE (Obrigatório) --- */
+
+/* Classe utilitária para esconder elementos */
+.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Garante que o container principal ocupe a tela quando aparecer */
+#app-content {
+  display: block; /* Padrão, mas o JS pode mudar para flex se precisar */
+  width: 100%;
+  min-height: 100vh;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease-in;
+}
+
+/* Corrige o tamanho da foto de perfil para não sumir */
+#user-avatar {
+  display: block;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #333; /* Cor de fundo caso a imagem falhe */
+}
