@@ -793,14 +793,16 @@ document.addEventListener("DOMContentLoaded", function () {
             var oficial = userNameSpan.textContent;
             var officerId = userIdHidden.value || "000000";
 
+            // Monta lista de participantes para o texto
             var participantesStr = "";
             participantesSelecionados.forEach((p) => {
               participantesStr += "<@" + p.id + "> ";
             });
             if (participantesStr === "") participantesStr = "Nenhum adicional.";
 
+            // Conteúdo da mensagem (Texto fora do embed é o que notifica)
             var qraContent =
-              "**teste1:** <@" + officerId + "> " + participantesStr;
+              "**QRA:** <@" + officerId + "> " + participantesStr;
 
             var crimesText =
               selectedCrimes.length > 0
@@ -845,7 +847,7 @@ document.addEventListener("DOMContentLoaded", function () {
               ? "💰 RELATÓRIO DE FIANÇA"
               : "🚔 RELATÓRIO DE PRISÃO";
 
-            // Cria os embeds iniciais
+            // Cria os embeds
             var embeds = [
               {
                 title: embedTitle,
@@ -889,12 +891,9 @@ document.addEventListener("DOMContentLoaded", function () {
               },
             ];
 
-            // Lógica do Depósito (CORRIGIDA)
+            // Lógica do Depósito
             if (depositoBlob) {
-              // 1. Adiciona o arquivo ao FormData
               formData.append("file3", depositoBlob, "deposito.jpg");
-
-              // 2. Adiciona o Embed visual
               embeds.push({
                 title: "💸 COMPROVANTE DE DEPÓSITO",
                 color: embedColor,
@@ -902,7 +901,7 @@ document.addEventListener("DOMContentLoaded", function () {
               });
             }
 
-            // Adiciona o Footer SEMPRE ao último embed da lista (seja mochila ou depósito)
+            // Footer no último embed
             if (embeds.length > 0) {
               embeds[embeds.length - 1].footer = {
                 text:
@@ -910,10 +909,11 @@ document.addEventListener("DOMContentLoaded", function () {
                   new Date().toLocaleString("pt-BR"),
               };
             }
-            // 1. Coleta TODOS os IDs que devem ser mencionados para garantir
+
+            // --- CORREÇÃO DA MENTIONS ---
             var mentionsArray = [];
 
-            // Adiciona o ID do oficial (se for válido e não for o simulado)
+            // Adiciona Oficial (Evita ID simulado ou vazio)
             if (
               officerId &&
               officerId !== "000000" &&
@@ -922,22 +922,22 @@ document.addEventListener("DOMContentLoaded", function () {
               mentionsArray.push(officerId);
             }
 
-            // Adiciona os participantes
+            // Adiciona Participantes
             participantesSelecionados.forEach(function (p) {
               mentionsArray.push(p.id);
             });
-            // Monta o Payload JSON
+
             var payload = {
               content: qraContent,
               embeds: embeds,
-              allowed_mentions: { parse: ["users"] },
+              allowed_mentions: {
+                parse: ["users"],
+                users: mentionsArray,
+              },
             };
 
             formData.append("payload_json", JSON.stringify(payload));
 
-            // Envia para a API
-            // Use "/api/webhook" se for um proxy direto ou "/api/enviar" se for seu backend customizado
-            // Mantive "/api/webhook" conforme seu último código
             var endpoint =
               "/api/enviar?tipo=" + (pagouFianca ? "fianca" : "prisao");
 
@@ -954,9 +954,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                   console.error("Status erro:", response.status);
                   mostrarAlerta(
-                    "Erro ao enviar relatório (Status " +
-                      response.status +
-                      ").",
+                    "Erro ao enviar (Status " + response.status + ").",
                     "error"
                   );
                   btnEnviar.disabled = false;
@@ -969,8 +967,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 btnEnviar.disabled = false;
                 btnEnviar.textContent = "ENVIAR RELATÓRIO";
               });
-          }; // Fim finalizarEnvio
+          }; // FIM DA FUNÇÃO FINALIZAR ENVIO
 
+          // --- EXECUÇÃO DO ENVIO (Fora da função) ---
           if (arquivoDeposito) {
             comprimirImagem(arquivoDeposito, function (depositoBlob) {
               finalizarEnvio(depositoBlob);
@@ -978,8 +977,8 @@ document.addEventListener("DOMContentLoaded", function () {
           } else {
             finalizarEnvio(null);
           }
-        });
-      });
-    });
-  }
-});
+        }); // Fecha a segunda compressão (mochila)
+      }); // Fecha a primeira compressão (preso)
+    }); // Fecha o listener do botão
+  } // Fecha o if(btnEnviar)
+}); // Fecha o DOMContentLoaded
