@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (appContent) {
       appContent.classList.remove("hidden");
-      appContent.style.display = "block"; // Força CSS
+      appContent.style.display = "block";
     }
   }
 
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var btnMusic = document.getElementById("btn-music-toggle");
 
   if (bgMusic && btnMusic) {
-    bgMusic.volume = 0.15; // Volume baixo
+    bgMusic.volume = 0.15;
     btnMusic.addEventListener("click", function () {
       if (bgMusic.paused) {
         bgMusic.play().catch((e) => console.log("Interação necessária"));
@@ -124,7 +124,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   verificarSessao();
 
-  // Login OAuth2
   var fragment = new URLSearchParams(window.location.hash.slice(1));
   var accessToken = fragment.get("access_token");
   var tokenType = fragment.get("token_type");
@@ -162,12 +161,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
   // 5. PESQUISA DE OFICIAIS
   // =========================================================
-
-  // Lista manual para garantir funcionamento sem backend complexo
   var LISTA_OFICIAIS = [
     { id: "001", nome: "Comandante Geral" },
-    { id: "002", nome: "Sub-Comandante" },
-    // O script tenta carregar mais da API abaixo
+    // Adicione mais se quiser fallback
   ];
 
   var searchInput = document.getElementById("search-oficial");
@@ -187,7 +183,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (Array.isArray(dados)) LISTA_OFICIAIS = dados;
       }
     } catch (error) {
-      console.log("Usando lista manual de oficiais.");
+      console.log("Usando lista manual.");
     }
   }
   carregarOficiaisDiscord();
@@ -222,7 +218,7 @@ document.addEventListener("DOMContentLoaded", function () {
         dropdownResults.appendChild(div);
       });
     });
-    // Fecha dropdown ao clicar fora
+
     document.addEventListener("click", function (e) {
       if (e.target !== searchInput && e.target !== dropdownResults) {
         dropdownResults.classList.add("hidden");
@@ -232,7 +228,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (btnAddPart) {
     btnAddPart.addEventListener("click", function () {
-      var id = selectedOficialIdInput.value || "000"; // Fallback se não tiver ID
+      var id = selectedOficialIdInput.value || "000";
       var nome = searchInput.value;
 
       if (!nome) return mostrarAlerta("Digite o nome do oficial.", "error");
@@ -346,7 +342,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (boxDeposito) boxDeposito.classList.add("hidden");
       }
 
-      // Breakdown Fiança
       var advogadoCheck = document.getElementById("atenuante-advogado");
       var fiancaBreakdown = document.getElementById("fianca-breakdown");
       if (advogadoCheck && advogadoCheck.checked && totalMulta > 0) {
@@ -459,10 +454,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // =========================================================
-  // 7. UPLOADS E PREVIEW
+  // 7. UPLOADS E PREVIEW (CORREÇÃO CLIQUE DUPLO)
   // =========================================================
-
-  // Variáveis para guardar os arquivos reais
   var arquivoPreso = null;
   var arquivoMochila = null;
   var arquivoDeposito = null;
@@ -474,9 +467,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!box || !input) return;
 
-    box.addEventListener("click", () => input.click());
+    // CORREÇÃO: Verifica o alvo do clique para evitar disparo duplo
+    box.addEventListener("click", function (e) {
+      // Se o usuário clicou direto no input ou na label, o navegador já abre a janela.
+      // Só abrimos via JS se o clique foi na DIV (espaço em branco).
+      if (e.target !== input && e.target.tagName !== "LABEL") {
+        input.click();
+      }
+    });
 
-    // Suporte a colar (CTRL+V)
     box.addEventListener("paste", function (e) {
       if (e.clipboardData && e.clipboardData.items) {
         for (var i = 0; i < e.clipboardData.items.length; i++) {
@@ -506,15 +505,13 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     reader.readAsDataURL(file);
 
-    // Salva na variável global correta
     if (type === "preso") arquivoPreso = file;
     if (type === "mochila") arquivoMochila = file;
     if (type === "deposito") arquivoDeposito = file;
   }
 
-  // Foco para o CTRL+V funcionar
   document.querySelectorAll(".upload-box").forEach((box) => {
-    box.setAttribute("tabindex", "0"); // Torna focável
+    box.setAttribute("tabindex", "0");
   });
 
   setupUpload("box-upload-preso", "upload-preso", "img-preview-preso", "preso");
@@ -532,7 +529,7 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 
   // =========================================================
-  // 8. MODAL E ENVIO (COM CORREÇÃO DE CALLBACK HELL)
+  // 8. MODAL E ENVIO (CORREÇÃO QRA + MARCAÇÃO)
   // =========================================================
   var btnEnviar = document.getElementById("btn-enviar");
   var modalConf = document.getElementById("modal-confirmacao");
@@ -555,7 +552,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // Preenche modal
       document.getElementById("conf-oficiais").textContent =
         userNameSpan.textContent +
         (participantesSelecionados.length > 0
@@ -576,7 +572,6 @@ document.addEventListener("DOMContentLoaded", function () {
         ul.appendChild(li);
       });
 
-      // Imagens Modal
       var imgP = document.getElementById("img-preview-preso");
       var imgM = document.getElementById("img-preview-mochila");
       var imgD = document.getElementById("img-preview-deposito");
@@ -602,7 +597,6 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  // --- FUNÇÃO DE COMPRESSÃO MODERNA (PROMISE) ---
   function comprimirImagemAsync(file) {
     return new Promise((resolve) => {
       if (!file) return resolve(null);
@@ -616,7 +610,6 @@ document.addEventListener("DOMContentLoaded", function () {
           var canvas = document.createElement("canvas");
           var ctx = canvas.getContext("2d");
           var scale = 1;
-          // Reduz se for maior que 1280px
           if (img.width > 1280) scale = 1280 / img.width;
           canvas.width = img.width * scale;
           canvas.height = img.height * scale;
@@ -627,13 +620,12 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             "image/jpeg",
             0.7
-          ); // Qualidade 70%
+          );
         };
       };
     });
   }
 
-  // --- ENVIO REAL (ASYNC/AWAIT) ---
   if (btnConfirmar) {
     btnConfirmar.addEventListener("click", async function () {
       btnConfirmar.textContent = "PROCESSANDO...";
@@ -641,19 +633,16 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("btn-cancelar-conf").style.display = "none";
 
       try {
-        // 1. Comprime imagens
         const blobPreso = await comprimirImagemAsync(arquivoPreso);
         const blobMochila = await comprimirImagemAsync(arquivoMochila);
         const blobDeposito = await comprimirImagemAsync(arquivoDeposito);
 
-        // 2. Monta FormData
         var formData = new FormData();
         if (blobPreso) formData.append("file1", blobPreso, "preso.jpg");
         if (blobMochila) formData.append("file2", blobMochila, "mochila.jpg");
         if (blobDeposito)
           formData.append("file3", blobDeposito, "deposito.jpg");
 
-        // 3. Monta Payload JSON (Discord Embeds)
         var pagouFianca = document.getElementById("fianca-sim").checked;
         var nomePreso = document.getElementById("nome").value;
         var rgPreso = document.getElementById("rg").value;
@@ -664,10 +653,14 @@ document.addEventListener("DOMContentLoaded", function () {
         var crimesTexto = selectedCrimes
           .map((c) => c.nome.replace(/\*\*/g, ""))
           .join("\n");
-        var participantesTexto =
-          participantesSelecionados.length > 0
-            ? participantesSelecionados.map((p) => p.nome).join(", ")
-            : "Nenhum";
+
+        // --- CORREÇÃO: MONTAGEM DO QRA (MARCAÇÃO) ---
+        var qraString = `QRA: <@${oficialId}>`; // O Relator
+        if (participantesSelecionados.length > 0) {
+          participantesSelecionados.forEach((p) => {
+            qraString += ` <@${p.id}>`; // Os participantes
+          });
+        }
 
         var atenuantesTexto = "";
         checkboxes.forEach((cb) => {
@@ -678,13 +671,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         if (atenuantesTexto === "") atenuantesTexto = "Nenhum";
 
-        var corEmbed = pagouFianca ? 3066993 : 15158332; // Verde ou Vermelho
+        var corEmbed = pagouFianca ? 3066993 : 15158332;
         var tituloEmbed = pagouFianca
           ? "💰 RELATÓRIO DE FIANÇA"
           : "🚔 RELATÓRIO DE PRISÃO";
 
         var payload = {
-          content: `Relatório gerado por <@${oficialId}>`,
+          content: qraString, // <--- AQUI ESTÁ A CORREÇÃO: MARCAÇÃO NO CONTENT
           embeds: [
             {
               title: tituloEmbed,
@@ -694,7 +687,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 { name: "👮 Oficial", value: oficialNome, inline: true },
                 {
                   name: "👥 Participantes",
-                  value: participantesTexto,
+                  value:
+                    participantesSelecionados.length > 0
+                      ? participantesSelecionados.map((p) => p.nome).join(", ")
+                      : "Nenhum",
                   inline: true,
                 },
                 {
@@ -733,10 +729,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         formData.append("payload_json", JSON.stringify(payload));
-
-        // 4. ENVIO (FETCH)
-        // IMPORTANTE: Se não tiver backend, substitua "/api/enviar" pelo URL do Webhook do Discord
-        // Exemplo: const URL = "https://discord.com/api/webhooks/SEU_ID/SEU_TOKEN";
 
         const URL_API =
           "/api/enviar?tipo=" + (pagouFianca ? "fianca" : "prisao");
