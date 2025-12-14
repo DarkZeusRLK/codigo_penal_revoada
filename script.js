@@ -47,19 +47,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Verifica se a sessão ainda é válida (menos de 1 semana)
         if (agora - sessao.timestamp < SESSION_DURATION) {
-          // --- PREENCHE OS DADOS DO USUÁRIO ---
-          // Certifique-se que estes IDs batem com o seu HTML
+          // --- CORREÇÃO AQUI: IDs corretos do seu HTML ---
           const userNameSpan = document.getElementById("user-name");
-          const userIdHidden = document.getElementById("user-id");
-          const loginScreen = document.getElementById("login-screen"); // ID da div de login
-          const mainContent = document.getElementById("main-content"); // ID da div principal
+          const userIdHidden = document.getElementById("user-id-hidden"); // Era user-id, corrigido para user-id-hidden
+          const loginScreen = document.getElementById("login-screen");
+          const appContent = document.getElementById("app-content"); // CORRIGIDO: de main-content para app-content
 
           if (userNameSpan) userNameSpan.textContent = sessao.nome;
           if (userIdHidden) userIdHidden.value = sessao.id;
 
+          // Se tiver foto salva e o elemento de imagem existir
+          const userAvatarImg = document.getElementById("user-avatar");
+          if (userAvatarImg && sessao.avatar) {
+            userAvatarImg.src = sessao.avatar;
+            userAvatarImg.classList.remove("hidden");
+          }
+
           // Troca a tela de login pelo conteúdo principal
-          if (loginScreen) loginScreen.classList.add("hidden");
-          if (mainContent) mainContent.classList.remove("hidden");
+          if (loginScreen) loginScreen.style.display = "none"; // Garante que suma
+          if (appContent) {
+            appContent.classList.remove("hidden");
+          } else {
+            // Se não achar o app-content, mostra erro no console para debug
+            console.error(
+              "ERRO: Não foi possível encontrar a div 'app-content'."
+            );
+          }
 
           // Notificação discreta
           console.log("Sessão restaurada para: " + sessao.nome);
@@ -75,7 +88,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     return false;
   }
-
   // Executa a verificação assim que a página carrega
   verificarSessao();
   // --- CONFIGURAÇÕES ---
