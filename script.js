@@ -231,6 +231,15 @@ document.addEventListener("DOMContentLoaded", function () {
       var id = selectedOficialIdInput.value || "000";
       var nome = searchInput.value;
 
+      // --- TRAVA DE LIMITE (MÁXIMO 6) ---
+      if (participantesSelecionados.length >= 6) {
+        return mostrarAlerta(
+          "Limite máximo de 6 participantes atingido!",
+          "error"
+        );
+      }
+      // ----------------------------------
+
       if (!nome) return mostrarAlerta("Digite o nome do oficial.", "error");
       if (participantesSelecionados.some((p) => p.nome === nome))
         return mostrarAlerta("Oficial já adicionado.", "error");
@@ -244,7 +253,6 @@ document.addEventListener("DOMContentLoaded", function () {
       selectedOficialIdInput.value = "";
     });
   }
-
   window.removerParticipante = function (nome, btn) {
     participantesSelecionados = participantesSelecionados.filter(
       (p) => p.nome !== nome
