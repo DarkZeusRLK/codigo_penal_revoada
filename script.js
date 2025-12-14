@@ -37,75 +37,75 @@ document.addEventListener("DOMContentLoaded", function () {
     location.reload();
   }
 
-  // Função que verifica se já existe um login salvo ao abrir a página
+  // --- VERSÃO BLINDADA CONTRA TELA PRETA ---
   function verificarSessao() {
     const dadosSalvos = localStorage.getItem(SESSION_KEY);
 
-    if (dadosSalvos) {
-      try {
-        const sessao = JSON.parse(dadosSalvos);
-        const agora = new Date().getTime();
+    if (!dadosSalvos) return false;
 
-        // --- PROTEÇÃO ANTI-TELA PRETA ---
-        // Se o ID for um link (contiver http) ou não existir, o cache está estragado.
-        if (
-          !sessao.id ||
-          sessao.id.toString().includes("http") ||
-          sessao.id.length < 5
-        ) {
-          console.warn("Cache corrompido detectado. Resetando...");
-          localStorage.removeItem(SESSION_KEY);
-          return false; // Força o login novamente
-        }
-        // -------------------------------
+    try {
+      const sessao = JSON.parse(dadosSalvos);
+      const agora = new Date().getTime();
 
-        // Verifica se a sessão ainda é válida (menos de 1 semana)
-        if (agora - sessao.timestamp < SESSION_DURATION) {
-          const userNameSpan = document.getElementById("user-name");
-          // Tenta pegar o input hidden pelo ID correto ou variações antigas
-          const userIdHidden =
-            document.getElementById("user-id-hidden") ||
-            document.getElementById("user-id");
-          const userAvatarImg = document.getElementById("user-avatar");
-          const loginScreen = document.getElementById("login-screen");
-
-          // Tenta pegar o conteúdo principal
-          const appContent =
-            document.getElementById("app-content") ||
-            document.getElementById("main-content");
-
-          // Preenche os dados
-          if (userNameSpan) userNameSpan.textContent = sessao.nome;
-          if (userIdHidden) userIdHidden.value = sessao.id;
-
-          // Restaura a foto
-          if (userAvatarImg && sessao.avatar) {
-            userAvatarImg.src = sessao.avatar;
-            userAvatarImg.classList.remove("hidden");
-          }
-
-          // --- O MOMENTO DA TROCA DE TELA ---
-          if (appContent) {
-            // 1. Esconde o login
-            if (loginScreen) loginScreen.style.display = "none";
-            // 2. Mostra o app
-            appContent.classList.remove("hidden");
-            console.log("Sessão restaurada com sucesso: " + sessao.nome);
-            return true;
-          } else {
-            console.error("ERRO CRÍTICO: Div 'app-content' não encontrada.");
-            // Se não achou o app, NÃO esconde o login para não dar tela preta
-            return false;
-          }
-        } else {
-          localStorage.removeItem(SESSION_KEY); // Sessão expirada
-        }
-      } catch (e) {
-        console.error("Erro ao ler sessão", e);
-        localStorage.removeItem(SESSION_KEY);
+      // 1. Validação de Segurança dos Dados
+      if (
+        !sessao.id ||
+        sessao.id.toString().includes("http") ||
+        sessao.id.length < 5
+      ) {
+        console.warn("Dados de sessão inválidos. Resetando...");
+        throw new Error("Sessão corrompida");
       }
+
+      // 2. Validação de Tempo
+      if (agora - sessao.timestamp > SESSION_DURATION) {
+        throw new Error("Sessão expirada");
+      }
+
+      // 3. Busca de Elementos no HTML
+      const loginScreen = document.getElementById("login-screen");
+      const appContent = document.getElementById("app-content"); // O ID no seu HTML deve ser este
+      const userNameSpan = document.getElementById("user-name");
+      const userIdHidden = document.getElementById("user-id-hidden"); // Verifique se seu input tem esse ID
+      const userAvatarImg = document.getElementById("user-avatar");
+
+      // 4. Verificação CRÍTICA: Se não achar as telas, para tudo!
+      if (!loginScreen || !appContent) {
+        console.error(
+          "ERRO CRÍTICO: Não encontrei 'login-screen' ou 'app-content' no HTML."
+        );
+        // Retorna false para manter a tela de login visível e não quebrar o site
+        return false;
+      }
+
+      // 5. Preenchimento de Dados
+      if (userNameSpan) userNameSpan.textContent = sessao.nome;
+      if (userIdHidden) userIdHidden.value = sessao.id;
+
+      if (userAvatarImg && sessao.avatar) {
+        userAvatarImg.src = sessao.avatar;
+        userAvatarImg.classList.remove("hidden");
+      }
+
+      // 6. Troca de Tela (Só acontece se tudo acima funcionou)
+      loginScreen.style.display = "none"; // Esconde login
+      appContent.classList.remove("hidden"); // Mostra app
+
+      console.log("Sessão restaurada com sucesso.");
+      return true;
+    } catch (e) {
+      // Se der qualquer erro, limpa tudo e força novo login
+      console.error("Resetando sessão devido a erro:", e);
+      localStorage.removeItem(SESSION_KEY);
+
+      // Garante que a tela de login apareça
+      const loginScreen = document.getElementById("login-screen");
+      const appContent = document.getElementById("app-content");
+      if (loginScreen) loginScreen.style.display = "flex";
+      if (appContent) appContent.classList.add("hidden");
+
+      return false;
     }
-    return false;
   }
   // Executa a verificação assim que a página carrega
   verificarSessao();
