@@ -46,66 +46,35 @@ document.addEventListener("DOMContentLoaded", function () {
         const sessao = JSON.parse(dadosSalvos);
         const agora = new Date().getTime();
 
-        // --- CORREÇÃO AUTOMÁTICA DE BUG ---
-        // Se o ID salvo for um link (contiver 'http') ou for muito curto, o cache está estragado.
-        // Limpamos tudo para forçar um login limpo.
-        if (
-          sessao.id &&
-          (sessao.id.toString().includes("http") || sessao.id.length < 5)
-        ) {
-          console.warn("Cache corrompido detectado. Limpando...");
-          localStorage.removeItem(SESSION_KEY);
-          return false;
-        }
-        // ----------------------------------
-
-        // Verifica se a sessão ainda é válida (menos de 7 dias)
+        // Verifica se a sessão ainda é válida
         if (agora - sessao.timestamp < SESSION_DURATION) {
-          // IDs do seu HTML (Verifique se no index.html o input hidden tem id="user-id-hidden")
           const userNameSpan = document.getElementById("user-name");
-          // Tenta achar pelo ID novo ou pelo antigo para garantir
-          const userIdHidden =
-            document.getElementById("user-id-hidden") ||
-            document.getElementById("user-id");
+          const userIdHidden = document.getElementById("user-id-hidden");
           const loginScreen = document.getElementById("login-screen");
-          const appContent =
-            document.getElementById("app-content") ||
-            document.getElementById("main-content");
+          const appContent = document.getElementById("app-content");
           const userAvatarImg = document.getElementById("user-avatar");
 
           if (userNameSpan) userNameSpan.textContent = sessao.nome;
 
-          // Preenche o ID corretamente
-          if (userIdHidden) {
-            userIdHidden.value = sessao.id;
-          } else {
-            console.error(
-              "ERRO CRÍTICO: Não encontrei o elemento <input id='user-id-hidden'> no HTML."
-            );
-          }
+          // IMPORTANTE: Aqui ele vai colocar o ID certo, e não o link da imagem
+          if (userIdHidden) userIdHidden.value = sessao.id;
 
-          // Restaura a foto
+          // Restaura a foto se existir
           if (userAvatarImg && sessao.avatar) {
             userAvatarImg.src = sessao.avatar;
             userAvatarImg.classList.remove("hidden");
           }
 
-          // Troca a tela de login pelo conteúdo principal
+          // Troca a tela
           if (loginScreen) loginScreen.style.display = "none";
-
           if (appContent) {
             appContent.classList.remove("hidden");
-          } else {
-            // Se a tela ficar preta, é porque este ID não existe no HTML
-            alert(
-              "Erro: Conteúdo principal não encontrado. Verifique se a div principal tem id='app-content'"
-            );
           }
 
           console.log("Sessão restaurada para: " + sessao.nome);
           return true;
         } else {
-          localStorage.removeItem(SESSION_KEY); // Sessão expirada
+          localStorage.removeItem(SESSION_KEY);
         }
       } catch (e) {
         console.error("Erro ao ler sessão", e);
