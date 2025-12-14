@@ -27,7 +27,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Verifica se a tela ficou preta por 1 segundo e reseta se necessário
   setTimeout(function () {
     var loginVisible =
       loginScreen &&
@@ -161,10 +160,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
   // 5. PESQUISA DE OFICIAIS
   // =========================================================
-  var LISTA_OFICIAIS = [
-    { id: "001", nome: "Comandante Geral" },
-    // Adicione mais se quiser fallback
-  ];
+  var LISTA_OFICIAIS = [{ id: "001", nome: "Comandante Geral" }];
 
   var searchInput = document.getElementById("search-oficial");
   var dropdownResults = document.getElementById("dropdown-oficiais");
@@ -226,28 +222,26 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // --- TRAVAS DE SEGURANÇA E ADIÇÃO ---
   if (btnAddPart) {
     btnAddPart.addEventListener("click", function () {
       var id = selectedOficialIdInput.value || "000";
       var nome = searchInput.value;
 
-      // Pega os dados de quem está logado agora
       var idLogado = userIdHidden.value;
       var nomeLogado = userNameSpan.textContent;
 
-      // 1. VALIDAÇÃO BÁSICA
       if (!nome) return mostrarAlerta("Digite o nome do oficial.", "error");
 
-      // 2. TRAVA: NÃO PODE ADICIONAR A SI MESMO
-      // Compara ID ou Nome para garantir
+      // 1. Não pode adicionar a si mesmo
       if (id === idLogado || nome === nomeLogado) {
         return mostrarAlerta(
-          "Você já é o relator docorrência, não pode se adicionar!",
+          "Você já é o relator, não pode se adicionar!",
           "error"
         );
       }
 
-      // 3. TRAVA: LIMITE MÁXIMO (6 OFICIAIS)
+      // 2. Limite máximo de 6
       if (participantesSelecionados.length >= 6) {
         return mostrarAlerta(
           "Limite máximo de 6 participantes atingido!",
@@ -255,23 +249,20 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       }
 
-      // 4. TRAVA: DUPLICIDADE (JÁ ADICIONADO)
-      if (participantesSelecionados.some((p) => p.nome === nome)) {
-        return mostrarAlerta("Este oficial já foi adicionado.", "error");
-      }
+      // 3. Duplicidade
+      if (participantesSelecionados.some((p) => p.nome === nome))
+        return mostrarAlerta("Oficial já adicionado.", "error");
 
-      // SUCESSO: Adiciona na lista
       participantesSelecionados.push({ id, nome });
       var tag = document.createElement("div");
       tag.className = "officer-tag";
       tag.innerHTML = `<span>${nome}</span> <button onclick="removerParticipante('${nome}', this)">×</button>`;
       listaParticipantesVisual.appendChild(tag);
-
-      // Limpa o campo
       searchInput.value = "";
       selectedOficialIdInput.value = "";
     });
   }
+
   window.removerParticipante = function (nome, btn) {
     participantesSelecionados = participantesSelecionados.filter(
       (p) => p.nome !== nome
@@ -280,7 +271,7 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   // =========================================================
-  // 6. LÓGICA DA CALCULADORA
+  // 6. LÓGICA DA CALCULADORA E FORMATAÇÃO DINHEIRO
   // =========================================================
   var selectedCrimes = [];
   var crimeItems = document.querySelectorAll(".crime-item");
@@ -312,14 +303,15 @@ document.addEventListener("DOMContentLoaded", function () {
       if (c.infiancavel) isInfiancavel = true;
     });
 
+    // Cálculo Dinheiro Sujo (lê o valor limpo)
     if (
       inputDinheiroSujo &&
       inputDinheiroSujo.value &&
       !containerDinheiroSujo.classList.contains("hidden")
     ) {
-      var valorLimpo = inputDinheiroSujo.value.replace(/\D/g, "");
+      var valorLimpo = inputDinheiroSujo.value.replace(/\D/g, ""); // Remove pontos
       var sujo = parseFloat(valorLimpo) || 0;
-      totalMulta += sujo * 0.5;
+      totalMulta += sujo * 0.5; // 50%
     }
 
     var descontoPercent = 0;
@@ -349,6 +341,7 @@ document.addEventListener("DOMContentLoaded", function () {
     penaTotalEl.textContent = Math.round(penaFinal) + " meses";
     multaTotalEl.textContent = "R$" + totalMulta.toLocaleString("pt-BR");
 
+    // Interface Fiança
     var radioFiancaSim = document.getElementById("fianca-sim");
     var radioFiancaNao = document.getElementById("fianca-nao");
     var boxDeposito = document.getElementById("box-upload-deposito");
@@ -461,8 +454,21 @@ document.addEventListener("DOMContentLoaded", function () {
       calculateSentence();
     });
   }
-  if (inputDinheiroSujo)
-    inputDinheiroSujo.addEventListener("input", calculateSentence);
+
+  // --- FORMATAÇÃO DINHEIRO SUJO NO INPUT ---
+  if (inputDinheiroSujo) {
+    inputDinheiroSujo.addEventListener("input", function (e) {
+      // Remove tudo que não é dígito
+      var value = e.target.value.replace(/\D/g, "");
+      if (value) {
+        // Converte para número e formata com pontos (Ex: 10.000)
+        e.target.value = parseInt(value).toLocaleString("pt-BR");
+      } else {
+        e.target.value = "";
+      }
+      calculateSentence(); // Recalcula a multa
+    });
+  }
 
   var radioFiancaSim = document.getElementById("fianca-sim");
   var radioFiancaNao = document.getElementById("fianca-nao");
@@ -481,7 +487,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // =========================================================
-  // 7. UPLOADS E PREVIEW (CORREÇÃO CLIQUE DUPLO)
+  // 7. UPLOADS E PREVIEW
   // =========================================================
   var arquivoPreso = null;
   var arquivoMochila = null;
@@ -494,10 +500,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!box || !input) return;
 
-    // CORREÇÃO: Verifica o alvo do clique para evitar disparo duplo
     box.addEventListener("click", function (e) {
-      // Se o usuário clicou direto no input ou na label, o navegador já abre a janela.
-      // Só abrimos via JS se o clique foi na DIV (espaço em branco).
+      // Evita abrir duas vezes
       if (e.target !== input && e.target.tagName !== "LABEL") {
         input.click();
       }
@@ -556,7 +560,7 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 
   // =========================================================
-  // 8. MODAL E ENVIO (CORREÇÃO QRA + MARCAÇÃO)
+  // 8. MODAL E ENVIO
   // =========================================================
   var btnEnviar = document.getElementById("btn-enviar");
   var modalConf = document.getElementById("modal-confirmacao");
@@ -627,7 +631,6 @@ document.addEventListener("DOMContentLoaded", function () {
   function comprimirImagemAsync(file) {
     return new Promise((resolve) => {
       if (!file) return resolve(null);
-
       var reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = function (e) {
@@ -681,11 +684,10 @@ document.addEventListener("DOMContentLoaded", function () {
           .map((c) => c.nome.replace(/\*\*/g, ""))
           .join("\n");
 
-        // --- CORREÇÃO: MONTAGEM DO QRA (MARCAÇÃO) ---
-        var qraString = `QRA: <@${oficialId}>`; // O Relator
+        var qraString = `QRA: <@${oficialId}>`;
         if (participantesSelecionados.length > 0) {
           participantesSelecionados.forEach((p) => {
-            qraString += ` <@${p.id}>`; // Os participantes
+            qraString += ` <@${p.id}>`;
           });
         }
 
@@ -698,13 +700,26 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         if (atenuantesTexto === "") atenuantesTexto = "Nenhum";
 
+        // --- DADOS ADICIONAIS PARA O EMBED ---
+        var itensApreendidos =
+          document.getElementById("itens-apreendidos").value || "Nenhum";
+        var dinheiroSujoDisplay = "Não informado";
+        if (
+          !containerDinheiroSujo.classList.contains("hidden") &&
+          inputDinheiroSujo.value
+        ) {
+          dinheiroSujoDisplay = "R$ " + inputDinheiroSujo.value;
+        } else {
+          dinheiroSujoDisplay = "Não houve";
+        }
+
         var corEmbed = pagouFianca ? 3066993 : 15158332;
         var tituloEmbed = pagouFianca
           ? "💰 RELATÓRIO DE FIANÇA"
           : "🚔 RELATÓRIO DE PRISÃO";
 
         var payload = {
-          content: qraString, // <--- AQUI ESTÁ A CORREÇÃO: MARCAÇÃO NO CONTENT
+          content: qraString,
           embeds: [
             {
               title: tituloEmbed,
@@ -732,6 +747,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 { name: "🛡️ Advogado", value: advogado, inline: true },
                 { name: "📜 Crimes", value: "```\n" + crimesTexto + "\n```" },
+                {
+                  name: "📦 Itens Apreendidos",
+                  value: itensApreendidos,
+                  inline: false,
+                },
+                {
+                  name: "💸 Dinheiro Sujo",
+                  value: dinheiroSujoDisplay,
+                  inline: true,
+                },
                 { name: "📝 Detalhes", value: atenuantesTexto },
               ],
               footer: {
