@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // --- TRAVAS DE SEGURANÇA E ADIÇÃO ---
+  // --- TRAVAS DE SEGURANÇA E ADIÇÃO DE OFICIAIS ---
   if (btnAddPart) {
     btnAddPart.addEventListener("click", function () {
       var id = selectedOficialIdInput.value || "000";
@@ -435,12 +435,11 @@ document.addEventListener("DOMContentLoaded", function () {
     calculateSentence();
   };
 
-  // --- TRAVAS DE CRIMES (LÓGICA DE EXCLUSÃO MÚTUA) ---
+  // --- TRAVAS DE CRIMES E SELEÇÃO ---
   crimeItems.forEach((item) => {
     item.addEventListener("click", function () {
       var artigo = this.dataset.artigo;
 
-      // Se já existe, remove
       if (selectedCrimes.some((c) => c.artigo === artigo)) {
         var idx = selectedCrimes.findIndex((c) => c.artigo === artigo);
         window.removerCrime(idx);
@@ -460,7 +459,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
 
-        // 2. TRAVA DE ARMAS (Tráfico 123 vs Porte 125/126)
+        // 2. TRAVA DE ARMAS (123 vs 125/126)
         if (artigo === "123") {
           if (
             selectedCrimes.some((c) => c.artigo === "125" || c.artigo === "126")
@@ -480,7 +479,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
 
-        // 3. TRAVA: REINCIDENTE VS PRIMÁRIO (Checkbox)
+        // 3. TRAVA: REINCIDENTE VS PRIMÁRIO
         if (artigo === "161") {
           var chkPrim = document.getElementById("atenuante-primario");
           if (chkPrim && chkPrim.checked) {
@@ -492,7 +491,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // 4. TRAVA: MUNIÇÕES (128 vs 129)
-        // Art. 128 = Tráfico Munição | Art. 129 = Posse Munição
         const MUNICOES_CONFLITANTES = ["128", "129"];
         if (MUNICOES_CONFLITANTES.includes(artigo)) {
           if (
@@ -506,7 +504,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // 5. TRAVA: ITENS ILEGAIS (124 vs 136)
-        // Art. 124 = Tráfico Itens | Art. 136 = Posse Itens
         const ITENS_CONFLITANTES = ["124", "136"];
         if (ITENS_CONFLITANTES.includes(artigo)) {
           if (
@@ -520,7 +517,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // 6. TRAVA: DROGAS (132 vs 133 vs 135)
-        // Art. 132 = Tráfico | Art. 133 = Aviãozinho | Art. 135 = Posse
         const DROGAS_CONFLITANTES = ["132", "133", "135"];
         if (DROGAS_CONFLITANTES.includes(artigo)) {
           if (
@@ -563,11 +559,33 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // --- FORMATAÇÃO DINHEIRO SUJO E CÓPIA AUTOMÁTICA ---
   if (inputDinheiroSujo) {
     inputDinheiroSujo.addEventListener("input", function (e) {
       var value = e.target.value.replace(/\D/g, "");
       if (value) {
-        e.target.value = parseInt(value).toLocaleString("pt-BR");
+        // 1. Formatação Visual (10.000)
+        var formatado = parseInt(value).toLocaleString("pt-BR");
+        e.target.value = formatado;
+
+        // 2. Cópia Automática para Itens Apreendidos
+        var textareaItens = document.getElementById("itens-apreendidos");
+        if (textareaItens) {
+          var textoAtual = textareaItens.value;
+          // Regex para encontrar "Dinheiro Sujo (R$ ...)" em qualquer lugar do texto
+          var regexDinheiro = /Dinheiro Sujo \(R\$ .*\)\n?/;
+          var novoTextoDinheiro = `Dinheiro Sujo (R$ ${formatado})\n`;
+
+          // Se já existe, substitui. Se não, adiciona no topo.
+          if (regexDinheiro.test(textoAtual)) {
+            textareaItens.value = textoAtual.replace(
+              regexDinheiro,
+              novoTextoDinheiro
+            );
+          } else {
+            textareaItens.value = novoTextoDinheiro + textoAtual;
+          }
+        }
       } else {
         e.target.value = "";
       }
@@ -716,6 +734,44 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         return;
       }
+
+      // --- NOVA TRAVA: ITENS OBRIGATÓRIOS ---
+      // Lista de crimes que exigem itens apreendidos
+      const ARTIGOS_COM_ITENS = [
+        "121",
+        "122",
+        "123",
+        "124",
+        "125",
+        "126",
+        "127",
+        "128",
+        "129",
+        "130",
+        "132",
+        "133",
+        "134",
+        "135",
+        "136",
+        "141",
+      ];
+
+      var exigeItem = selectedCrimes.some((c) =>
+        ARTIGOS_COM_ITENS.includes(c.artigo)
+      );
+      var textoItens = document
+        .getElementById("itens-apreendidos")
+        .value.trim();
+
+      if (exigeItem && textoItens.length < 3) {
+        mostrarAlerta(
+          "⚠️ Para os crimes selecionados, é OBRIGATÓRIO descrever os Itens Apreendidos!",
+          "error"
+        );
+        document.getElementById("itens-apreendidos").focus();
+        return;
+      }
+      // ----------------------------------------
 
       // Preenche modal
       document.getElementById("conf-oficiais").textContent =
@@ -934,7 +990,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   value: dinheiroSujoDisplay,
                   inline: true,
                 },
-                { name: "📝 Atenuantes/Outros", value: atenuantesTexto },
+                { name: "📝 Detalhes", value: atenuantesTexto },
               ],
               footer: {
                 text:
