@@ -303,13 +303,13 @@ document.addEventListener("DOMContentLoaded", function () {
       if (c.infiancavel) isInfiancavel = true;
     });
 
-    // Cálculo Dinheiro Sujo (lê o valor limpo)
+    // Cálculo Dinheiro Sujo
     if (
       inputDinheiroSujo &&
       inputDinheiroSujo.value &&
       !containerDinheiroSujo.classList.contains("hidden")
     ) {
-      var valorLimpo = inputDinheiroSujo.value.replace(/\D/g, ""); // Remove pontos
+      var valorLimpo = inputDinheiroSujo.value.replace(/\D/g, "");
       var sujo = parseFloat(valorLimpo) || 0;
       totalMulta += sujo * 0.5; // 50%
     }
@@ -419,13 +419,36 @@ document.addEventListener("DOMContentLoaded", function () {
     calculateSentence();
   };
 
+  // --- LOGICA DE SELEÇÃO E TRAVA DE HOMICÍDIOS ---
   crimeItems.forEach((item) => {
     item.addEventListener("click", function () {
       var artigo = this.dataset.artigo;
+
+      // Se o crime já foi selecionado, remove
       if (selectedCrimes.some((c) => c.artigo === artigo)) {
         var idx = selectedCrimes.findIndex((c) => c.artigo === artigo);
         window.removerCrime(idx);
       } else {
+        // --- NOVA TRAVA: EXCLUSIVIDADE DE HOMICÍDIOS ---
+        // Grupo de exclusão (Consumados): 104, 105, 107, 108
+        // O 106 (Tentativa) não está aqui, então pode acumular.
+        const HOMICIDIOS_CONFLITANTES = ["104", "105", "107", "108"];
+
+        if (HOMICIDIOS_CONFLITANTES.includes(artigo)) {
+          // Verifica se já existe algum crime desse grupo na lista
+          const temConflito = selectedCrimes.some((c) =>
+            HOMICIDIOS_CONFLITANTES.includes(c.artigo)
+          );
+
+          if (temConflito) {
+            return mostrarAlerta(
+              "Conflito: Não é possível marcar múltiplos homicídios consumados. Apenas a Tentativa é acumulável.",
+              "error"
+            );
+          }
+        }
+        // ------------------------------------------------
+
         var nome = this.querySelector(".crime-name").textContent;
         var pena = parseInt(this.dataset.pena);
         var multa = parseInt(this.dataset.multa);
@@ -455,18 +478,15 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // --- FORMATAÇÃO DINHEIRO SUJO NO INPUT ---
   if (inputDinheiroSujo) {
     inputDinheiroSujo.addEventListener("input", function (e) {
-      // Remove tudo que não é dígito
       var value = e.target.value.replace(/\D/g, "");
       if (value) {
-        // Converte para número e formata com pontos (Ex: 10.000)
         e.target.value = parseInt(value).toLocaleString("pt-BR");
       } else {
         e.target.value = "";
       }
-      calculateSentence(); // Recalcula a multa
+      calculateSentence();
     });
   }
 
@@ -501,7 +521,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!box || !input) return;
 
     box.addEventListener("click", function (e) {
-      // Evita abrir duas vezes
       if (e.target !== input && e.target.tagName !== "LABEL") {
         input.click();
       }
@@ -560,7 +579,7 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 
   // =========================================================
-  // 8. MODAL E ENVIO (CORRIGIDO PARA EXIBIR ATENUANTES)
+  // 8. MODAL E ENVIO
   // =========================================================
   var btnEnviar = document.getElementById("btn-enviar");
   var modalConf = document.getElementById("modal-confirmacao");
@@ -583,7 +602,21 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // Preenche modal (Cabeçalho)
+      // TRAVA: DINHEIRO SUJO OBRIGATÓRIO
+      var temDinheiroSujo = selectedCrimes.some((c) => c.artigo === "137");
+      if (
+        temDinheiroSujo &&
+        (!inputDinheiroSujo.value || inputDinheiroSujo.value.trim() === "")
+      ) {
+        mostrarAlerta(
+          "⚠️ Você marcou Dinheiro Sujo! Informe a quantidade.",
+          "error"
+        );
+        inputDinheiroSujo.focus();
+        return;
+      }
+
+      // Preenche modal
       document.getElementById("conf-oficiais").textContent =
         userNameSpan.textContent +
         (participantesSelecionados.length > 0
@@ -596,7 +629,6 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("conf-multa").textContent =
         "Multa: " + multaTotalEl.textContent;
 
-      // Preenche lista de crimes
       var ulCrimes = document.getElementById("conf-crimes");
       ulCrimes.innerHTML = "";
       selectedCrimes.forEach((c) => {
@@ -605,7 +637,6 @@ document.addEventListener("DOMContentLoaded", function () {
         ulCrimes.appendChild(li);
       });
 
-      // CORREÇÃO: Preenche lista de Atenuantes e Detalhes
       var ulDetalhes = document.getElementById("conf-detalhes");
       ulDetalhes.innerHTML = "";
 
@@ -620,14 +651,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
-      // HP
       if (hpSimBtn.checked) {
         var li = document.createElement("li");
         li.innerHTML = `🏥 Reanimado no HP (-${inputHpMinutos.value}m)`;
         ulDetalhes.appendChild(li);
       }
 
-      // Dinheiro Sujo
       if (
         inputDinheiroSujo.value &&
         !containerDinheiroSujo.classList.contains("hidden")
@@ -637,7 +666,6 @@ document.addEventListener("DOMContentLoaded", function () {
         ulDetalhes.appendChild(li);
       }
 
-      // Fiança Status
       var pagouFianca = document.getElementById("fianca-sim").checked;
       var liFianca = document.createElement("li");
       liFianca.innerHTML = pagouFianca
@@ -645,7 +673,6 @@ document.addEventListener("DOMContentLoaded", function () {
         : `<b>NÃO PAGOU FIANÇA</b>`;
       ulDetalhes.appendChild(liFianca);
 
-      // Imagens Modal
       var imgP = document.getElementById("img-preview-preso");
       var imgM = document.getElementById("img-preview-mochila");
       var imgD = document.getElementById("img-preview-deposito");
@@ -673,7 +700,6 @@ document.addEventListener("DOMContentLoaded", function () {
   function comprimirImagemAsync(file) {
     return new Promise((resolve) => {
       if (!file) return resolve(null);
-
       var reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = function (e) {
@@ -705,16 +731,12 @@ document.addEventListener("DOMContentLoaded", function () {
       btnConfirmar.disabled = true;
       document.getElementById("btn-cancelar-conf").style.display = "none";
 
-      // SEGURANÇA: Tenta pegar o elemento de itens, se falhar, define padrão
       var elItens = document.getElementById("itens-apreendidos");
       if (!elItens) {
         console.error(
-          "ERRO CRÍTICO: Textarea 'itens-apreendidos' não encontrada. Verifique o HTML."
+          "ERRO CRÍTICO: Textarea 'itens-apreendidos' não encontrada."
         );
-        mostrarAlerta(
-          "Erro interno no formulário. Contate o suporte.",
-          "error"
-        );
+        mostrarAlerta("Erro interno no formulário.", "error");
         return;
       }
 
@@ -756,7 +778,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         if (atenuantesTexto === "") atenuantesTexto = "Nenhum";
 
-        // --- DADOS ADICIONAIS PARA O EMBED ---
         var itensApreendidos = elItens.value || "Nenhum";
         var dinheiroSujoDisplay = "Não informado";
         if (
