@@ -231,24 +231,43 @@ document.addEventListener("DOMContentLoaded", function () {
       var id = selectedOficialIdInput.value || "000";
       var nome = searchInput.value;
 
-      // --- TRAVA DE LIMITE (MÁXIMO 6) ---
+      // Pega os dados de quem está logado agora
+      var idLogado = userIdHidden.value;
+      var nomeLogado = userNameSpan.textContent;
+
+      // 1. VALIDAÇÃO BÁSICA
+      if (!nome) return mostrarAlerta("Digite o nome do oficial.", "error");
+
+      // 2. TRAVA: NÃO PODE ADICIONAR A SI MESMO
+      // Compara ID ou Nome para garantir
+      if (id === idLogado || nome === nomeLogado) {
+        return mostrarAlerta(
+          "Você já é o relator docorrência, não pode se adicionar!",
+          "error"
+        );
+      }
+
+      // 3. TRAVA: LIMITE MÁXIMO (6 OFICIAIS)
       if (participantesSelecionados.length >= 6) {
         return mostrarAlerta(
           "Limite máximo de 6 participantes atingido!",
           "error"
         );
       }
-      // ----------------------------------
 
-      if (!nome) return mostrarAlerta("Digite o nome do oficial.", "error");
-      if (participantesSelecionados.some((p) => p.nome === nome))
-        return mostrarAlerta("Oficial já adicionado.", "error");
+      // 4. TRAVA: DUPLICIDADE (JÁ ADICIONADO)
+      if (participantesSelecionados.some((p) => p.nome === nome)) {
+        return mostrarAlerta("Este oficial já foi adicionado.", "error");
+      }
 
+      // SUCESSO: Adiciona na lista
       participantesSelecionados.push({ id, nome });
       var tag = document.createElement("div");
       tag.className = "officer-tag";
       tag.innerHTML = `<span>${nome}</span> <button onclick="removerParticipante('${nome}', this)">×</button>`;
       listaParticipantesVisual.appendChild(tag);
+
+      // Limpa o campo
       searchInput.value = "";
       selectedOficialIdInput.value = "";
     });
