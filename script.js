@@ -294,14 +294,13 @@ document.addEventListener("DOMContentLoaded", function () {
   if (chkPrimario) {
     chkPrimario.addEventListener("change", function () {
       if (this.checked) {
-        // Se marcar Primário, verifica se Reincidente (161) está selecionado
         var isReincidente = selectedCrimes.some((c) => c.artigo === "161");
         if (isReincidente) {
           mostrarAlerta(
             "Conflito: Remova o crime de Reincidente antes de marcar Primário.",
             "error"
           );
-          this.checked = false; // Desmarca
+          this.checked = false;
           calculateSentence();
         }
       }
@@ -436,7 +435,7 @@ document.addEventListener("DOMContentLoaded", function () {
     calculateSentence();
   };
 
-  // --- TRAVAS DE CRIMES (HOMICIDIOS, ARMAS e REINCIDÊNCIA) ---
+  // --- TRAVAS DE CRIMES (LÓGICA DE EXCLUSÃO MÚTUA) ---
   crimeItems.forEach((item) => {
     item.addEventListener("click", function () {
       var artigo = this.dataset.artigo;
@@ -461,7 +460,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
 
-        // 2. TRAVA DE ARMAS (123 vs 125/126)
+        // 2. TRAVA DE ARMAS (Tráfico 123 vs Porte 125/126)
         if (artigo === "123") {
           if (
             selectedCrimes.some((c) => c.artigo === "125" || c.artigo === "126")
@@ -487,6 +486,48 @@ document.addEventListener("DOMContentLoaded", function () {
           if (chkPrim && chkPrim.checked) {
             return mostrarAlerta(
               "Conflito: Réu não pode ser Reincidente e Primário ao mesmo tempo.",
+              "error"
+            );
+          }
+        }
+
+        // 4. TRAVA: MUNIÇÕES (128 vs 129)
+        // Art. 128 = Tráfico Munição | Art. 129 = Posse Munição
+        const MUNICOES_CONFLITANTES = ["128", "129"];
+        if (MUNICOES_CONFLITANTES.includes(artigo)) {
+          if (
+            selectedCrimes.some((c) => MUNICOES_CONFLITANTES.includes(c.artigo))
+          ) {
+            return mostrarAlerta(
+              "Conflito: Selecione apenas Tráfico OU Posse de Munições.",
+              "error"
+            );
+          }
+        }
+
+        // 5. TRAVA: ITENS ILEGAIS (124 vs 136)
+        // Art. 124 = Tráfico Itens | Art. 136 = Posse Itens
+        const ITENS_CONFLITANTES = ["124", "136"];
+        if (ITENS_CONFLITANTES.includes(artigo)) {
+          if (
+            selectedCrimes.some((c) => ITENS_CONFLITANTES.includes(c.artigo))
+          ) {
+            return mostrarAlerta(
+              "Conflito: Selecione apenas Tráfico OU Posse de Itens Ilegais.",
+              "error"
+            );
+          }
+        }
+
+        // 6. TRAVA: DROGAS (132 vs 133 vs 135)
+        // Art. 132 = Tráfico | Art. 133 = Aviãozinho | Art. 135 = Posse
+        const DROGAS_CONFLITANTES = ["132", "133", "135"];
+        if (DROGAS_CONFLITANTES.includes(artigo)) {
+          if (
+            selectedCrimes.some((c) => DROGAS_CONFLITANTES.includes(c.artigo))
+          ) {
+            return mostrarAlerta(
+              "Conflito: Selecione apenas uma modalidade de Drogas (Posse, Aviãozinho ou Tráfico).",
               "error"
             );
           }
