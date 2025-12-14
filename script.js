@@ -910,7 +910,22 @@ document.addEventListener("DOMContentLoaded", function () {
                   new Date().toLocaleString("pt-BR"),
               };
             }
+            // 1. Coleta TODOS os IDs que devem ser mencionados para garantir
+            var mentionsArray = [];
 
+            // Adiciona o ID do oficial (se for válido e não for o simulado)
+            if (
+              officerId &&
+              officerId !== "000000" &&
+              officerId !== "0000000000"
+            ) {
+              mentionsArray.push(officerId);
+            }
+
+            // Adiciona os participantes
+            participantesSelecionados.forEach(function (p) {
+              mentionsArray.push(p.id);
+            });
             // Monta o Payload JSON
             var payload = {
               content: qraContent,
