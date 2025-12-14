@@ -780,7 +780,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       comprimirImagem(arquivoPreso, function (presoBlob) {
         comprimirImagem(arquivoMochila, function (mochilaBlob) {
-          // --- FUNÇÃO FINALIZAR ENVIO (VERSÃO MARKDOWN / TEXTO PURO) ---
+          // --- FUNÇÃO FINALIZAR ENVIO (VERSÃO EMBED + NOTIFICAÇÃO FUNCIONAL) ---
           var finalizarEnvio = function (depositoBlob) {
             var nome = nomeInput.value;
             var rg = rgInput.value;
@@ -791,25 +791,30 @@ document.addEventListener("DOMContentLoaded", function () {
               ? inputDinheiroSujo.value
               : "Nenhum";
             var oficial = userNameSpan.textContent;
-            // Garante que o ID do oficial seja válido para menção
-            var officerId = userIdHidden.value;
+            var officerId = userIdHidden.value; // ID do oficial logado
 
-            // Monta lista de participantes
+            // Monta lista de participantes (IDs)
             var participantesStr = "";
             participantesSelecionados.forEach((p) => {
               participantesStr += "<@" + p.id + "> ";
             });
-            if (participantesStr === "") participantesStr = "Nenhum.";
 
-            // Monta lista de crimes
+            // Monta a string de menção para o 'content' (Isso garante o PING)
+            // Se tiver ID do oficial, menciona ele. Se tiver participantes, menciona eles.
+            var mentionString = "";
+            if (officerId && officerId.length > 5) {
+              mentionString += "<@" + officerId + "> ";
+            }
+            mentionString += participantesStr;
+
+            // Monta lista de crimes formatada
             var crimesText =
               selectedCrimes.length > 0
                 ? selectedCrimes
                     .map(function (c) {
                       return (
-                        "- " +
                         c.nome.replace(/\*\*/g, "").trim() +
-                        (c.infiancavel ? " (INF)" : "")
+                        (c.infiancavel ? " **(INF)**" : "")
                       );
                     })
                     .join("\n")
@@ -822,12 +827,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 var lbl = document
                   .querySelector('label[for="' + checkboxes[cb].id + '"]')
                   .textContent.trim();
-                atenuantesText += "- " + lbl + "\n";
+                atenuantesText += "🔹 " + lbl + "\n";
               }
             }
             if (hpSimBtn && hpSimBtn.checked && inputHpMinutos.value)
               atenuantesText +=
-                "- Reanimado no HP (-" + inputHpMinutos.value + "m)\n";
+                "🔹 Reanimado no HP (-" + inputHpMinutos.value + "m)\n";
             if (atenuantesText === "") atenuantesText = "Nenhum.";
 
             var porteTexto = "Não";
@@ -836,75 +841,89 @@ document.addEventListener("DOMContentLoaded", function () {
                 porteTexto = "Sim";
             }
 
-            // --- CONSTRUÇÃO DA MENSAGEM EM MARKDOWN ---
-            // O uso de # cria um título grande. Os asteriscos fazem negrito.
-            var titulo = pagouFianca
-              ? "# 💰 RELATÓRIO DE FIANÇA"
-              : "# 🚔 RELATÓRIO DE PRISÃO";
-
-            var mencaoOficial = officerId ? "<@" + officerId + ">" : oficial;
-
-            var mensagemFinal =
-              titulo +
-              "\n\n" +
-              "**👮 RESPONSÁVEL:** " +
-              mencaoOficial +
-              "\n" +
-              "**👥 PARTICIPANTES:** " +
-              participantesStr +
-              "\n" +
-              "──────────────────────\n" +
-              "**👤 PRESO:** " +
-              nome +
-              " **RG:** " +
-              rg +
-              "\n" +
-              "**⚖️ SENTENÇA:** " +
-              penaStr +
-              " ┃ **MULTA:** " +
-              multaStr +
-              "\n" +
-              "**🛡️ ADVOGADO:** " +
-              advogado +
-              "\n" +
-              "──────────────────────\n" +
-              "**📜 CRIMES:**\n" +
-              "```diff\n" +
-              crimesText +
-              "\n```\n" +
-              "> **ATENUANTES:**\n" +
-              atenuantesText +
-              "\n" +
-              "> **DETALHES:**\n" +
-              "> Porte: " +
-              porteTexto +
-              "\n" +
-              "> Dinheiro Sujo: " +
-              valorSujo +
-              "\n" +
-              "> Fiança Paga: " +
-              (pagouFianca ? "SIM" : "NÃO") +
-              "\n" +
-              "──────────────────────\n" +
-              "📷 *As fotos e comprovantes estão anexados abaixo.*";
-
             // --- PREPARAÇÃO DO FORMDATA ---
             var formData = new FormData();
-
-            // Anexa as imagens (sem embed, o Discord mostra elas automaticamente no final)
             formData.append("file1", presoBlob, "preso.jpg");
             formData.append("file2", mochilaBlob, "mochila.jpg");
+
+            // Define cores e títulos
+            var embedColor = pagouFianca ? 3066993 : 15158332; // Verde (Fiança) ou Vermelho (Prisão)
+            var embedTitle = pagouFianca
+              ? "💰 RELATÓRIO DE FIANÇA"
+              : "🚔 RELATÓRIO DE PRISÃO";
+
+            // --- CRIAÇÃO DOS EMBEDS ---
+            var embeds = [
+              {
+                title: embedTitle,
+                color: embedColor,
+                image: { url: "attachment://preso.jpg" }, // Referencia o arquivo do FormData
+                fields: [
+                  {
+                    name: "👮 OFICIAL RESPONSÁVEL",
+                    value:
+                      oficial + (officerId ? " (<@" + officerId + ">)" : ""),
+                    inline: false,
+                  },
+                  {
+                    name: "👥 PARTICIPANTES",
+                    value: participantesStr || "Nenhum",
+                    inline: false,
+                  },
+                  {
+                    name: "👤 PRESO",
+                    value: "**Nome:** " + nome + "\n**RG:** " + rg,
+                    inline: true,
+                  },
+                  {
+                    name: "⚖️ SENTENÇA",
+                    value: "**Pena:** " + penaStr + "\n**Multa:** " + multaStr,
+                    inline: true,
+                  },
+                  { name: "🛡️ ADVOGADO", value: advogado, inline: true },
+                  { name: "📜 CRIMES", value: "```\n" + crimesText + "\n```" },
+                  {
+                    name: "🔻 ATENUANTES / STATUS",
+                    value:
+                      atenuantesText +
+                      "\n**Porte:** " +
+                      porteTexto +
+                      "\n**Dinheiro Sujo:** " +
+                      valorSujo +
+                      "\n**Fiança Paga:** " +
+                      (pagouFianca ? "SIM" : "NÃO"),
+                  },
+                ],
+                footer: {
+                  text:
+                    "Sistema Policial • " + new Date().toLocaleString("pt-BR"),
+                },
+              },
+              {
+                title: "📦 FOTO DO INVENTÁRIO",
+                color: embedColor,
+                image: { url: "attachment://mochila.jpg" },
+              },
+            ];
+
+            // Se tiver comprovante de depósito, adiciona ao FormData e cria 3º Embed
             if (depositoBlob) {
               formData.append("file3", depositoBlob, "deposito.jpg");
+              embeds.push({
+                title: "💸 COMPROVANTE DE DEPÓSITO",
+                color: embedColor,
+                image: { url: "attachment://deposito.jpg" },
+              });
             }
 
-            // --- CORREÇÃO DEFINITIVA DE MENÇÕES ---
-            // Não usamos mais Embeds. Usamos 'content'.
-            // 'parse: ["users"]' diz ao Discord para notificar qualquer <@ID> que ele achar no texto.
+            // --- CONFIGURAÇÃO DO PAYLOAD ---
             var payload = {
-              content: mensagemFinal,
+              // O 'content' carrega as menções para gerar o PING
+              content:
+                mentionString.length > 0 ? "|| " + mentionString + " ||" : null,
+              embeds: embeds,
               allowed_mentions: {
-                parse: ["users"],
+                parse: ["users"], // Permite notificar todos os IDs citados no content
               },
             };
 
