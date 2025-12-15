@@ -1260,3 +1260,21 @@ input[type="radio"] {
   object-fit: cover;
   background-color: #333; /* Cor de fundo caso a imagem falhe */
 }
+#patch-notes-content ul {
+  list-style: none;
+  padding: 0;
+}
+#patch-notes-content li {
+  background: rgba(255, 255, 255, 0.05);
+  margin-bottom: 8px;
+  padding: 10px;
+  border-left: 3px solid var(--color-primary);
+  border-radius: 4px;
+}
+#patch-notes-content h4 {
+  color: var(--color-primary);
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 5px;
+}

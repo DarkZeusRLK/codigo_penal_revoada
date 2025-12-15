@@ -1,5 +1,60 @@
 document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
+  // 0. SISTEMA DE PATCH NOTES (NOVIDADE)
+  // =========================================================
+
+  // CONFIGURE AQUI SEMPRE QUE ATUALIZAR O CÓDIGO:
+  const VERSAO_ATUAL = "3.2"; // Mude esse número para o popup aparecer para todos
+
+  const CONTEUDO_PATCH_NOTES = `
+      <h4>🚀 Novidades da Versão ${VERSAO_ATUAL}</h4>
+      <ul>
+          <li><strong>📸 Foto Extra:</strong> Adicionado botão para incluir foto do porta-malas ou evidência extra.</li>
+          <li><strong>💰 Fiança Ajustada:</strong> O valor da fiança agora é calculado automaticamente como <strong>3x o valor da multa</strong>.</li>
+          <li><strong>🛑 Teto de Fiança:</strong> Adicionado limitador automático. A fiança máxima agora é <strong>R$ 1.400.000</strong>, mesmo que o cálculo ultrapasse.</li>
+          <li><strong>📊 Divisão de Valores:</strong> O cálculo de repasse (Advogado/Policia/Painel) foi atualizado para refletir o novo valor da fiança.</li>
+          <li><strong>🔫 Porte de Arma:</strong> O status do porte agora aparece no relatório do Discord.</li>
+      </ul>
+      
+      <h4>🐛 Correções</h4>
+      <ul>
+          <li>Correção na verificação de logins expirados.</li>
+          <li>Melhoria na estabilidade do upload de imagens.</li>
+      </ul>
+  `;
+
+  function verificarAtualizacao() {
+    const versaoSalva = localStorage.getItem("sistema_versao");
+    const modalPatch = document.getElementById("modal-patch-notes");
+    const contentPatch = document.getElementById("patch-notes-content");
+    const btnFecharPatch = document.getElementById("btn-fechar-patch");
+
+    // Só mostra se estiver logado (verificamos se tem nome de usuário na tela)
+    if (!userNameSpan.textContent) return;
+
+    if (versaoSalva !== VERSAO_ATUAL) {
+      if (modalPatch && contentPatch) {
+        contentPatch.innerHTML = CONTEUDO_PATCH_NOTES;
+        modalPatch.classList.remove("hidden");
+        modalPatch.style.display = "flex";
+
+        // Toca um som de notificação se quiser (opcional)
+        // var audio = new Audio('sounds/notification.mp3'); audio.play();
+      }
+    }
+
+    if (btnFecharPatch) {
+      btnFecharPatch.addEventListener("click", function () {
+        localStorage.setItem("sistema_versao", VERSAO_ATUAL);
+        modalPatch.classList.add("hidden");
+        modalPatch.style.display = "none";
+      });
+    }
+  }
+
+  // IMPORTANTE: Chame essa função DEPOIS que o usuário for confirmado como logado.
+  // Vou sugerir colocar a chamada dela dentro da função `mostrarApp()` ou logo após `verificarSessao()`.
+  // =========================================================
   // 1. WATCHDOG (PREVENÇÃO DE TELA PRETA)
   // =========================================================
   var loginScreen = document.getElementById("login-screen");
@@ -14,6 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
       appContent.classList.remove("hidden");
       appContent.style.display = "block";
     }
+    setTimeout(verificarAtualizacao, 1000); // Espera 1 segundinho para aparecer chique
   }
 
   function mostrarLogin() {
