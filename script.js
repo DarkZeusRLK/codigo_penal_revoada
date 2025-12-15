@@ -369,32 +369,46 @@ document.addEventListener("DOMContentLoaded", function () {
       if (radioFiancaNao) radioFiancaNao.checked = true;
       if (boxDeposito) boxDeposito.classList.add("hidden");
     } else {
-      fiancaOutput.value = "R$ " + totalMulta.toLocaleString("pt-BR");
+      // 1. Calcula o valor base (ex: 3x a multa)
+      var valorBaseFianca = totalMulta * 3;
+
+      // 2. Aplica o LIMITADOR (Teto de 1.400.000)
+      // O Math.min escolhe o menor valor entre o calculado e o limite.
+      var valorFiancaFinal = Math.min(valorBaseFianca, 1400000);
+
+      // Exibe o valor final
+      fiancaOutput.value = "R$ " + valorFiancaFinal.toLocaleString("pt-BR");
+
       if (radioFiancaSim) radioFiancaSim.disabled = false;
 
+      // Lógica de mostrar/esconder o upload do comprovante
       if (radioFiancaSim && radioFiancaSim.checked) {
         if (boxDeposito) boxDeposito.classList.remove("hidden");
       } else {
         if (boxDeposito) boxDeposito.classList.add("hidden");
       }
 
+      // Lógica da Divisão de Valores (Breakdown) usando o valor COM O LIMITADOR
       var advogadoCheck = document.getElementById("atenuante-advogado");
       var fiancaBreakdown = document.getElementById("fianca-breakdown");
-      if (advogadoCheck && advogadoCheck.checked && totalMulta > 0) {
+
+      if (advogadoCheck && advogadoCheck.checked && valorFiancaFinal > 0) {
         fiancaBreakdown.classList.remove("hidden");
+
+        // Aqui usamos 'valorFiancaFinal' para calcular as fatias corretamente
         document.getElementById("valor-policial").textContent =
           "R$ " +
-          (totalMulta * 0.35).toLocaleString("pt-BR", {
+          (valorFiancaFinal * 0.35).toLocaleString("pt-BR", {
             maximumFractionDigits: 0,
           });
         document.getElementById("valor-painel").textContent =
           "R$ " +
-          (totalMulta * 0.35).toLocaleString("pt-BR", {
+          (valorFiancaFinal * 0.35).toLocaleString("pt-BR", {
             maximumFractionDigits: 0,
           });
         document.getElementById("valor-advogado").textContent =
           "R$ " +
-          (totalMulta * 0.3).toLocaleString("pt-BR", {
+          (valorFiancaFinal * 0.3).toLocaleString("pt-BR", {
             maximumFractionDigits: 0,
           });
       } else {
