@@ -435,7 +435,7 @@ document.addEventListener("DOMContentLoaded", function () {
     calculateSentence();
   };
 
-  // --- TRAVAS DE CRIMES E SELEÇÃO ---
+  // --- TRAVAS DE CRIMES (LÓGICA DE EXCLUSÃO MÚTUA) ---
   crimeItems.forEach((item) => {
     item.addEventListener("click", function () {
       var artigo = this.dataset.artigo;
@@ -459,7 +459,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
 
-        // 2. TRAVA DE ARMAS (123 vs 125/126)
+        // 2. TRAVA DE ARMAS
         if (artigo === "123") {
           if (
             selectedCrimes.some((c) => c.artigo === "125" || c.artigo === "126")
@@ -490,7 +490,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
 
-        // 4. TRAVA: MUNIÇÕES (128 vs 129)
+        // 4. TRAVA: MUNIÇÕES
         const MUNICOES_CONFLITANTES = ["128", "129"];
         if (MUNICOES_CONFLITANTES.includes(artigo)) {
           if (
@@ -503,7 +503,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
 
-        // 5. TRAVA: ITENS ILEGAIS (124 vs 136)
+        // 5. TRAVA: ITENS ILEGAIS
         const ITENS_CONFLITANTES = ["124", "136"];
         if (ITENS_CONFLITANTES.includes(artigo)) {
           if (
@@ -516,7 +516,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
 
-        // 6. TRAVA: DROGAS (132 vs 133 vs 135)
+        // 6. TRAVA: DROGAS
         const DROGAS_CONFLITANTES = ["132", "133", "135"];
         if (DROGAS_CONFLITANTES.includes(artigo)) {
           if (
@@ -572,11 +572,9 @@ document.addEventListener("DOMContentLoaded", function () {
         var textareaItens = document.getElementById("itens-apreendidos");
         if (textareaItens) {
           var textoAtual = textareaItens.value;
-          // Regex para encontrar "Dinheiro Sujo (R$ ...)" em qualquer lugar do texto
           var regexDinheiro = /Dinheiro Sujo \(R\$ .*\)\n?/;
           var novoTextoDinheiro = `Dinheiro Sujo (R$ ${formatado})\n`;
 
-          // Se já existe, substitui. Se não, adiciona no topo.
           if (regexDinheiro.test(textoAtual)) {
             textareaItens.value = textoAtual.replace(
               regexDinheiro,
@@ -735,8 +733,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // --- NOVA TRAVA: ITENS OBRIGATÓRIOS ---
-      // Lista de crimes que exigem itens apreendidos
+      // --- TRAVA: ITENS OBRIGATÓRIOS ---
       const ARTIGOS_COM_ITENS = [
         "121",
         "122",
@@ -771,7 +768,6 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("itens-apreendidos").focus();
         return;
       }
-      // ----------------------------------------
 
       // Preenche modal
       document.getElementById("conf-oficiais").textContent =
@@ -946,6 +942,13 @@ document.addEventListener("DOMContentLoaded", function () {
           dinheiroSujoDisplay = "Não houve";
         }
 
+        // CAPTURA DO PORTE
+        var porteArmaInput = document.querySelector(
+          'input[name="porte-arma"]:checked'
+        );
+        var porteArmaTexto =
+          porteArmaInput && porteArmaInput.value === "sim" ? "Sim" : "Não";
+
         var corEmbed = pagouFianca ? 3066993 : 15158332;
         var tituloEmbed = pagouFianca
           ? "💰 RELATÓRIO DE FIANÇA"
@@ -979,6 +982,11 @@ document.addEventListener("DOMContentLoaded", function () {
                   inline: false,
                 },
                 { name: "🛡️ Advogado", value: advogado, inline: true },
+                {
+                  name: "🔫 Porte de Arma",
+                  value: porteArmaTexto,
+                  inline: true,
+                },
                 { name: "📜 Crimes", value: "```\n" + crimesTexto + "\n```" },
                 {
                   name: "📦 Itens Apreendidos",
@@ -990,7 +998,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   value: dinheiroSujoDisplay,
                   inline: true,
                 },
-                { name: "📝 Atenuantes/Outros", value: atenuantesTexto },
+                { name: "📝 Detalhes", value: atenuantesTexto },
               ],
               footer: {
                 text:
