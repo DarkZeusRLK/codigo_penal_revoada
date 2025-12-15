@@ -106,8 +106,8 @@
 
       <div class="upload-section">
         <div class="upload-box" id="box-upload-preso" tabindex="0">
-          <label>📸 Foto 3x4 do Preso (Obrigatório)</label>
-          <p class="paste-hint"><i class="fa-regular fa-clipboard"></i> Clique aqui e aperte Ctrl+V</p>
+          <label>📸 Foto Preso (Obrigatório)</label>
+          <p class="paste-hint"><i class="fa-regular fa-clipboard"></i> Clique e Ctrl+V</p>
           <div class="preview-area" id="preview-box-preso">
             <i class="fa-solid fa-user placeholder-icon"></i>
             <img id="img-preview-preso" class="hidden" src="">
@@ -116,22 +116,34 @@
         </div>
 
         <div class="upload-box" id="box-upload-mochila" tabindex="0">
-          <label>🎒 Foto Inventário (Obrigatório)</label>
-          <p class="paste-hint"><i class="fa-regular fa-clipboard"></i> Clique aqui e aperte Ctrl+V</p>
+          <label>🎒 Inventário (Obrigatório)</label>
+          <p class="paste-hint"><i class="fa-regular fa-clipboard"></i> Clique e Ctrl+V</p>
           <div class="preview-area" id="preview-box-mochila">
             <i class="fa-solid fa-suitcase placeholder-icon"></i>
             <img id="img-preview-mochila" class="hidden" src="">
           </div>
           <input type="file" id="upload-mochila" accept="image/*">
         </div>
+
         <div class="upload-box hidden" id="box-upload-deposito" tabindex="0" style="border-color: var(--color-success);">
-          <label style="color: var(--color-success);">💸 Comprovante Depósito (Obrigatório)</label>
-          <p class="paste-hint"><i class="fa-regular fa-clipboard"></i> Clique aqui e aperte Ctrl+V</p>
+          <label style="color: var(--color-success);">💸 Comprovante Fiança</label>
           <div class="preview-area" id="preview-box-deposito">
             <i class="fa-solid fa-receipt placeholder-icon" style="color: var(--color-success);"></i>
             <img id="img-preview-deposito" class="hidden" src="">
           </div>
           <input type="file" id="upload-deposito" accept="image/*">
+        </div>
+
+        <button id="btn-show-extra" class="btn-small" style="align-self: center; padding: 10px;" title="Adicionar Foto Extra/Veículo"><i class="fa-solid fa-plus"></i> Foto</button>
+
+        <div class="upload-box hidden" id="box-upload-extra" tabindex="0" style="border-color: #f1c40f;">
+          <label style="color: #f1c40f;">🚗 Extra / Porta-malas</label>
+          <p class="paste-hint"><i class="fa-regular fa-clipboard"></i> Clique e Ctrl+V</p>
+          <div class="preview-area" id="preview-box-extra">
+            <i class="fa-solid fa-camera placeholder-icon" style="color: #f1c40f;"></i>
+            <img id="img-preview-extra" class="hidden" src="">
+          </div>
+          <input type="file" id="upload-extra" accept="image/*">
         </div>
       </div>
     </section>

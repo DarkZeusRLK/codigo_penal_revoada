@@ -564,11 +564,9 @@ document.addEventListener("DOMContentLoaded", function () {
     inputDinheiroSujo.addEventListener("input", function (e) {
       var value = e.target.value.replace(/\D/g, "");
       if (value) {
-        // 1. Formatação Visual (10.000)
         var formatado = parseInt(value).toLocaleString("pt-BR");
         e.target.value = formatado;
 
-        // 2. Cópia Automática para Itens Apreendidos
         var textareaItens = document.getElementById("itens-apreendidos");
         if (textareaItens) {
           var textoAtual = textareaItens.value;
@@ -613,6 +611,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var arquivoPreso = null;
   var arquivoMochila = null;
   var arquivoDeposito = null;
+  var arquivoExtra = null; // Variável para a foto extra
 
   function setupUpload(boxId, inputId, imgId, type) {
     var box = document.getElementById(boxId);
@@ -659,6 +658,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (type === "preso") arquivoPreso = file;
     if (type === "mochila") arquivoMochila = file;
     if (type === "deposito") arquivoDeposito = file;
+    if (type === "extra") arquivoExtra = file;
   }
 
   document.querySelectorAll(".upload-box").forEach((box) => {
@@ -678,6 +678,17 @@ document.addEventListener("DOMContentLoaded", function () {
     "img-preview-deposito",
     "deposito"
   );
+  setupUpload("box-upload-extra", "upload-extra", "img-preview-extra", "extra");
+
+  // Lógica do botão "+ Foto Extra"
+  var btnShowExtra = document.getElementById("btn-show-extra");
+  if (btnShowExtra) {
+    btnShowExtra.addEventListener("click", function () {
+      var boxExtra = document.getElementById("box-upload-extra");
+      boxExtra.classList.remove("hidden");
+      this.style.display = "none"; // Esconde o botão após clicar
+    });
+  }
 
   // =========================================================
   // 8. MODAL E ENVIO
@@ -897,12 +908,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const blobPreso = await comprimirImagemAsync(arquivoPreso);
         const blobMochila = await comprimirImagemAsync(arquivoMochila);
         const blobDeposito = await comprimirImagemAsync(arquivoDeposito);
+        const blobExtra = await comprimirImagemAsync(arquivoExtra); // Comprime a nova foto
 
         var formData = new FormData();
         if (blobPreso) formData.append("file1", blobPreso, "preso.jpg");
         if (blobMochila) formData.append("file2", blobMochila, "mochila.jpg");
         if (blobDeposito)
           formData.append("file3", blobDeposito, "deposito.jpg");
+        if (blobExtra) formData.append("file4", blobExtra, "extra.jpg");
 
         var pagouFianca = document.getElementById("fianca-sim").checked;
         var nomePreso = document.getElementById("nome").value;
@@ -1018,6 +1031,15 @@ document.addEventListener("DOMContentLoaded", function () {
             title: "💸 COMPROVANTE",
             color: corEmbed,
             image: { url: "attachment://deposito.jpg" },
+          });
+        }
+
+        // ADICIONA EMBED DA FOTO EXTRA
+        if (blobExtra) {
+          payload.embeds.push({
+            title: "🚗 EVIDÊNCIA EXTRA / PORTA-MALAS",
+            color: corEmbed,
+            image: { url: "attachment://extra.jpg" },
           });
         }
 
