@@ -296,9 +296,9 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       }
 
-      if (participantesSelecionados.length >= 6) {
+      if (participantesSelecionados.length >= 8) {
         return mostrarAlerta(
-          "Limite máximo de 6 participantes atingido!",
+          "Limite máximo de 8 participantes atingido!",
           "error"
         );
       }
