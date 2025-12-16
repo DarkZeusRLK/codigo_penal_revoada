@@ -405,6 +405,7 @@ select,
   transition: all 0.3s;
   /* Efeito "congelado" */
   backdrop-filter: blur(5px);
+  width: 40%;
 }
 
 input:focus,
