@@ -120,8 +120,6 @@ body {
 .container {
   max-width: 1600px;
   margin: 0 auto;
-  position: relative;
-  z-index: 2;
 }
 
 /* =========================================
@@ -1318,7 +1316,7 @@ input[type="radio"] {
   color: var(--xmas-gold) !important;
   width: 60%;
 }
-.music-btn {
+/* .music-btn {
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -1340,6 +1338,7 @@ input[type="radio"] {
 .music-btn:hover {
   transform: scale(1.1);
 }
+  */
 .badge-area {
   display: flex;
   gap: 12px;
@@ -1383,4 +1382,123 @@ input[type="radio"] {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
+}
+/* =========================================
+   PLAYER DE MÚSICA ESTILO SPOTIFY (NATAL)
+   ========================================= */
+.spotify-player-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(20, 20, 20, 0.95); /* Fundo estilo Spotify */
+  border: 2px solid var(--xmas-gold); /* Borda natalina */
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  backdrop-filter: blur(5px);
+  max-width: 350px;
+  transition: all 0.3s ease;
+}
+
+.spotify-player-container:hover {
+  box-shadow: 0 8px 25px rgba(212, 36, 38, 0.4); /* Brilho vermelho ao passar o mouse */
+  border-color: var(--xmas-red);
+}
+
+/* Capa do Álbum */
+.spotify-img-wrapper {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.spotify-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Informações da Faixa */
+.spotify-track-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  flex-grow: 1; /* Ocupa o espaço disponível */
+  min-width: 120px; /* Garante um tamanho mínimo */
+}
+
+.track-title {
+  color: var(--xmas-snow);
+  font-weight: 700;
+  font-size: 0.95em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+
+.track-artist {
+  color: var(--text-secondary);
+  font-size: 0.75em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Controles */
+.spotify-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-btn:hover {
+  color: var(--xmas-snow);
+}
+
+.control-btn:active {
+  transform: scale(0.95);
+}
+
+.control-btn.small {
+  font-size: 1.2em;
+}
+
+/* Botão Play Principal (Destaque) */
+.play-btn-main {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: var(--xmas-snow); /* Fundo branco estilo Spotify */
+  color: #000; /* Ícone preto */
+  font-size: 1.1em;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.play-btn-main:hover {
+  transform: scale(1.05);
+  background-color: var(--xmas-gold); /* Dourado natalino ao passar o mouse */
+  color: #fff;
 }

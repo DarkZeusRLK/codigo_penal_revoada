@@ -114,7 +114,165 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+  // =========================================================
+  // 2. PLAYER DE MÚSICA ESTILO SPOTIFY (CORRIGIDO)
+  // =========================================================
 
+  // --- CONFIGURAÇÃO DA PLAYLIST ---
+  // VERIFIQUE SE O NOME DA PASTA E DOS ARQUIVOS ESTÃO EXATAMENTE IGUAIS
+  // const playlist = [
+  // {
+  //   title: "All I Want For Christmas Is You ",
+  //  artist: "Mariah Carey",
+  //  src: "Música/Mariah Carey - All I Want For Christmas Is You (Lyrics).mp4", // <--- CONFIRA ESSE CAMINHO
+  //  cover: "Imagens/Capa_mariah.jpg", // <--- CONFIRA ESSE CAMINHO
+  // },
+  // {
+  //   title: "Rockin' Around The Christmas Tree",
+  //   artist: "Brenda Lee",
+  //   src: "Música/videoplayback.mp4",
+  //   cover: "Imagens/Capa_brenda.jpg",
+  //  },
+  // ];
+
+  // let currentTrackIndex = 0;
+
+  // Elementos do DOM
+  //  const audioEl = document.getElementById("bg-music");
+  // const coverEl = document.getElementById("player-cover");
+  // const titleEl = document.getElementById("player-title");
+  // const artistEl = document.getElementById("player-artist");
+  // const btnPrev = document.getElementById("btn-prev");
+  // const btnPlayPause = document.getElementById("btn-play-pause");
+  // const btnNext = document.getElementById("btn-next");
+
+  // Função auxiliar para atualizar o ícone
+  // function updatePlayIcon(isPlaying) {
+  //  if (isPlaying) {
+  //    btnPlayPause.innerHTML = '<i class="fa-solid fa-pause"></i>';
+  //  } else {
+  //   btnPlayPause.innerHTML = '<i class="fa-solid fa-play"></i>';
+  // }
+  // }
+
+  // Função para carregar uma música
+  // function loadTrack(index) {
+  // if (!playlist[index]) return;
+
+  // const track = playlist[index];
+
+  // Define a fonte do áudio
+  // audioEl.src = track.src;
+  //  audioEl.load(); // Força o navegador a carregar o novo arquivo
+  // audioEl.volume = 0.2; // 20% de volume
+
+  // Atualiza visual
+  // titleEl.textContent = track.title;
+  // artistEl.textContent = track.artist;
+
+  // if (track.cover) {
+  //   coverEl.src = track.cover;
+  // } else {
+  //   coverEl.src = "https://via.placeholder.com/60x60/000000/FFFFFF/?text=MP3";
+  //  }
+
+  // IMPORTANTE: Se o player já estava rodando, tenta tocar a próxima
+  // Verifica se não está pausado e se tem duração (já tocou algo antes)
+  // if (!audioEl.paused && audioEl.currentTime > 0) {
+  //   playAudio();
+  // }
+  // }
+
+  // Função robusta para TOCAR
+  // function playAudio() {
+  // const playPromise = audioEl.play();
+
+  // if (playPromise !== undefined) {
+  //  playPromise
+  //    .then((_) => {
+  // Tocou com sucesso
+  //   updatePlayIcon(true);
+  // })
+  //  .catch((error) => {
+  //   console.error("ERRO AO TOCAR: ", error);
+  // Geralmente erro de caminho ou bloqueio do navegador
+  //  if (
+  //   error.name === "NotSupportedError" ||
+  //   error.message.includes("404")
+  //  ) {
+  //   alert(
+  //     "Erro: Arquivo de áudio não encontrado! Verifique a pasta 'sounds'."
+  //    );
+  // }
+  //  updatePlayIcon(false);
+  //  });
+  // }
+  // }
+
+  // Função robusta para PAUSAR
+  // function pauseAudio() {
+  //  audioEl.pause();
+  //  updatePlayIcon(false);
+  // }
+
+  // Botão Play/Pause (Lógica Central)
+  // function togglePlayPause() {
+  //  if (audioEl.paused) {
+  //    playAudio();
+  //  } else {
+  //    pauseAudio();
+  //  }
+  // }
+
+  // Próxima Faixa
+  // function nextTrack() {
+  //  currentTrackIndex++;
+  //  if (currentTrackIndex >= playlist.length) {
+  //    currentTrackIndex = 0;
+  //  }
+  // Carrega e força o play se o usuário clicou em avançar
+  //  loadTrack(currentTrackIndex);
+  //  playAudio();
+  // }
+
+  // Faixa Anterior
+  // function prevTrack() {
+  //  currentTrackIndex--;
+  //  if (currentTrackIndex < 0) {
+  //   currentTrackIndex = playlist.length - 1;
+  // }
+  // loadTrack(currentTrackIndex);
+  //  playAudio();
+  //  }
+
+  // --- INICIALIZAÇÃO ---
+  // if (audioEl && btnPlayPause) {
+  // 1. Carrega a primeira música (sem tocar)
+  // loadTrack(currentTrackIndex);
+
+  // 2. Event Listeners
+  // btnPlayPause.addEventListener("click", togglePlayPause);
+
+  // btnNext.addEventListener("click", () => {
+  //   nextTrack();
+  // });
+
+  // btnPrev.addEventListener("click", () => {
+  //    prevTrack();
+  //  });
+
+  // 3. Auto-play próxima música quando acabar
+  //  audioEl.addEventListener("ended", () => {
+  //   nextTrack();
+  // });
+
+  // 4. Tratamento de Erro no carregamento do arquivo
+  // audioEl.addEventListener("error", function (e) {
+  //  console.error("Erro no arquivo de áudio:", e);
+  //  titleEl.textContent = "Erro no Arquivo";
+  // artistEl.textContent = "Verifique a pasta sounds";
+  // });
+  // }
   // =========================================================
   // 3. UTILITÁRIOS (ALERTAS)
   // =========================================================
@@ -176,7 +334,20 @@ document.addEventListener("DOMContentLoaded", function () {
       userAvatarImg.classList.remove("hidden");
     }
   }
+  // --- BOTÃO SIMULAR ACESSO (DEV) ---
+  var btnBypass = document.getElementById("btn-bypass-login");
+  if (btnBypass) {
+    btnBypass.addEventListener("click", function () {
+      var nome = "Oficial Teste";
+      var id = "000000000000000000";
+      var avatar = "https://cdn.discordapp.com/embed/avatars/0.png"; // Avatar padrão
 
+      salvarSessao(nome, avatar, id);
+      aplicarDadosUsuario(nome, avatar, id);
+      mostrarApp();
+      mostrarAlerta("Modo de Teste Ativado!", "success");
+    });
+  }
   verificarSessao();
 
   var fragment = new URLSearchParams(window.location.hash.slice(1));
