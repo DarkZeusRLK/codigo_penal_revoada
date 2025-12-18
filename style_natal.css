@@ -1232,57 +1232,117 @@ input[type="radio"] {
   color: white !important;
 }
 
-/* Alertas Toast */
+/* =========================================
+   ALERTAS TOAST (REDESIGN FESTIVO ✨)
+   ========================================= */
+
 .custom-alert {
   position: fixed;
-  top: 25px;
-  right: 25px;
-  background-color: var(--bg-card);
-  padding: 18px 25px;
-  border-radius: 8px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  top: 30px;
+  right: 30px;
+  /* Layout Flex para alinhar ícone e texto */
   display: flex;
   align-items: center;
-  gap: 15px;
-  z-index: 9999;
-  border-left: 6px solid;
-  /* Fita dourada no alerta */
-  background-image: linear-gradient(
-    45deg,
-    transparent 0%,
-    transparent 45%,
-    var(--xmas-gold) 45%,
-    var(--xmas-gold) 55%,
-    transparent 55%
-  );
-  background-size: 20px 20px;
-  background-repeat: no-repeat;
-  background-position: top right;
-  animation: slideIn 0.4s forwards, fadeOut 0.5s forwards 4s;
-  color: white;
-}
-.custom-alert.error {
-  border-color: var(--color-danger);
-  background-color: #2c0a0a;
-}
-.custom-alert.success {
-  border-color: var(--color-success);
-  background-color: #0a2e18;
+  gap: 18px;
+
+  /* Tamanho e Espaçamento */
+  min-width: 320px;
+  max-width: 450px;
+  padding: 20px 25px;
+
+  /* EFEITO DE VIDRO (FROSTED GLASS) */
+  background: rgba(20, 25, 40, 0.85); /* Fundo escuro translúcido */
+  backdrop-filter: blur(12px); /* Desfoque do fundo */
+  -webkit-backdrop-filter: blur(12px);
+
+  /* Bordas e Sombras */
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Borda sutil geral */
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); /* Sombra profunda */
+
+  color: var(--xmas-snow);
+  z-index: 100000;
+
+  /* Animações de entrada e saída suave */
+  animation: alertSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards,
+    alertFadeOut 0.5s forwards 4.5s; /* Demora 4.5s para começar a sumir */
+  overflow: hidden;
 }
 
-/* Animações */
-@keyframes slideIn {
-  from {
-    transform: translateX(120%);
+/* Ícone do Alerta */
+.custom-alert i {
+  font-size: 28px;
+  filter: drop-shadow(
+    0 0 10px currentColor
+  ); /* O ícone brilha na própria cor */
+}
+
+/* Conteúdo de Texto */
+.alert-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alert-title {
+  font-family: "Merriweather", serif; /* Fonte do tema */
+  font-weight: 900;
+  font-size: 1.1em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.alert-msg {
+  font-size: 0.95em;
+  color: #cbd5e1; /* Um branco levemente acinzentado para leitura */
+  line-height: 1.4;
+}
+
+/* --- ESTILO DE ERRO (Krampus / Perigo) --- */
+.custom-alert.error {
+  /* Borda esquerda grossa estilo "Bengala Doce" */
+  border-left: 6px solid var(--color-danger);
+  /* Brilho vermelho pulsante */
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
+.custom-alert.error i,
+.custom-alert.error .alert-title {
+  color: #ff6b6b; /* Vermelho claro vibrante */
+}
+
+/* --- ESTILO DE SUCESSO (Natal / Noel) --- */
+.custom-alert.success {
+  /* Borda esquerda grossa dourada/verde */
+  border-left: 6px solid var(--xmas-gold);
+  /* Brilho verde/dourado pulsante */
+  box-shadow: 0 0 20px rgba(22, 91, 51, 0.4), 0 15px 35px rgba(0, 0, 0, 0.5);
+  background: rgba(22, 50, 35, 0.85); /* Fundo levemente esverdeado */
+}
+
+.custom-alert.success i,
+.custom-alert.success .alert-title {
+  color: var(--xmas-gold); /* Dourado vibrante */
+}
+
+/* --- ANIMAÇÕES --- */
+/* Entrada com um leve efeito de "pulo" (bounce) */
+@keyframes alertSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
   }
-  to {
-    transform: translateX(0);
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
   }
 }
-@keyframes fadeOut {
+
+/* Saída suave para cima */
+@keyframes alertFadeOut {
   to {
     opacity: 0;
-    transform: translateY(-15px);
+    transform: translateY(-20px);
   }
 }
 
