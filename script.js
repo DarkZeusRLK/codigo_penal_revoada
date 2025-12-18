@@ -603,18 +603,18 @@ document.addEventListener("DOMContentLoaded", function () {
           return mostrarAlerta("Apenas um tipo de Homicídio por vez.", "error");
 
         if (
-          artigo === "123" &&
-          selectedCrimes.some((c) => ["125", "126"].includes(c.artigo))
+          artigo === "124" &&
+          selectedCrimes.some((c) => ["126", "127"].includes(c.artigo))
         )
           return mostrarAlerta("Conflito: Tráfico vs Porte de Armas.", "error");
         if (
-          ["125", "126"].includes(artigo) &&
-          selectedCrimes.some((c) => c.artigo === "123")
+          ["126", "127"].includes(artigo) &&
+          selectedCrimes.some((c) => c.artigo === "124")
         )
           return mostrarAlerta("Conflito: Porte vs Tráfico de Armas.", "error");
 
         if (
-          artigo === "161" &&
+          artigo === "162" &&
           document.getElementById("atenuante-primario").checked
         )
           return mostrarAlerta(
@@ -622,7 +622,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "error"
           );
 
-        const MUNICOES = ["128", "129"];
+        const MUNICOES = ["129", "130"];
         if (
           MUNICOES.includes(artigo) &&
           selectedCrimes.some((c) => MUNICOES.includes(c.artigo))
@@ -632,7 +632,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "error"
           );
 
-        const ITENS_ILEGAIS = ["124", "136"];
+        const ITENS_ILEGAIS = ["125", "137"];
         if (
           ITENS_ILEGAIS.includes(artigo) &&
           selectedCrimes.some((c) => ITENS_ILEGAIS.includes(c.artigo))
@@ -642,7 +642,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "error"
           );
 
-        const DROGAS = ["132", "133", "135"];
+        const DROGAS = ["133", "134", "136"];
         if (
           DROGAS.includes(artigo) &&
           selectedCrimes.some((c) => DROGAS.includes(c.artigo))
