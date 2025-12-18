@@ -4,22 +4,21 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
 
   // CONFIGURE AQUI SEMPRE QUE ATUALIZAR O CÓDIGO:
-  const VERSAO_ATUAL = "3.2"; // Mude esse número para o popup aparecer para todos
+  const VERSAO_ATUAL = "3.5"; // Mude esse número para o popup aparecer para todos
 
   const CONTEUDO_PATCH_NOTES = `
       <h4>🚀 Novidades da Versão ${VERSAO_ATUAL}</h4>
       <ul>
-          <li><strong>📸 Foto Extra:</strong> Adicionado botão para incluir foto do porta-malas ou evidência extra.</li>
-          <li><strong>💰 Fiança Ajustada:</strong> O valor da fiança agora é calculado automaticamente como <strong>3x o valor da multa</strong>.</li>
-          <li><strong>🛑 Teto de Fiança:</strong> Adicionado limitador automático. A fiança máxima agora é <strong>R$ 1.400.000</strong>, mesmo que o cálculo ultrapasse.</li>
-          <li><strong>📊 Divisão de Valores:</strong> O cálculo de repasse (Advogado/Policia/Painel) foi atualizado para refletir o novo valor da fiança.</li>
-          <li><strong>🔫 Porte de Arma:</strong> O status do porte agora aparece no relatório do Discord.</li>
+          <li><strong> Natal:</strong> Tema natalino adicionado.</li>
+          <li><strong> Novo Crime:</strong> Posse de Suprimentos de Desmanche adicionado Art - 123 </li>
+          <li><strong>Player de música:</strong> O player de música agora conta com  <strong>3 músicas natalinas</strong>.</li>
+          <li><strong>Limite de QRA:</strong> Limitado a 9 policiais por relatório de prisão.</li>
       </ul>
       
       <h4>🐛 Correções</h4>
       <ul>
-          <li>Correção na verificação de logins expirados.</li>
-          <li>Melhoria na estabilidade do upload de imagens.</li>
+          <li>Corrigido lista de QRA de participantes.</li>
+          <li>Corrigido erros de relatório do discord.</li>
       </ul>
   `;
 
@@ -99,180 +98,186 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
   // 2. MÚSICA DE FUNDO
   // =========================================================
-  var bgMusic = document.getElementById("bg-music");
-  var btnMusic = document.getElementById("btn-music-toggle");
+  //var bgMusic = document.getElementById("bg-music");
+  //var btnMusic = document.getElementById("btn-music-toggle");
 
-  if (bgMusic && btnMusic) {
-    bgMusic.volume = 0.15;
-    btnMusic.addEventListener("click", function () {
-      if (bgMusic.paused) {
-        bgMusic.play().catch((e) => console.log("Interação necessária"));
-        btnMusic.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
-      } else {
-        bgMusic.pause();
-        btnMusic.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
-      }
-    });
-  }
+  //if (bgMusic && btnMusic) {
+  //bgMusic.volume = 0.15;
+  //btnMusic.addEventListener("click", function () {
+  //if (bgMusic.paused) {
+  //bgMusic.play().catch((e) => console.log("Interação necessária"));
+  //btnMusic.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+  //} else {
+  //bgMusic.pause();
+  //btnMusic.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+  //}
+  //});
+  //}
   // =========================================================
   // 2. PLAYER DE MÚSICA ESTILO SPOTIFY (CORRIGIDO)
   // =========================================================
 
   // --- CONFIGURAÇÃO DA PLAYLIST ---
   // VERIFIQUE SE O NOME DA PASTA E DOS ARQUIVOS ESTÃO EXATAMENTE IGUAIS
-  // const playlist = [
-  // {
-  //   title: "All I Want For Christmas Is You ",
-  //  artist: "Mariah Carey",
-  //  src: "Música/Mariah Carey - All I Want For Christmas Is You (Lyrics).mp4", // <--- CONFIRA ESSE CAMINHO
-  //  cover: "Imagens/Capa_mariah.jpg", // <--- CONFIRA ESSE CAMINHO
-  // },
-  // {
-  //   title: "Rockin' Around The Christmas Tree",
-  //   artist: "Brenda Lee",
-  //   src: "Música/videoplayback.mp4",
-  //   cover: "Imagens/Capa_brenda.jpg",
-  //  },
-  // ];
+  const playlist = [
+    {
+      title: "All I Want For Christmas Is You ",
+      artist: "Mariah Carey",
+      src: "Música/Mariah Carey - All I Want For Christmas Is You (Lyrics).mp4", // <--- CONFIRA ESSE CAMINHO
+      cover: "Imagens/Capa_mariah.jpg", // <--- CONFIRA ESSE CAMINHO
+    },
+    {
+      title: "Rockin' Around The Christmas Tree",
+      artist: "Brenda Lee",
+      src: "Música/videoplayback.mp4",
+      cover: "Imagens/Capa_brenda.jpg",
+    },
+    {
+      title: "Jingle Bell",
+      artist: "MC Teteu",
+      src: "Música/Jingle Bell.mp4",
+      cover: "Imagens/Jingle_bell.jpg",
+    },
+  ];
 
-  // let currentTrackIndex = 0;
+  let currentTrackIndex = 0;
 
   // Elementos do DOM
-  //  const audioEl = document.getElementById("bg-music");
-  // const coverEl = document.getElementById("player-cover");
-  // const titleEl = document.getElementById("player-title");
-  // const artistEl = document.getElementById("player-artist");
-  // const btnPrev = document.getElementById("btn-prev");
-  // const btnPlayPause = document.getElementById("btn-play-pause");
-  // const btnNext = document.getElementById("btn-next");
+  const audioEl = document.getElementById("bg-music");
+  const coverEl = document.getElementById("player-cover");
+  const titleEl = document.getElementById("player-title");
+  const artistEl = document.getElementById("player-artist");
+  const btnPrev = document.getElementById("btn-prev");
+  const btnPlayPause = document.getElementById("btn-play-pause");
+  const btnNext = document.getElementById("btn-next");
 
   // Função auxiliar para atualizar o ícone
-  // function updatePlayIcon(isPlaying) {
-  //  if (isPlaying) {
-  //    btnPlayPause.innerHTML = '<i class="fa-solid fa-pause"></i>';
-  //  } else {
-  //   btnPlayPause.innerHTML = '<i class="fa-solid fa-play"></i>';
-  // }
-  // }
+  function updatePlayIcon(isPlaying) {
+    if (isPlaying) {
+      btnPlayPause.innerHTML = '<i class="fa-solid fa-pause"></i>';
+    } else {
+      btnPlayPause.innerHTML = '<i class="fa-solid fa-play"></i>';
+    }
+  }
 
-  // Função para carregar uma música
-  // function loadTrack(index) {
-  // if (!playlist[index]) return;
+  //  Função para carregar uma música
+  function loadTrack(index) {
+    if (!playlist[index]) return;
 
-  // const track = playlist[index];
+    const track = playlist[index];
 
-  // Define a fonte do áudio
-  // audioEl.src = track.src;
-  //  audioEl.load(); // Força o navegador a carregar o novo arquivo
-  // audioEl.volume = 0.2; // 20% de volume
+    // Define a fonte do áudio
+    audioEl.src = track.src;
+    audioEl.load(); // Força o navegador a carregar o novo arquivo
+    audioEl.volume = 0.2; // 20% de volume
 
-  // Atualiza visual
-  // titleEl.textContent = track.title;
-  // artistEl.textContent = track.artist;
+    // Atualiza visual
+    titleEl.textContent = track.title;
+    artistEl.textContent = track.artist;
 
-  // if (track.cover) {
-  //   coverEl.src = track.cover;
-  // } else {
-  //   coverEl.src = "https://via.placeholder.com/60x60/000000/FFFFFF/?text=MP3";
-  //  }
+    if (track.cover) {
+      coverEl.src = track.cover;
+    } else {
+      coverEl.src = "https://via.placeholder.com/60x60/000000/FFFFFF/?text=MP3";
+    }
 
-  // IMPORTANTE: Se o player já estava rodando, tenta tocar a próxima
-  // Verifica se não está pausado e se tem duração (já tocou algo antes)
-  // if (!audioEl.paused && audioEl.currentTime > 0) {
-  //   playAudio();
-  // }
-  // }
+    // IMPORTANTE: Se o player já estava rodando, tenta tocar a próxima
+    //  Verifica se não está pausado e se tem duração (já tocou algo antes)
+    if (!audioEl.paused && audioEl.currentTime > 0) {
+      playAudio();
+    }
+  }
 
   // Função robusta para TOCAR
-  // function playAudio() {
-  // const playPromise = audioEl.play();
+  function playAudio() {
+    const playPromise = audioEl.play();
 
-  // if (playPromise !== undefined) {
-  //  playPromise
-  //    .then((_) => {
-  // Tocou com sucesso
-  //   updatePlayIcon(true);
-  // })
-  //  .catch((error) => {
-  //   console.error("ERRO AO TOCAR: ", error);
-  // Geralmente erro de caminho ou bloqueio do navegador
-  //  if (
-  //   error.name === "NotSupportedError" ||
-  //   error.message.includes("404")
-  //  ) {
-  //   alert(
-  //     "Erro: Arquivo de áudio não encontrado! Verifique a pasta 'sounds'."
-  //    );
-  // }
-  //  updatePlayIcon(false);
-  //  });
-  // }
-  // }
+    if (playPromise !== undefined) {
+      playPromise
+        .then((_) => {
+          // Tocou com sucesso
+          updatePlayIcon(true);
+        })
+        .catch((error) => {
+          console.error("ERRO AO TOCAR: ", error);
+          // Geralmente erro de caminho ou bloqueio do navegador
+          if (
+            error.name === "NotSupportedError" ||
+            error.message.includes("404")
+          ) {
+            alert(
+              "Erro: Arquivo de áudio não encontrado! Verifique a pasta 'sounds'."
+            );
+          }
+          updatePlayIcon(false);
+        });
+    }
+  }
 
   // Função robusta para PAUSAR
-  // function pauseAudio() {
-  //  audioEl.pause();
-  //  updatePlayIcon(false);
-  // }
+  function pauseAudio() {
+    audioEl.pause();
+    updatePlayIcon(false);
+  }
 
   // Botão Play/Pause (Lógica Central)
-  // function togglePlayPause() {
-  //  if (audioEl.paused) {
-  //    playAudio();
-  //  } else {
-  //    pauseAudio();
-  //  }
-  // }
+  function togglePlayPause() {
+    if (audioEl.paused) {
+      playAudio();
+    } else {
+      pauseAudio();
+    }
+  }
 
   // Próxima Faixa
-  // function nextTrack() {
-  //  currentTrackIndex++;
-  //  if (currentTrackIndex >= playlist.length) {
-  //    currentTrackIndex = 0;
-  //  }
-  // Carrega e força o play se o usuário clicou em avançar
-  //  loadTrack(currentTrackIndex);
-  //  playAudio();
-  // }
+  function nextTrack() {
+    currentTrackIndex++;
+    if (currentTrackIndex >= playlist.length) {
+      currentTrackIndex = 0;
+    }
+    // Carrega e força o play se o usuário clicou em avançar
+    loadTrack(currentTrackIndex);
+    playAudio();
+  }
 
   // Faixa Anterior
-  // function prevTrack() {
-  //  currentTrackIndex--;
-  //  if (currentTrackIndex < 0) {
-  //   currentTrackIndex = playlist.length - 1;
-  // }
-  // loadTrack(currentTrackIndex);
-  //  playAudio();
-  //  }
+  function prevTrack() {
+    currentTrackIndex--;
+    if (currentTrackIndex < 0) {
+      currentTrackIndex = playlist.length - 1;
+    }
+    loadTrack(currentTrackIndex);
+    playAudio();
+  }
 
   // --- INICIALIZAÇÃO ---
-  // if (audioEl && btnPlayPause) {
-  // 1. Carrega a primeira música (sem tocar)
-  // loadTrack(currentTrackIndex);
+  if (audioEl && btnPlayPause) {
+    // 1. Carrega a primeira música (sem tocar)
+    loadTrack(currentTrackIndex);
 
-  // 2. Event Listeners
-  // btnPlayPause.addEventListener("click", togglePlayPause);
+    // 2. Event Listeners
+    btnPlayPause.addEventListener("click", togglePlayPause);
 
-  // btnNext.addEventListener("click", () => {
-  //   nextTrack();
-  // });
+    btnNext.addEventListener("click", () => {
+      nextTrack();
+    });
 
-  // btnPrev.addEventListener("click", () => {
-  //    prevTrack();
-  //  });
+    btnPrev.addEventListener("click", () => {
+      prevTrack();
+    });
 
-  // 3. Auto-play próxima música quando acabar
-  //  audioEl.addEventListener("ended", () => {
-  //   nextTrack();
-  // });
+    // 3. Auto-play próxima música quando acabar
+    audioEl.addEventListener("ended", () => {
+      nextTrack();
+    });
 
-  // 4. Tratamento de Erro no carregamento do arquivo
-  // audioEl.addEventListener("error", function (e) {
-  //  console.error("Erro no arquivo de áudio:", e);
-  //  titleEl.textContent = "Erro no Arquivo";
-  // artistEl.textContent = "Verifique a pasta sounds";
-  // });
-  // }
+    // 4. Tratamento de Erro no carregamento do arquivo
+    audioEl.addEventListener("error", function (e) {
+      console.error("Erro no arquivo de áudio:", e);
+      titleEl.textContent = "Erro no Arquivo";
+      artistEl.textContent = "Verifique a pasta sounds";
+    });
+  }
   // =========================================================
   // 3. UTILITÁRIOS (ALERTAS)
   // =========================================================
@@ -669,7 +674,7 @@ document.addEventListener("DOMContentLoaded", function () {
     selectedCrimes.splice(idx, 1);
     var item = document.querySelector(`.crime-item[data-artigo="${c.artigo}"]`);
     if (item) item.classList.remove("selected");
-    if (c.artigo === "137") {
+    if (c.artigo === "138") {
       containerDinheiroSujo.classList.add("hidden");
       inputDinheiroSujo.value = "";
     }
@@ -777,7 +782,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var infiancavel = this.dataset.infiancavel === "true";
         selectedCrimes.push({ artigo, nome, pena, multa, infiancavel });
         this.classList.add("selected");
-        if (artigo === "137") {
+        if (artigo === "138") {
           containerDinheiroSujo.classList.remove("hidden");
           inputDinheiroSujo.focus();
         }
@@ -956,7 +961,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // TRAVA: DINHEIRO SUJO
-      var temDinheiroSujo = selectedCrimes.some((c) => c.artigo === "137");
+      var temDinheiroSujo = selectedCrimes.some((c) => c.artigo === "138");
       if (
         temDinheiroSujo &&
         (!inputDinheiroSujo.value || inputDinheiroSujo.value.trim() === "")
