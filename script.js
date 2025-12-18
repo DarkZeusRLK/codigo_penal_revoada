@@ -621,7 +621,42 @@ document.addEventListener("DOMContentLoaded", function () {
             "Conflito: Réu não pode ser Reincidente e Primário.",
             "error"
           );
+        // --- TRAVA: ITENS OBRIGATÓRIOS ---
+        const ARTIGOS_COM_ITENS = [
+          "122",
+          "123",
+          "124",
+          "125",
+          "126",
+          "127",
+          "128",
+          "129",
+          "130",
+          "131",
+          "132",
+          "133",
+          "134",
+          "135",
+          "136",
+          "137",
+          "142",
+        ];
 
+        var exigeItem = selectedCrimes.some((c) =>
+          ARTIGOS_COM_ITENS.includes(c.artigo)
+        );
+        var textoItens = document
+          .getElementById("itens-apreendidos")
+          .value.trim();
+
+        if (exigeItem && textoItens.length < 3) {
+          mostrarAlerta(
+            "⚠️ Para os crimes selecionados, é OBRIGATÓRIO descrever os Itens Apreendidos!",
+            "error"
+          );
+          document.getElementById("itens-apreendidos").focus();
+          return;
+        }
         const MUNICOES = ["129", "130"];
         if (
           MUNICOES.includes(artigo) &&
