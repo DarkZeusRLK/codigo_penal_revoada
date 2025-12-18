@@ -339,20 +339,6 @@ document.addEventListener("DOMContentLoaded", function () {
       userAvatarImg.classList.remove("hidden");
     }
   }
-  // --- BOTÃO SIMULAR ACESSO (DEV) ---
-  var btnBypass = document.getElementById("btn-bypass-login");
-  if (btnBypass) {
-    btnBypass.addEventListener("click", function () {
-      var nome = "Oficial Teste";
-      var id = "000000000000000000";
-      var avatar = "https://cdn.discordapp.com/embed/avatars/0.png"; // Avatar padrão
-
-      salvarSessao(nome, avatar, id);
-      aplicarDadosUsuario(nome, avatar, id);
-      mostrarApp();
-      mostrarAlerta("Modo de Teste Ativado!", "success");
-    });
-  }
   verificarSessao();
 
   var fragment = new URLSearchParams(window.location.hash.slice(1));
