@@ -80,22 +80,22 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
   const playlist = [
     {
-      title: "Jingle Bell Rock",
-      artist: "Bobby Helms",
-      src: "sounds/musica1.mp3",
-      cover: "Imagens/cover1.jpg",
+      title: "Rockin' Around The Christmas Tree",
+      artist: "Brenda Lee",
+      src: "Música/videoplayback.mp4",
+      cover: "Imagens/Capa_brenda.jpg",
     },
     {
       title: "All I Want for Christmas",
       artist: "Mariah Carey",
-      src: "sounds/musica2.mp3",
-      cover: "Imagens/cover2.jpg",
+      src: "Música/Mariah Carey - All I Want For Christmas Is You (Lyrics).mp4",
+      cover: "Imagens/Capa_mariah.jpg",
     },
     {
-      title: "Então é Natal",
-      artist: "Simone",
-      src: "sounds/musica3.mp3",
-      cover: "Imagens/cover3.jpg",
+      title: "Jingle Bell",
+      artist: "MC TETEU",
+      src: "Música/Jingle Bell.mp4",
+      cover: "Imagens/Jingle_bell.jpg",
     },
   ];
 
