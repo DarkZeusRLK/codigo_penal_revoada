@@ -435,7 +435,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (chkPrimario) {
     chkPrimario.addEventListener("change", function () {
       if (this.checked) {
-        var isReincidente = selectedCrimes.some((c) => c.artigo === "161");
+        var isReincidente = selectedCrimes.some((c) => c.artigo === "162");
         if (isReincidente) {
           mostrarAlerta(
             "Conflito: Remova o crime de Reincidente antes.",
@@ -868,7 +868,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       var isPrimario = document.getElementById("atenuante-primario").checked;
-      var isReincidente = selectedCrimes.some((c) => c.artigo === "161");
+      var isReincidente = selectedCrimes.some((c) => c.artigo === "162");
       if (!isPrimario && !isReincidente)
         return mostrarAlerta(
           "Defina se o Réu é Primário ou Reincidente!",
