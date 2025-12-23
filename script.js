@@ -578,7 +578,7 @@ document.addEventListener("DOMContentLoaded", function () {
     selectedCrimes.splice(idx, 1);
     var item = document.querySelector(`.crime-item[data-artigo="${c.artigo}"]`);
     if (item) item.classList.remove("selected");
-    if (c.artigo === "138") {
+    if (c.artigo === "139") {
       containerDinheiroSujo.classList.add("hidden");
       inputDinheiroSujo.value = "";
     }
@@ -623,6 +623,7 @@ document.addEventListener("DOMContentLoaded", function () {
           );
         // --- TRAVA: ITENS OBRIGATÓRIOS ---
         const ARTIGOS_COM_ITENS = [
+          "121",
           "122",
           "123",
           "124",
@@ -639,7 +640,8 @@ document.addEventListener("DOMContentLoaded", function () {
           "135",
           "136",
           "137",
-          "142",
+          "138",
+          "143",
         ];
 
         var exigeItem = selectedCrimes.some((c) =>
@@ -695,7 +697,7 @@ document.addEventListener("DOMContentLoaded", function () {
         selectedCrimes.push({ artigo, nome, pena, multa, infiancavel });
         this.classList.add("selected");
 
-        if (artigo === "138") {
+        if (artigo === "139") {
           containerDinheiroSujo.classList.remove("hidden");
           inputDinheiroSujo.focus();
         }
@@ -858,7 +860,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (selectedCrimes.length === 0)
         return mostrarAlerta("Selecione ao menos um crime!", "error");
 
-      var temDinheiroSujo = selectedCrimes.some((c) => c.artigo === "138");
+      var temDinheiroSujo = selectedCrimes.some((c) => c.artigo === "139");
       if (
         temDinheiroSujo &&
         (!inputDinheiroSujo.value || inputDinheiroSujo.value.trim() === "")
