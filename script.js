@@ -668,7 +668,14 @@ document.addEventListener("DOMContentLoaded", function () {
             "Selecione apenas Tráfico OU Posse de Munições.",
             "error"
           );
-
+        if (
+          artigo === "126" &&
+          selectedCrimes.some((c) => ["138"].includes(c.artigo))
+        )
+          return mostrarAlerta(
+            "Conflito: Tráfico vs Posse de Itens Ilegais.",
+            "error"
+          );
         const ITENS_ILEGAIS = ["126 ", "138"];
         if (
           ITENS_ILEGAIS.includes(artigo) &&
