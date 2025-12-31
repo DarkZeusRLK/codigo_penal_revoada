@@ -80,22 +80,22 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
   const playlist = [
     {
-      title: "Rockin' Around The Christmas Tree",
-      artist: "Brenda Lee",
-      src: "Música/videoplayback.mp4",
-      cover: "Imagens/Capa_brenda.jpg",
+      title: "Happy",
+      artist: "Pharrel Williams",
+      src: "Música/Pharrell Williams - Happy (Official Video).mp4",
+      cover: "Imagens/Capa_de_Happy_(Pharrell_Williams).jpg",
     },
     {
-      title: "All I Want for Christmas",
-      artist: "Mariah Carey",
-      src: "Música/Mariah Carey - All I Want For Christmas Is You (Lyrics).mp4",
-      cover: "Imagens/Capa_mariah.jpg",
+      title: "FireWork",
+      artist: "Katy Perry",
+      src: "Música/Katy Perry - Firework (Lyrics).mp4",
+      cover: "Imagens/katy_perry_firework.jpeg",
     },
     {
-      title: "Jingle Bell",
-      artist: "MC TETEU",
-      src: "Música/Jingle Bell.mp4",
-      cover: "Imagens/Jingle_bell.jpg",
+      title: "Music Sounds Better With You",
+      artist: "Stardust",
+      src: "Música/Stardust - Music Sounds Better With You (Official Music Video).mp4",
+      cover: "Imagens/capa_stardust.jpg",
     },
   ];
 
