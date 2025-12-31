@@ -1580,3 +1580,96 @@ input[type="radio"] {
   background-color: var(--ny-gold-bright);
   color: #000;
 }
+/* ============================================================
+   📱 RESPONSIVIDADE: PLAYER + BOTÃO LIMPAR (FIX LADO A LADO)
+   Adicione ao final do style_natal.css
+   ============================================================ */
+
+@media screen and (max-width: 1450px), screen and (max-height: 800px) {
+  /* 1. Ajuste do Container da Sidebar (para permitir flexbox) */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow-y: auto; /* Permite rolar se ficar muito pequeno */
+  }
+
+  /* 2. Cria um container "imaginário" para os elementos finais */
+  /* Isso força o botão e o player a tentarem se alinhar se estiverem soltos */
+  .spotify-player,
+  #btn-limpar {
+    position: relative !important; /* Remove fixação absoluta que causa sobreposição */
+    z-index: 10;
+  }
+
+  /* 3. Estilização Compacta do Player (Mini Mode) */
+  .spotify-player {
+    width: 100% !important;
+    max-width: 280px; /* Largura máxima controlada */
+    padding: 10px !important;
+    margin: 0 auto 10px auto !important;
+
+    /* Layout interno horizontal */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  /* 4. Esconde a Capa do Álbum para ganhar espaço */
+  .player-cover,
+  #player-cover {
+    display: none !important;
+  }
+
+  /* 5. Ajuste dos Textos (Título e Artista) */
+  .track-info {
+    text-align: left;
+    max-width: 100px; /* Limita largura do texto */
+  }
+
+  .track-title {
+    font-size: 0.8rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  .track-artist {
+    font-size: 0.7rem !important;
+  }
+
+  /* 6. Botão Limpar: Ajuste para caber ao lado ou logo abaixo sem quebrar */
+  #btn-limpar {
+    width: 90% !important; /* Quase largura total */
+    margin: 0 auto 20px auto !important; /* Centralizado com margem no fundo */
+    padding: 8px 0 !important;
+    font-size: 0.9rem !important;
+    display: block;
+    order: 999; /* Garante que fique no final */
+  }
+
+  /* CONTROLES: Reduz o tamanho dos botões de play/pause */
+  .spotify-controls {
+    gap: 5px !important;
+  }
+
+  .control-btn {
+    font-size: 1rem !important; /* Ícones menores */
+  }
+}
+
+/* Ajuste específico para Telas MUITO pequenas (ex: Notebooks antigos 1366x768) */
+@media screen and (max-height: 700px) {
+  .sidebar-header img {
+    width: 80px; /* Diminui o logo do topo */
+  }
+
+  .spotify-player {
+    margin-bottom: 5px !important;
+    padding: 5px !important;
+  }
+
+  #btn-limpar {
+    margin-bottom: 10px !important;
+  }
+}
