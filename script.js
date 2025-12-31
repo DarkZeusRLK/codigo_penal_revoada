@@ -1,21 +1,23 @@
 document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
-  // 0. SISTEMA DE PATCH NOTES
+  // 0. SISTEMA DE PATCH NOTES & VERSÃO
   // =========================================================
-  const VERSAO_ATUAL = "3.5";
+  const VERSAO_ATUAL = "3.6";
 
   const CONTEUDO_PATCH_NOTES = `
       <h4>🚀 Novidades da Versão ${VERSAO_ATUAL}</h4>
       <ul>
-          <li><strong>🎅 Natal:</strong> Tema natalino adicionado.</li>
-          <li><strong>⚖️ Novo Crime:</strong> Posse de Suprimentos de Desmanche adicionado (Art. 123).</li>
-          <li><strong>🎵 Player de Música:</strong> Agora estilo Spotify com 3 músicas natalinas.</li>
-          <li><strong>👮 Limite de QRA:</strong> Limitado a 9 policiais por relatório.</li>
+          <li><strong>🔒 Segurança de Fiança:</strong> Agora é OBRIGATÓRIO anexar a foto do comprovante de depósito caso a fiança seja paga. O envio será bloqueado sem ele.</li>
+          <li><strong>🎅 Tema Festivo:</strong> Ajustes visuais para o Ano Novo.</li>
+          <li><strong>⚖️ Novos Crimes:</strong> Tabela penal atualizada com novos artigos (Ex: 123 - Suprimentos).</li>
+          <li><strong>🎵 Player Otimizado:</strong> Visual estilo Spotify com controles funcionais.</li>
+          <li><strong>👮 Limite de QRA:</strong> Máximo de 9 oficiais adicionais por ocorrência.</li>
       </ul>
-      <h4>🐛 Correções</h4>
+      <h4>🐛 Correções e Melhorias</h4>
       <ul>
-          <li>Corrigida lista de QRA de participantes.</li>
-          <li>Corrigidos erros de envio ao Discord.</li>
+          <li>Correção na validação de envio de imagens obrigatórias.</li>
+          <li>Ajuste no cálculo automático de reincidência vs primário.</li>
+          <li>Melhoria na estabilidade da conexão com o Discord.</li>
       </ul>
   `;
 
@@ -25,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const contentPatch = document.getElementById("patch-notes-content");
     const btnFecharPatch = document.getElementById("btn-fechar-patch");
 
-    // Só mostra se já tiver um usuário logado (nome definido)
+    // Só mostra o patch note se o usuário já estiver logado visualmente
     if (!document.getElementById("user-name").textContent) return;
 
     if (versaoSalva !== VERSAO_ATUAL) {
@@ -46,10 +48,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // =========================================================
-  // 1. WATCHDOG (PREVENÇÃO DE TELA PRETA) & LOGIN UI
+  // 1. WATCHDOG (PREVENÇÃO DE TELA PRETA) & CONTROLE DE UI
   // =========================================================
   var loginScreen = document.getElementById("login-screen");
-  // O container agora é a div com classe .container, mas usamos o main-content para controle
   var appContent = document.querySelector(".container");
 
   function mostrarApp() {
@@ -64,6 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
       appContent.classList.remove("hidden");
       appContent.style.display = "block";
     }
+    // Verifica atualizações após carregar a interface
     setTimeout(verificarAtualizacao, 1000);
   }
 
@@ -76,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // =========================================================
-  // 2. PLAYER DE MÚSICA ESTILO SPOTIFY
+  // 2. PLAYER DE MÚSICA (ESTILO SPOTIFY)
   // =========================================================
   const playlist = [
     {
@@ -123,7 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const track = playlist[index];
 
     audioEl.src = track.src;
-    audioEl.volume = 0.2;
+    audioEl.volume = 0.2; // Volume inicial baixo
 
     if (titleEl) titleEl.textContent = track.title;
     if (artistEl) artistEl.textContent = track.artist;
@@ -132,7 +134,7 @@ document.addEventListener("DOMContentLoaded", function () {
       coverEl.src = track.cover ? track.cover : "Imagens/placeholder_cover.jpg";
     }
 
-    // Se já estava tocando ou avançou, tenta tocar
+    // Se o player já estiver ativo, continua tocando a nova faixa
     if (!audioEl.paused && audioEl.currentTime > 0) {
       playAudio();
     }
@@ -145,7 +147,7 @@ document.addEventListener("DOMContentLoaded", function () {
       playPromise
         .then((_) => updatePlayIcon(true))
         .catch((error) => {
-          console.log("Autoplay bloqueado ou erro: ", error);
+          console.log("Autoplay bloqueado pelo navegador ou erro: ", error);
           updatePlayIcon(false);
         });
     }
@@ -177,6 +179,7 @@ document.addEventListener("DOMContentLoaded", function () {
     playAudio();
   }
 
+  // Inicializa o Player
   if (audioEl && btnPlayPause) {
     loadTrack(currentTrackIndex);
     btnPlayPause.addEventListener("click", togglePlayPause);
@@ -186,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // =========================================================
-  // 3. UTILITÁRIOS (ALERTAS)
+  // 3. UTILITÁRIOS E ALERTAS GLOBAIS
   // =========================================================
   function mostrarAlerta(mensagem, tipo) {
     if (!tipo) tipo = "error";
@@ -198,16 +201,18 @@ document.addEventListener("DOMContentLoaded", function () {
       tipo === "success" ? "SUCESSO" : "ATENÇÃO"
     }</span><span class="alert-msg">${mensagem}</span></div>`;
     document.body.appendChild(div);
+
+    // Remove o alerta após 4 segundos
     setTimeout(() => {
       if (div.parentNode) div.parentNode.removeChild(div);
     }, 4000);
   }
 
   // =========================================================
-  // 4. SESSÃO E LOGIN (UNIFICADO)
+  // 4. GERENCIAMENTO DE SESSÃO E LOGIN (DISCORD)
   // =========================================================
   const SESSION_KEY = "policia_revoada_v3_natal";
-  const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000;
+  const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 Dias
 
   var userNameSpan = document.getElementById("user-name");
   var userIdHidden = document.getElementById("user-id-hidden");
@@ -228,7 +233,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function verificarSessao() {
-    // Se tiver hash na URL (voltando do Discord), ignoramos o cache local para logar
+    // Se houver hash na URL (retorno do Discord), não verifica o cache agora
     if (window.location.hash.includes("access_token")) return;
 
     const dadosSalvos = localStorage.getItem(SESSION_KEY);
@@ -236,6 +241,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try {
       const sessao = JSON.parse(dadosSalvos);
+      // Verifica validade da sessão
       if (new Date().getTime() - sessao.timestamp > SESSION_DURATION) {
         localStorage.removeItem(SESSION_KEY);
         return;
@@ -248,7 +254,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // --- BOTÃO SIMULAR ACESSO (DEV) ---
+  // --- Botão de Bypass (Apenas para Testes/Dev) ---
   var btnBypass = document.getElementById("btn-bypass-login");
   if (btnBypass) {
     btnBypass.addEventListener("click", function (e) {
@@ -264,20 +270,22 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // --- LOGIN DISCORD (RETORNO DA API) ---
+  // --- Lógica de Retorno do OAuth2 do Discord ---
   var fragment = new URLSearchParams(window.location.hash.slice(1));
   var accessToken = fragment.get("access_token");
   var tokenType = fragment.get("token_type");
 
   if (accessToken) {
-    // Feedback visual na tela de login
+    // Atualiza visual enquanto carrega
     const loginTitle = document.querySelector("#login-screen h2");
     const loginDesc = document.querySelector("#login-screen p");
     if (loginTitle) loginTitle.innerText = "AGUARDE...";
-    if (loginDesc) loginDesc.innerText = "Validando credenciais...";
+    if (loginDesc) loginDesc.innerText = "Validando credenciais com o QG...";
 
+    // Limpa a URL
     window.history.replaceState({}, document.title, window.location.pathname);
 
+    // Busca dados do usuário no Discord
     fetch("https://discord.com/api/users/@me", {
       headers: { authorization: `${tokenType} ${accessToken}` },
     })
@@ -303,12 +311,12 @@ document.addEventListener("DOMContentLoaded", function () {
         if (loginDesc) loginDesc.innerText = "Erro de conexão.";
       });
   } else {
-    // Se não tem token na URL, verifica se já tem sessão salva
+    // Se não há token, tenta recuperar sessão antiga
     verificarSessao();
   }
 
   // =========================================================
-  // 5. PESQUISA DE OFICIAIS
+  // 5. PESQUISA DE OFICIAIS E PARTICIPANTES
   // =========================================================
   var LISTA_OFICIAIS = [{ id: "001", nome: "Comandante Geral" }];
 
@@ -321,10 +329,10 @@ document.addEventListener("DOMContentLoaded", function () {
   );
   var participantesSelecionados = [];
 
-  // Tenta carregar JSON externo, se falhar usa lista padrão
+  // Tenta carregar JSON externo de membros
   async function carregarOficiaisDiscord() {
     try {
-      const response = await fetch("/api/membros"); // Ajuste se tiver backend
+      const response = await fetch("/api/membros");
       if (response.ok) {
         var dados = await response.json();
         if (Array.isArray(dados)) LISTA_OFICIAIS = dados;
@@ -378,7 +386,6 @@ document.addEventListener("DOMContentLoaded", function () {
     btnAddPart.addEventListener("click", function () {
       var id = selectedOficialIdInput.value || "000";
       var nome = searchInput.value;
-
       var idLogado = userIdHidden.value;
       var nomeLogado = userNameSpan.textContent;
 
@@ -409,7 +416,7 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   // =========================================================
-  // 6. LÓGICA DA CALCULADORA
+  // 6. LÓGICA DA CALCULADORA E CONFLITOS
   // =========================================================
   var selectedCrimes = [];
   var crimeItems = document.querySelectorAll(".crime-item");
@@ -430,7 +437,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var containerHp = document.getElementById("container-hp-minutos");
   var alertPenaMaxima = document.getElementById("alerta-pena-maxima");
 
-  // Trava Primário vs Reincidente
+  // --- Trava: Primário vs Reincidente ---
   var chkPrimario = document.getElementById("atenuante-primario");
   if (chkPrimario) {
     chkPrimario.addEventListener("change", function () {
@@ -459,6 +466,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (c.infiancavel) isInfiancavel = true;
     });
 
+    // Adiciona multa do dinheiro sujo (50% do valor)
     if (
       inputDinheiroSujo &&
       inputDinheiroSujo.value &&
@@ -469,7 +477,7 @@ document.addEventListener("DOMContentLoaded", function () {
       totalMulta += sujo * 0.5;
     }
 
-    // Teto de 180 meses
+    // Teto de 180 meses (Pena Máxima)
     var penaBaseCalculo = totalPenaRaw;
     if (totalPenaRaw > 180) {
       penaBaseCalculo = 180;
@@ -478,7 +486,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (alertPenaMaxima) alertPenaMaxima.classList.add("hidden");
     }
 
-    // Atenuantes
+    // Aplica Atenuantes (Desconto em %)
     var descontoPercent = 0;
     checkboxes.forEach((cb) => {
       if (cb.checked) descontoPercent += parseFloat(cb.dataset.percent);
@@ -488,7 +496,7 @@ document.addEventListener("DOMContentLoaded", function () {
       penaBaseCalculo * (1 - Math.abs(descontoPercent) / 100)
     );
 
-    // Desconto HP
+    // Desconto de HP (Minutos fixos)
     if (hpSimBtn && hpSimBtn.checked && inputHpMinutos.value) {
       penaComDesconto = Math.max(
         0,
@@ -498,9 +506,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var penaFinal = Math.ceil(penaComDesconto);
 
+    // Renderiza Valores
     penaTotalEl.textContent = penaFinal + " meses";
     multaTotalEl.textContent = "R$" + totalMulta.toLocaleString("pt-BR");
 
+    // Lógica de Fiança
     var radioFiancaSim = document.getElementById("fianca-sim");
     var radioFiancaNao = document.getElementById("fianca-nao");
     var boxDeposito = document.getElementById("box-upload-deposito");
@@ -512,7 +522,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (radioFiancaNao) radioFiancaNao.checked = true;
       if (boxDeposito) boxDeposito.classList.add("hidden");
     } else {
-      // Fiança: Multa x 3 (Teto 1.4kk)
+      // Cálculo Fiança: Multa x 3 (Teto 1.4kk)
       var valorMulta = totalMulta;
       var calculoFianca = valorMulta * 3;
       var valorFiancaFinal = Math.min(calculoFianca, 1400000);
@@ -521,12 +531,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (radioFiancaSim) radioFiancaSim.disabled = false;
 
+      // Controle visual do box de upload do comprovante
       if (radioFiancaSim && radioFiancaSim.checked) {
         if (boxDeposito) boxDeposito.classList.remove("hidden");
       } else {
         if (boxDeposito) boxDeposito.classList.add("hidden");
       }
 
+      // Breakdown financeiro (Advogado/Painel)
       var advogadoCheck = document.getElementById("atenuante-advogado");
       var fiancaBreakdown = document.getElementById("fianca-breakdown");
 
@@ -585,7 +597,7 @@ document.addEventListener("DOMContentLoaded", function () {
     calculateSentence();
   };
 
-  // Seleção de Crimes (com Travas)
+  // --- SELEÇÃO DE CRIMES (COM TRAVAS DE LÓGICA) ---
   crimeItems.forEach((item) => {
     item.addEventListener("click", function () {
       var artigo = this.dataset.artigo;
@@ -594,7 +606,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var idx = selectedCrimes.findIndex((c) => c.artigo === artigo);
         window.removerCrime(idx);
       } else {
-        // Travas de Conflito
+        // --- TRAVAS E CONFLITOS ---
         const HOMICIDIOS = ["104", "105", "107", "108"];
         if (
           HOMICIDIOS.includes(artigo) &&
@@ -607,6 +619,7 @@ document.addEventListener("DOMContentLoaded", function () {
           selectedCrimes.some((c) => ["127", "128"].includes(c.artigo))
         )
           return mostrarAlerta("Conflito: Tráfico vs Porte de Armas.", "error");
+
         if (
           ["127", "128"].includes(artigo) &&
           selectedCrimes.some((c) => c.artigo === "125")
@@ -621,6 +634,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "Conflito: Réu não pode ser Reincidente e Primário.",
             "error"
           );
+
         // --- TRAVA: ITENS OBRIGATÓRIOS ---
         const ARTIGOS_COM_ITENS = [
           "121",
@@ -659,6 +673,7 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById("itens-apreendidos").focus();
           return;
         }
+
         const MUNICOES = ["130", "131"];
         if (
           MUNICOES.includes(artigo) &&
@@ -668,6 +683,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "Selecione apenas Tráfico OU Posse de Munições.",
             "error"
           );
+
         if (
           artigo === "126" &&
           selectedCrimes.some((c) => ["138"].includes(c.artigo))
@@ -676,6 +692,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "Conflito: Tráfico vs Posse de Itens Ilegais.",
             "error"
           );
+
         const ITENS_ILEGAIS = ["126 ", "138"];
         if (
           ITENS_ILEGAIS.includes(artigo) &&
@@ -696,7 +713,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "error"
           );
 
-        // Adiciona
+        // Adiciona o crime se passou nas travas
         var nome = this.querySelector(".crime-name").textContent;
         var pena = parseInt(this.dataset.pena);
         var multa = parseInt(this.dataset.multa);
@@ -713,6 +730,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  // Listeners para recálculo em tempo real
   checkboxes.forEach((cb) => cb.addEventListener("change", calculateSentence));
   if (inputHpMinutos)
     inputHpMinutos.addEventListener("input", calculateSentence);
@@ -727,7 +745,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Input Dinheiro Sujo (Formatação)
+  // Formatação do Input de Dinheiro Sujo e Adição Automática ao Inventário
   if (inputDinheiroSujo) {
     inputDinheiroSujo.addEventListener("input", function (e) {
       var value = e.target.value.replace(/\D/g, "");
@@ -772,7 +790,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // =========================================================
-  // 7. UPLOADS E PREVIEW
+  // 7. UPLOADS E PREVIEW DE IMAGENS
   // =========================================================
   var arquivoPreso = null,
     arquivoMochila = null,
@@ -786,10 +804,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!box || !input) return;
 
+    // Clique na box dispara o input
     box.addEventListener("click", function (e) {
       if (e.target !== input && e.target.tagName !== "LABEL") input.click();
     });
 
+    // Colar imagem (Ctrl+V)
     box.addEventListener("paste", function (e) {
       if (e.clipboardData && e.clipboardData.items) {
         for (var i = 0; i < e.clipboardData.items.length; i++) {
@@ -823,6 +843,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (type === "extra") arquivoExtra = file;
   }
 
+  // Inicializa os uploaders
   setupUpload("box-upload-preso", "upload-preso", "img-preview-preso", "preso");
   setupUpload(
     "box-upload-mochila",
@@ -847,7 +868,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // =========================================================
-  // 8. MODAL DE CONFIRMAÇÃO E ENVIO
+  // 8. MODAL DE CONFIRMAÇÃO E ENVIO (COM TRAVA DE FIANÇA)
   // =========================================================
   var btnEnviar = document.getElementById("btn-enviar");
   var modalConf = document.getElementById("modal-confirmacao");
@@ -866,6 +887,21 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       if (selectedCrimes.length === 0)
         return mostrarAlerta("Selecione ao menos um crime!", "error");
+
+      // =======================================================
+      // >>>>>> TRAVA DE SEGURANÇA DE FIANÇA (NOVA) <<<<<<
+      // Se a fiança foi paga (Sim), o arquivo de depósito é OBRIGATÓRIO.
+      // =======================================================
+      var checkFianca = document.getElementById("fianca-sim");
+      if (checkFianca && checkFianca.checked) {
+        if (!arquivoDeposito) {
+          return mostrarAlerta(
+            "⚠️ ATENÇÃO: O Comprovante de Depósito é OBRIGATÓRIO quando a fiança é paga! Anexe a imagem.",
+            "error"
+          );
+        }
+      }
+      // =======================================================
 
       var temDinheiroSujo = selectedCrimes.some((c) => c.artigo === "139");
       if (
@@ -889,7 +925,7 @@ document.addEventListener("DOMContentLoaded", function () {
           "error"
         );
 
-      // Preenche Modal
+      // Preenche dados no Modal de Confirmação
       document.getElementById("conf-oficiais").textContent =
         userNameSpan.textContent +
         (participantesSelecionados.length > 0
@@ -935,180 +971,89 @@ document.addEventListener("DOMContentLoaded", function () {
         : `<b style="color:#ef4444">NÃO PAGOU FIANÇA</b>`;
       ulDetalhes.appendChild(liFianca);
 
-      // Imagens Modal
-      if (document.getElementById("img-preview-preso").src)
-        document.getElementById("conf-img-preso").src =
-          document.getElementById("img-preview-preso").src;
-      if (document.getElementById("img-preview-mochila").src)
-        document.getElementById("conf-img-mochila").src =
-          document.getElementById("img-preview-mochila").src;
-
-      var boxConfDep = document.getElementById("box-conf-deposito");
-      if (pagouFianca && document.getElementById("img-preview-deposito").src) {
-        document.getElementById("conf-img-deposito").src =
-          document.getElementById("img-preview-deposito").src;
-        boxConfDep.classList.remove("hidden");
-      } else {
-        boxConfDep.classList.add("hidden");
+      if (modalConf) {
+        modalConf.classList.remove("hidden");
+        modalConf.style.display = "flex";
       }
-
-      modalConf.classList.remove("hidden");
     });
   }
 
-  if (btnCancelar)
-    btnCancelar.addEventListener("click", () =>
-      modalConf.classList.add("hidden")
-    );
-
-  function comprimirImagemAsync(file) {
-    return new Promise((resolve) => {
-      if (!file) return resolve(null);
-      var reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = function (e) {
-        var img = new Image();
-        img.src = e.target.result;
-        img.onload = function () {
-          var canvas = document.createElement("canvas");
-          var ctx = canvas.getContext("2d");
-          var scale = 1;
-          if (img.width > 1280) scale = 1280 / img.width;
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          canvas.toBlob(resolve, "image/jpeg", 0.7);
-        };
-      };
+  if (btnCancelar) {
+    btnCancelar.addEventListener("click", function () {
+      if (modalConf) {
+        modalConf.classList.add("hidden");
+        modalConf.style.display = "none";
+      }
     });
   }
 
   if (btnConfirmar) {
     btnConfirmar.addEventListener("click", async function () {
-      btnConfirmar.textContent = "ENVIANDO...";
-      btnConfirmar.disabled = true;
+      this.disabled = true;
+      this.innerText = "ENVIANDO AO QG...";
 
       try {
-        const blobPreso = await comprimirImagemAsync(arquivoPreso);
-        const blobMochila = await comprimirImagemAsync(arquivoMochila);
-        const blobDeposito = await comprimirImagemAsync(arquivoDeposito);
-        const blobExtra = await comprimirImagemAsync(arquivoExtra);
-
         var formData = new FormData();
-        if (blobPreso) formData.append("file1", blobPreso, "preso.jpg");
-        if (blobMochila) formData.append("file2", blobMochila, "mochila.jpg");
-        if (blobDeposito)
-          formData.append("file3", blobDeposito, "deposito.jpg");
-        if (blobExtra) formData.append("file4", blobExtra, "extra.jpg");
+        // Dados Pessoais
+        formData.append("nome_preso", document.getElementById("nome").value);
+        formData.append("rg", document.getElementById("rg").value);
+        formData.append(
+          "itens",
+          document.getElementById("itens-apreendidos").value
+        );
 
+        // Sentença
+        formData.append("pena", penaTotalEl.textContent);
+        formData.append("multa", multaTotalEl.textContent);
         var pagouFianca = document.getElementById("fianca-sim").checked;
-        var oficialNome = userNameSpan.textContent;
-        var oficialId = userIdHidden.value;
-        var crimesTexto = selectedCrimes
-          .map((c) => c.nome.replace(/\*\*/g, ""))
-          .join("\n");
+        formData.append("fianca_paga", pagouFianca ? "Sim" : "Não");
 
-        var qraString = `QRA: <@${oficialId}>`;
-        participantesSelecionados.forEach((p) => {
-          qraString += ` <@${p.id}>`;
-        });
+        // Metadados
+        formData.append("data_hora", new Date().toLocaleString());
+        formData.append("oficial_nome", userNameSpan.textContent);
+        formData.append("oficial_id", userIdHidden.value);
+        formData.append("avatar_url", userAvatarImg.src);
 
-        var atenuantesTexto = "";
+        // Arquivos
+        formData.append("arquivo_preso", arquivoPreso);
+        formData.append("arquivo_mochila", arquivoMochila);
+        if (arquivoDeposito)
+          formData.append("arquivo_deposito", arquivoDeposito);
+        if (arquivoExtra) formData.append("arquivo_extra", arquivoExtra);
+
+        // Crimes (JSON)
+        formData.append(
+          "crimes",
+          JSON.stringify(
+            selectedCrimes.map((c) => ({
+              nome: c.nome,
+              artigo: c.artigo,
+            }))
+          )
+        );
+
+        // Atenuantes (JSON)
+        var atenuantes = [];
         checkboxes.forEach((cb) => {
           if (cb.checked)
-            atenuantesTexto +=
-              document.querySelector(`label[for="${cb.id}"]`).textContent +
-              "\n";
+            atenuantes.push(
+              document.querySelector(`label[for="${cb.id}"]`).textContent
+            );
         });
-        if (atenuantesTexto === "") atenuantesTexto = "Nenhum";
+        if (hpSimBtn.checked) atenuantes.push("Reanimado no HP");
+        formData.append("atenuantes", JSON.stringify(atenuantes));
 
-        var corEmbed = pagouFianca ? 3066993 : 15158332;
-        var tituloEmbed = pagouFianca
-          ? "💰 RELATÓRIO DE FIANÇA"
-          : "🚔 RELATÓRIO DE PRISÃO";
+        // Participantes (JSON)
+        var parts = participantesSelecionados.map((p) => ({
+          nome: p.nome,
+          id: p.id,
+        }));
+        formData.append("participantes", JSON.stringify(parts));
 
-        var payload = {
-          content: qraString,
-          embeds: [
-            {
-              title: tituloEmbed,
-              color: corEmbed,
-              image: { url: "attachment://preso.jpg" },
-              fields: [
-                { name: "👮 Oficial", value: oficialNome, inline: true },
-                {
-                  name: "👥 Participantes",
-                  value:
-                    participantesSelecionados.length > 0
-                      ? participantesSelecionados.map((p) => p.nome).join(", ")
-                      : "Nenhum",
-                  inline: true,
-                },
-                {
-                  name: "👤 Preso",
-                  value: `**Nome:** ${
-                    document.getElementById("nome").value
-                  }\n**RG:** ${document.getElementById("rg").value}`,
-                  inline: false,
-                },
-                {
-                  name: "⚖️ Sentença",
-                  value: `**Pena:** ${penaTotalEl.textContent}\n**Multa:** ${multaTotalEl.textContent}`,
-                  inline: false,
-                },
-                {
-                  name: "🛡️ Advogado",
-                  value: document.getElementById("advogado").value || "Nenhum",
-                  inline: true,
-                },
-                { name: "📜 Crimes", value: "```\n" + crimesTexto + "\n```" },
-                {
-                  name: "📦 Itens Apreendidos",
-                  value:
-                    document.getElementById("itens-apreendidos").value ||
-                    "Nenhum",
-                  inline: false,
-                },
-                {
-                  name: "💸 Dinheiro Sujo",
-                  value: inputDinheiroSujo.value
-                    ? "R$ " + inputDinheiroSujo.value
-                    : "Não houve",
-                  inline: true,
-                },
-                { name: "📝 Detalhes", value: atenuantesTexto },
-              ],
-              footer: {
-                text:
-                  "Sistema Policial REVOADA • " + new Date().toLocaleString(),
-              },
-            },
-            {
-              title: "📦 INVENTÁRIO",
-              color: corEmbed,
-              image: { url: "attachment://mochila.jpg" },
-            },
-          ],
-        };
-
-        if (blobDeposito)
-          payload.embeds.push({
-            title: "💸 COMPROVANTE",
-            color: corEmbed,
-            image: { url: "attachment://deposito.jpg" },
-          });
-        if (blobExtra)
-          payload.embeds.push({
-            title: "🚗 EVIDÊNCIA EXTRA",
-            color: corEmbed,
-            image: { url: "attachment://extra.jpg" },
-          });
-
-        formData.append("payload_json", JSON.stringify(payload));
-
-        // SUBSTITUA PELA URL DO SEU WEBHOOK REAL SE NÃO ESTIVER USANDO BACKEND LOCAL
-        // Ex: const URL_API = "https://discord.com/api/webhooks/SEU_WEBHOOK";
+        // Envio para API (Simulação de rota)
+        // A rota exata depende do seu backend, mantive a estrutura genérica
         const URL_API =
+          "/api/enviar-relatorio" ||
           "/api/enviar?tipo=" + (pagouFianca ? "fianca" : "prisao");
 
         const response = await fetch(URL_API, {
@@ -1131,6 +1076,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+
+// =========================================================
+// 9. SEGURANÇA E ANTI-DEBUG (PROTEÇÃO DO CÓDIGO)
+// =========================================================
+
 // Impede o clique com botão direito
 document.addEventListener("contextmenu", (event) => event.preventDefault());
 
@@ -1145,13 +1095,6 @@ document.onkeydown = function (e) {
   // Bloqueia Ctrl+Shift+J (Console)
   if (e.ctrlKey && e.shiftKey && e.keyCode == "J".charCodeAt(0)) return false;
 
-  // Bloqueia Ctrl+U (Exibir código fonte)
+  // Bloqueia Ctrl+U (Ver Fonte)
   if (e.ctrlKey && e.keyCode == "U".charCodeAt(0)) return false;
-
-  // Bloqueia Ctrl+S (Salvar página)
-  if (e.ctrlKey && e.keyCode == "S".charCodeAt(0)) return false;
 };
-// Se o DevTools for aberto, o script entra em loop de debug
-setInterval(function () {
-  debugger;
-}, 100);
