@@ -1053,7 +1053,6 @@ document.addEventListener("DOMContentLoaded", function () {
         // Envio para API (Simulação de rota)
         // A rota exata depende do seu backend, mantive a estrutura genérica
         const URL_API =
-          "/api/enviar" ||
           "/api/enviar?tipo=" + (pagouFianca ? "fianca" : "prisao");
 
         const response = await fetch(URL_API, {
