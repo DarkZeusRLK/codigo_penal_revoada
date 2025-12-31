@@ -1,0 +1,1595 @@
+/* =========================================
+   🥂 CSS EDIÇÃO ESPECIAL: RÉVEILLON DE GALA 🎆
+   (Estrutura Completa Unificada + Visual Ano Novo)
+   ========================================= */
+
+/* Importando fontes: Cinzel (Luxo) e Montserrat (Moderno) */
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Montserrat:wght@300;400;600;800&family=Roboto:wght@400;500;700&display=swap");
+
+/* =========================================
+   1. VARIÁVEIS E CONFIGURAÇÕES GERAIS
+   ========================================= */
+:root {
+  /* --- PALETA ANO NOVO (Ouro, Prata, Champagne & Midnight) --- */
+  --ny-gold: #d4af37; /* Dourado Clássico */
+  --ny-gold-bright: #ffd700; /* Dourado Brilhante */
+  --ny-champagne: #f7e7ce; /* Champagne */
+  --ny-silver: #c0c0c0; /* Prata */
+  --ny-midnight: #050505; /* Preto Absoluto */
+  --ny-night-blue: #0a0a0c; /* Azul Noite Profunda */
+  --ny-card-bg: #121214; /* Fundo dos Cards */
+
+  /* --- MAPEAMENTO LÓGICO (MANTENDO COMPATIBILIDADE) --- */
+  --bg-main: var(--ny-midnight);
+  --bg-card: var(--ny-card-bg);
+
+  /* Gradiente do Cabeçalho de Categoria */
+  --bg-header-category: linear-gradient(
+    90deg,
+    #1a1a1a 0%,
+    var(--ny-card-bg) 100%
+  );
+
+  --bg-input: rgba(255, 255, 255, 0.03); /* Vidro Escuro */
+
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1a1;
+  --text-muted: #666666;
+
+  /* Cor de Destaque (Substitui o Vermelho de Natal) */
+  --color-revoada: var(--ny-gold);
+  --color-revoada-light: var(--ny-gold-bright);
+
+  /* Cores Funcionais */
+  --color-danger: #ff4d4d; /* Vermelho Vivo para Erros */
+  --color-success: #00e676; /* Verde Neon para Sucesso */
+  --color-info: var(--ny-gold);
+  --color-warning: #ffab00;
+
+  /* Bordas e Sombras de Luxo */
+  --border-color: rgba(212, 175, 55, 0.25); /* Borda Dourada Sutil */
+  --border-focus: var(--ny-gold);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.8);
+  --glow-gold: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+/* Reset e Fontes */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Montserrat", "Roboto", sans-serif;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ny-gold) var(--bg-main);
+}
+
+/* Títulos com fonte de Gala */
+h1,
+h2,
+h3,
+.card-header,
+.alert-title,
+.modal-header,
+.patch-header,
+.category-title {
+  font-family: "Cinzel", serif;
+  letter-spacing: 1px;
+}
+
+/* Scrollbar Customizada (Dourada) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.4);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--ny-gold);
+  border-radius: 4px;
+  border: 1px solid var(--ny-midnight);
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ny-gold-bright);
+}
+
+/* Body com Animação de Fogos de Artifício (Substituindo a Neve) */
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  padding: 20px;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+
+  /* Fundo com "Poeira Estelar" */
+  background-image: radial-gradient(var(--ny-gold) 1px, transparent 1px),
+    radial-gradient(var(--ny-silver) 1px, transparent 1px);
+  background-size: 60px 60px, 120px 120px;
+  animation: starTwinkle 60s linear infinite;
+}
+
+/* Camada extra para Fogos (Pseudo-elemento) */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  background-image: radial-gradient(
+      circle,
+      var(--ny-gold) 2px,
+      transparent 30px
+    ),
+    radial-gradient(circle, var(--color-danger) 2px, transparent 30px),
+    radial-gradient(circle, var(--color-success) 2px, transparent 30px);
+  background-size: 0 0;
+  animation: fireworks 4s ease-out infinite;
+  opacity: 0.3;
+}
+
+@keyframes starTwinkle {
+  from {
+    background-position: 0 0, 0 0;
+  }
+  to {
+    background-position: 100px 100px, -50px 50px;
+  }
+}
+
+@keyframes fireworks {
+  0% {
+    background-size: 0 0, 0 0, 0 0;
+    background-position: 50% 100%, 20% 100%, 80% 100%;
+  }
+  50% {
+    background-size: 100px 100px, 80px 80px, 120px 120px;
+    background-position: 50% 30%, 20% 40%, 80% 20%;
+    opacity: 1;
+  }
+  100% {
+    background-size: 200px 200px, 150px 150px, 250px 250px;
+    background-position: 50% 30%, 20% 40%, 80% 20%;
+    opacity: 0;
+  }
+}
+
+.container {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* =========================================
+   2. TELA DE LOGIN
+   ========================================= */
+.login-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Gradiente Preto para Dourado Escuro */
+  background: radial-gradient(circle at center, #1a1500 0%, #000000 100%);
+  z-index: 99999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.login-box {
+  background-color: rgba(10, 10, 10, 0.95);
+  padding: 40px;
+  border-radius: 4px; /* Bordas mais retas (Elegante) */
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 0 80px rgba(212, 175, 55, 0.15);
+
+  /* Borda Dourada Dupla */
+  border: 1px solid var(--ny-gold);
+  outline: 1px solid rgba(212, 175, 55, 0.3);
+  outline-offset: 5px;
+}
+
+/* Enfeite no topo do Login (Taças) */
+.login-box::before {
+  content: "🥂";
+  position: absolute;
+  top: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 3.5em;
+  filter: drop-shadow(0 0 15px var(--ny-gold));
+  animation: floatIcon 3s ease-in-out infinite;
+}
+
+@keyframes floatIcon {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-10px);
+  }
+}
+
+.login-logo {
+  height: 100px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 0 5px var(--ny-gold));
+}
+
+.login-box h2 {
+  color: var(--ny-gold);
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.login-box p {
+  color: var(--text-secondary);
+  margin-bottom: 30px;
+}
+
+.btn-discord-login {
+  background: linear-gradient(135deg, var(--ny-gold), #8a6d3b);
+  color: #000;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 2px;
+  font-size: 1em;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 100%;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.btn-discord-login:hover {
+  background: linear-gradient(135deg, var(--ny-gold-bright), var(--ny-gold));
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+  color: #000;
+}
+
+.login-footer {
+  font-size: 0.8em;
+  margin-top: 20px;
+  opacity: 0.7;
+  color: var(--ny-gold-bright);
+}
+
+/* =========================================
+   3. HEADER E TOPO
+   ========================================= */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: rgba(20, 20, 20, 0.9);
+  border-radius: 8px;
+  margin-bottom: 25px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  border: 1px solid var(--border-color);
+  /* Borda inferior dourada sólida */
+  border-bottom: 3px solid var(--ny-gold);
+}
+
+/* Brilho no topo do Header */
+header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ny-gold), transparent);
+  opacity: 0.8;
+}
+
+header h1 {
+  font-size: 1.8em;
+  color: var(--ny-gold);
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+header p.titulo {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+  margin-top: 2px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(212, 175, 55, 0.05);
+  padding: 6px 15px;
+  border-radius: 0;
+  border: 1px solid var(--ny-gold);
+}
+
+.avatar-small {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid var(--ny-gold);
+  box-shadow: 0 0 8px var(--ny-gold);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.user-label {
+  color: var(--ny-gold);
+  font-size: 0.75em;
+  text-transform: uppercase;
+}
+.user-value {
+  color: var(--text-primary);
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+/* =========================================
+   4. ESTRUTURA E CARDS
+   ========================================= */
+.dados-preso-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.main-content {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.full-width {
+  grid-column: 1 / -1;
+}
+.dados-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card {
+  background-color: var(--bg-card);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  transition: border-color 0.3s;
+}
+
+.card:hover {
+  border-color: var(--ny-gold);
+}
+
+/* Efeito de Reflexo no Card */
+.card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--ny-gold), transparent);
+}
+
+.card-header {
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--ny-gold);
+  padding-bottom: 12px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+}
+
+.card-header i {
+  color: var(--ny-gold);
+  margin-right: 10px;
+  filter: drop-shadow(0 0 5px var(--ny-gold));
+}
+
+/* =========================================
+   5. INPUTS E FORMULÁRIOS (EFEITO VIDRO)
+   ========================================= */
+.input-group {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 15px;
+  margin-bottom: 5px;
+  align-items: center;
+}
+.input-group label {
+  font-size: 0.95em;
+  color: var(--text-secondary);
+  text-align: right;
+  width: 130px;
+  font-weight: 500;
+}
+
+input:not([type="file"]),
+textarea,
+select {
+  background-color: var(--bg-input);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-size: 0.95em;
+  min-height: 40px;
+  transition: all 0.3s;
+  backdrop-filter: blur(5px);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--ny-gold);
+  outline: none;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+  background-color: rgba(20, 20, 25, 0.9);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+  max-height: 400px;
+  width: 100%;
+}
+
+/* Uploads */
+.upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.upload-box {
+  background-color: rgba(20, 20, 20, 0.6);
+  border: 1px dashed var(--ny-gold);
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  transition: 0.3s;
+  cursor: pointer;
+  position: relative;
+}
+
+.upload-box:hover,
+.upload-box.active-box {
+  border-color: var(--ny-gold-bright);
+  background-color: rgba(212, 175, 55, 0.1);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+}
+
+.upload-box label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: var(--text-primary);
+  font-size: 0.9em;
+}
+.paste-hint {
+  font-size: 0.75em;
+  color: var(--ny-gold);
+  margin-bottom: 8px;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-content: center;
+}
+
+.preview-area {
+  width: 100%;
+  height: 130px;
+  background-color: #050505;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.preview-area i {
+  font-size: 2.5em;
+  color: var(--border-color);
+  opacity: 0.5;
+}
+
+.preview-area img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+input[type="file"] {
+  width: 100%;
+  font-size: 0.8em;
+  color: var(--text-secondary);
+}
+
+/* =========================================
+   6. PESQUISA E DROPDOWN
+   ========================================= */
+.participantes-section {
+  border-top: 1px dashed var(--border-color);
+  padding-top: 15px;
+  margin-top: 10px;
+}
+.participante-selector-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.search-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.form-search {
+  width: 40%;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.95em;
+}
+
+.dropdown-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 250px;
+  overflow-y: auto;
+  background-color: #0a0a0c;
+  border: 1px solid var(--ny-gold);
+  border-top: none;
+  z-index: 1000;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9);
+  display: none;
+}
+.dropdown-results:not(.hidden) {
+  display: block;
+}
+
+.dropdown-item {
+  padding: 12px 15px;
+  cursor: pointer;
+  color: var(--text-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  transition: all 0.2s;
+}
+.dropdown-item:hover {
+  background-color: rgba(212, 175, 55, 0.2);
+  padding-left: 20px;
+  color: var(--ny-gold);
+}
+
+/* Botão Adicionar (+) */
+.btn-add {
+  background-color: var(--ny-gold);
+  color: #000;
+  border: 1px solid var(--ny-gold);
+  width: 42px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+.btn-add:hover {
+  background-color: var(--ny-white);
+  box-shadow: 0 0 15px var(--ny-gold);
+}
+
+/* Tags de Participantes */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  min-height: 45px;
+  margin-top: 10px;
+}
+.officer-tag {
+  /* Gradiente Dourado Escuro */
+  background: linear-gradient(135deg, #8a6d3b, #5e4b25);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 0;
+  font-size: 0.85em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--ny-gold);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+.officer-tag button {
+  background: none;
+  border: none;
+  color: var(--ny-gold-bright);
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* =========================================
+   7. LISTA DE CRIMES
+   ========================================= */
+.crimes-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+@media (max-width: 1200px) {
+  .crimes-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.category-title {
+  /* Fita Dourada */
+  background: linear-gradient(
+    90deg,
+    rgba(212, 175, 55, 0.2) 0%,
+    transparent 90%
+  );
+  border-left: 5px solid var(--ny-gold);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  padding: 10px 15px;
+  font-weight: 900;
+  color: var(--ny-white);
+  text-transform: uppercase;
+  font-size: 0.9em;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+.category-title::before {
+  content: "✨";
+  margin-right: 8px;
+  font-size: 1.1em;
+}
+
+.crime-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: all 0.2s;
+  background: rgba(255, 255, 255, 0.01);
+}
+.crime-item:hover {
+  background-color: rgba(212, 175, 55, 0.1);
+  padding-left: 18px;
+  color: var(--ny-gold);
+}
+.crime-item:hover::before {
+  content: "🎆";
+  position: absolute;
+  left: 5px;
+}
+
+.crime-item.selected {
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.15), transparent);
+  border-left: 4px solid var(--ny-gold);
+  font-weight: bold;
+  color: var(--ny-gold);
+}
+/* Etiquetas */
+.btn-info {
+  background-color: #333;
+  color: var(--ny-white);
+  border: 1px solid var(--ny-silver);
+  padding: 3px 8px;
+  border-radius: 2px;
+  font-size: 0.7em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.crime-condition {
+  font-size: 0.75em;
+  background-color: #1a237e;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 2px;
+  margin-left: 8px;
+  font-weight: 600;
+  border: 1px solid #534bae;
+}
+
+/* =========================================
+   8. RESUMO DA SENTENÇA (DIREITA)
+   ========================================= */
+.resumo-sentenca {
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+  min-width: 320px;
+  /* Borda brilhante no resumo */
+  border: 1px solid var(--ny-gold);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+}
+
+.resumo-section {
+  margin-bottom: 20px;
+  padding: 0 5px;
+}
+
+.section-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--ny-gold);
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 1px;
+}
+
+.section-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.8em;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+  margin: 20px 0;
+}
+
+/* Lista de Selecionados */
+.output-list {
+  min-height: 60px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  max-height: 350px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+}
+
+.crime-output-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 0.9em;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  align-items: center;
+}
+.crime-output-item:last-child {
+  border-bottom: none;
+}
+
+.crime-output-item span {
+  line-height: 1.4;
+  padding-right: 10px;
+}
+
+.crime-output-item button {
+  background: none;
+  border: none;
+  color: var(--color-danger);
+  cursor: pointer;
+  font-size: 1.1em;
+  transition: transform 0.2s;
+}
+.crime-output-item button:hover {
+  transform: scale(1.2);
+  text-shadow: 0 0 5px red;
+}
+
+/* Totais */
+.pena-multa .section-title {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 1.1em;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+#pena-total {
+  color: #ff5252;
+  font-weight: 800;
+  text-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+}
+#multa-total {
+  color: var(--ny-gold-bright);
+  font-weight: 800;
+  text-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+}
+
+/* Alerta de Perigo */
+.alert-box {
+  background-color: rgba(255, 0, 0, 0.05);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  padding: 12px;
+  border-radius: 4px;
+  margin-top: 15px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  animation: pulse 2s infinite;
+}
+
+/* Atenuantes */
+.atenuante-item {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  transition: 0.3s;
+}
+.atenuante-item:hover {
+  border-color: var(--ny-gold);
+}
+.atenuante-item label {
+  margin-left: 10px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.95em;
+}
+.atenuante-item input[type="checkbox"] {
+  accent-color: var(--ny-gold);
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Linhas Calculadas (Fiança, HP) */
+.calculated-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding-bottom: 5px;
+}
+.calculated-row label {
+  font-size: 0.95em;
+  color: var(--text-secondary);
+}
+.calculated-row input {
+  width: 45%;
+  text-align: right;
+  background-color: #000;
+  font-weight: bold;
+  border: 1px solid var(--ny-gold);
+  color: var(--ny-gold);
+}
+
+.calculated-row-radio {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding: 8px 0;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.1);
+}
+.radio-group {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+.radio-label {
+  margin-left: 6px !important;
+  cursor: pointer;
+  color: var(--text-primary) !important;
+  font-size: 0.95em;
+}
+input[type="radio"] {
+  accent-color: var(--ny-gold);
+  cursor: pointer;
+  transform: scale(1.1);
+}
+
+/* =========================================
+   PARTE 2: BREAKDOWNS E MODAIS
+   ========================================= */
+
+/* Fiança Breakdown (Estilo Premium) */
+.fianca-breakdown {
+  background-color: rgba(212, 175, 55, 0.05); /* Dourado suave */
+  padding: 15px;
+  border-radius: 4px;
+  margin-top: 20px;
+  border-left: 4px solid var(--ny-gold);
+}
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed rgba(212, 175, 55, 0.2);
+  font-size: 0.9em;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+.breakdown-row:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.breakdown-row i {
+  margin-right: 8px;
+  width: 20px;
+  text-align: center;
+  color: var(--ny-gold);
+  opacity: 0.8;
+}
+.breakdown-row span:last-child {
+  font-weight: 700;
+  color: var(--ny-white);
+  font-size: 1.05em;
+  letter-spacing: 0.5px;
+}
+
+/* Botões de Ação */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+}
+.btn-action {
+  flex: 1;
+  padding: 14px;
+  border: 2px solid;
+  border-radius: 4px;
+  font-weight: 900;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  font-family: "Cinzel", serif;
+}
+
+#btn-enviar {
+  background: linear-gradient(to bottom right, var(--ny-gold), #8a6d3b);
+  color: #000;
+  border-color: #000;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+}
+#btn-enviar:hover {
+  background: linear-gradient(
+    to bottom right,
+    var(--ny-gold-bright),
+    var(--ny-gold)
+  );
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.7);
+  color: #000;
+}
+
+.btn-limpar {
+  background-color: #111;
+  color: #888;
+  border-color: #333;
+}
+.btn-limpar:hover {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* =========================================
+   9. MODAL DE CONFIRMAÇÃO (VIP)
+   ========================================= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(8px);
+  z-index: 99999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Modais flexíveis */
+#modal-confirmacao,
+#modal-patch-notes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+}
+
+/* Conteúdo do Modal */
+.modal-box,
+.modal-content {
+  background: var(--ny-card-bg);
+  width: 100%;
+  max-width: 600px;
+  border-radius: 4px;
+  border: 2px solid var(--ny-gold);
+  box-shadow: 0 0 80px rgba(0, 0, 0, 1);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.modal-header {
+  padding: 20px;
+  background: #000;
+  border-bottom: 2px solid var(--ny-gold);
+  text-align: center;
+  color: var(--ny-gold);
+  font-size: 1.3em;
+  font-weight: bold;
+}
+.modal-header h3::before,
+.modal-header h3::after {
+  content: "✨";
+  margin: 0 10px;
+}
+
+.modal-body {
+  padding: 25px;
+  overflow-y: auto;
+  color: #e2e8f0;
+}
+
+.conf-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+.conf-group {
+  margin-bottom: 10px;
+}
+.half {
+  flex: 1;
+}
+.conf-group label {
+  font-size: 0.85em;
+  color: var(--ny-gold);
+  font-weight: bold;
+}
+.conf-value {
+  font-size: 1em;
+  color: var(--ny-white);
+  padding: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
+.conf-list {
+  list-style: none;
+}
+.conf-list li {
+  border-bottom: 1px dashed #444;
+  padding: 5px 0;
+}
+.conf-list li::before {
+  content: "🎆 ";
+  margin-right: 5px;
+}
+.img-wrapper img {
+  border: 1px solid var(--ny-gold);
+  border-radius: 2px;
+}
+
+.modal-footer {
+  padding: 20px;
+  border-top: 1px solid var(--ny-gold);
+  background: #000;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+.btn-cancelar {
+  background: #222;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 10px 20px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.btn-confirmar {
+  background: var(--ny-gold);
+  color: #000;
+  border: none;
+  padding: 10px 30px;
+  border-radius: 2px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+}
+.btn-confirmar:hover {
+  background: var(--ny-gold-bright);
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.8);
+}
+
+/* =========================================
+   10. PATCH NOTES E UTILS
+   ========================================= */
+.patch-notes-container {
+  margin-top: 25px;
+  background-color: rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--ny-gold);
+  border-radius: 4px;
+  width: 100%;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  color: #ddd;
+  font-size: 0.9rem;
+  text-align: left;
+  backdrop-filter: blur(5px);
+}
+.patch-header {
+  background-color: #000;
+  padding: 10px 15px;
+  font-weight: bold;
+  border-bottom: 1px solid var(--ny-gold);
+  color: var(--ny-gold);
+  text-transform: uppercase;
+}
+.patch-scroll-area {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 10px;
+}
+.patch-entry {
+  margin-bottom: 15px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+}
+.patch-entry:last-child {
+  border-bottom: none;
+}
+.patch-title {
+  color: var(--text-secondary);
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8em;
+}
+.version {
+  color: var(--ny-gold);
+  font-weight: bold;
+}
+
+#patch-notes-content ul {
+  list-style: none;
+  padding: 0;
+}
+#patch-notes-content li {
+  background: rgba(255, 255, 255, 0.02);
+  margin-bottom: 8px;
+  padding: 10px;
+  border-left: 3px solid var(--ny-gold);
+  border-radius: 2px;
+}
+#patch-notes-content h4 {
+  color: var(--ny-gold);
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 5px;
+}
+#btn-fechar-patch {
+  background: #111 !important;
+  border: 1px solid var(--ny-gold) !important;
+  color: var(--ny-gold) !important;
+  padding: 12px 35px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-weight: bold;
+}
+#btn-fechar-patch:hover {
+  background: var(--ny-gold) !important;
+  color: #000 !important;
+}
+
+/* =========================================
+   ALERTAS TOAST (REDESIGN RÉVEILLON ✨)
+   ========================================= */
+
+.custom-alert {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 320px;
+  max-width: 450px;
+  padding: 20px 25px;
+
+  /* EFEITO DE VIDRO ESCURO */
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(12px);
+
+  /* Borda e Sombra Dourada */
+  border-radius: 4px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+
+  color: var(--ny-white);
+  z-index: 100000;
+
+  animation: alertSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards,
+    alertFadeOut 0.5s forwards 4.5s;
+  overflow: hidden;
+}
+
+.custom-alert i {
+  font-size: 28px;
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+.alert-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alert-title {
+  font-family: "Cinzel", serif;
+  font-weight: 900;
+  font-size: 1.1em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.alert-msg {
+  font-size: 0.95em;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+/* --- ESTILO DE ERRO --- */
+.custom-alert.error {
+  border-left: 4px solid var(--color-danger);
+  box-shadow: 0 0 20px rgba(255, 62, 62, 0.2);
+}
+.custom-alert.error i,
+.custom-alert.error .alert-title {
+  color: var(--color-danger);
+}
+
+/* --- ESTILO DE SUCESSO (CHAMPAGNE) --- */
+.custom-alert.success {
+  border-left: 4px solid var(--ny-gold);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+}
+.custom-alert.success i,
+.custom-alert.success .alert-title {
+  color: var(--ny-gold);
+}
+
+/* Animações */
+@keyframes alertSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes alertFadeOut {
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+  .main-content {
+    grid-template-columns: 60% 40%;
+  }
+}
+@media (max-width: 1000px) {
+  .dados-preso-container,
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+  .resumo-sentenca {
+    position: relative;
+    top: 0;
+  }
+}
+
+#app-content {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  opacity: 1;
+  transition: opacity 0.3s ease-in;
+}
+#user-avatar {
+  display: block;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #333;
+  border: 1px solid var(--ny-gold);
+}
+#input-dinheiro-sujo {
+  font-weight: bold;
+  color: var(--ny-gold) !important;
+  width: 60%;
+}
+
+.badge-area {
+  display: flex;
+  gap: 12px;
+}
+
+.badge {
+  height: 50px;
+  transition: transform 0.2s;
+}
+.badge:hover {
+  transform: scale(1.1);
+}
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.btn-small {
+  background-color: #222;
+  color: var(--ny-gold);
+  border: 1px solid var(--ny-gold);
+  padding: 0 15px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-small:hover {
+  background-color: var(--ny-gold);
+  color: #000;
+}
+
+/* =========================================
+   9. UTILITÁRIOS
+   ========================================= */
+.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* =========================================
+   PLAYER DE MÚSICA ESTILO SPOTIFY (RÉVEILLON)
+   ========================================= */
+.spotify-player-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(10, 10, 12, 0.95);
+  border: 1px solid var(--ny-gold);
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+  max-width: 350px;
+  transition: all 0.3s ease;
+}
+
+/* Efeito de Bolhas de Champagne no Player */
+.spotify-player-container::after {
+  content: "° . °";
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  color: var(--ny-gold);
+  font-size: 14px;
+  animation: bubblesUp 3s infinite;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+@keyframes bubblesUp {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+}
+
+.spotify-player-container:hover {
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.3);
+  border-color: var(--ny-gold-bright);
+}
+
+/* Capa do Álbum (Vinil Giratório) */
+.spotify-img-wrapper {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  border-radius: 50%; /* Redondo como vinil */
+  overflow: hidden;
+  border: 2px solid #111;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+  position: relative;
+}
+
+/* Brilho do Vinil */
+.spotify-img-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 15px;
+  height: 15px;
+  background: #000;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--ny-gold);
+}
+
+.spotify-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: rotateVinyl 8s linear infinite;
+}
+
+@keyframes rotateVinyl {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Informações da Faixa */
+.spotify-track-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  flex-grow: 1;
+  min-width: 120px;
+}
+
+.track-title {
+  color: var(--ny-gold);
+  font-weight: 700;
+  font-size: 0.95em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+
+.track-artist {
+  color: var(--text-secondary);
+  font-size: 0.75em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Controles */
+.spotify-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-btn:hover {
+  color: var(--ny-white);
+  text-shadow: 0 0 5px white;
+}
+
+.control-btn:active {
+  transform: scale(0.95);
+}
+
+.control-btn.small {
+  font-size: 1.2em;
+}
+
+/* Botão Play Principal */
+.play-btn-main {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--ny-gold);
+  color: #000;
+  font-size: 1.2em;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+}
+
+.play-btn-main:hover {
+  transform: scale(1.1);
+  background-color: var(--ny-gold-bright);
+  color: #000;
+}
