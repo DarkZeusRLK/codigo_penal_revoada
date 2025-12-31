@@ -603,13 +603,13 @@ document.addEventListener("DOMContentLoaded", function () {
           return mostrarAlerta("Apenas um tipo de Homicídio por vez.", "error");
 
         if (
-          artigo === "124" &&
-          selectedCrimes.some((c) => ["126", "127"].includes(c.artigo))
+          artigo === "125" &&
+          selectedCrimes.some((c) => ["127", "128"].includes(c.artigo))
         )
           return mostrarAlerta("Conflito: Tráfico vs Porte de Armas.", "error");
         if (
-          ["126", "127"].includes(artigo) &&
-          selectedCrimes.some((c) => c.artigo === "124")
+          ["127", "128"].includes(artigo) &&
+          selectedCrimes.some((c) => c.artigo === "125")
         )
           return mostrarAlerta("Conflito: Porte vs Tráfico de Armas.", "error");
 
@@ -659,7 +659,7 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById("itens-apreendidos").focus();
           return;
         }
-        const MUNICOES = ["129", "130"];
+        const MUNICOES = ["130", "131"];
         if (
           MUNICOES.includes(artigo) &&
           selectedCrimes.some((c) => MUNICOES.includes(c.artigo))
@@ -669,7 +669,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "error"
           );
 
-        const ITENS_ILEGAIS = ["125", "137"];
+        const ITENS_ILEGAIS = ["126 ", "138"];
         if (
           ITENS_ILEGAIS.includes(artigo) &&
           selectedCrimes.some((c) => ITENS_ILEGAIS.includes(c.artigo))
@@ -679,7 +679,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "error"
           );
 
-        const DROGAS = ["133", "134", "136"];
+        const DROGAS = ["134", "135", "137"];
         if (
           DROGAS.includes(artigo) &&
           selectedCrimes.some((c) => DROGAS.includes(c.artigo))
