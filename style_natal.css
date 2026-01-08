@@ -1,52 +1,55 @@
 /* =========================================
-   🎆 CSS EDIÇÃO ESPECIAL: ANO NOVO 🥂
-   (Lógica Original + Visual Réveillon 2026)
+   🎅 CSS EDIÇÃO ESPECIAL DE NATAL 🎄
+   (Lógica Original + Visual Natalino)
    ========================================= */
 
-/* Importando fontes elegantes para o Ano Novo */
-@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Montserrat:wght@300;400;600;700&display=swap");
+/* Importando fonte festiva para Títulos */
+@import url("https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap");
 
 /* =========================================
    1. VARIÁVEIS E CONFIGURAÇÕES GERAIS
    ========================================= */
 :root {
-  /* --- PALETA RÉVEILLON DE LUXO --- */
-  --ny-gold: #d4af37; /* Ouro Metálico */
-  --ny-gold-light: #f7e7ce; /* Champagne */
-  --ny-silver: #c0c0c0; /* Prata */
-  --ny-white: #ffffff;
-  --ny-midnight: #020617; /* Azul Noite Profunda */
-  --ny-card: #0f172a; /* Azul Card Luxo */
+  /* --- PALETA NATALINA EXCLUSIVA --- */
+  --xmas-red: #d42426; /* Vermelho Papai Noel */
+  --xmas-green: #165b33; /* Verde Pinheiro */
+  --xmas-gold: #f8b229; /* Dourado Luzes */
+  --xmas-snow: #f0f8ff; /* Branco Neve */
+  --xmas-night: #0f172a; /* Azul Noite Profunda */
+  --xmas-card: #1e293b; /* Azul Card */
 
   /* --- MAPEAMENTO PARA A LÓGICA DO SISTEMA --- */
-  --bg-main: var(--ny-midnight);
-  --bg-card: var(--ny-card);
-  --bg-header-category: linear-gradient(90deg, #1e1e1e 0%, var(--ny-card) 100%);
-  --bg-input: rgba(15, 23, 42, 0.7);
+  /* Mantemos os nomes das variáveis do original, mas com valores de Natal */
 
-  --text-primary: var(--ny-white);
+  --bg-main: var(--xmas-night);
+  --bg-card: var(--xmas-card);
+  --bg-header-category: linear-gradient(
+    90deg,
+    #2c0a0a 0%,
+    var(--xmas-card) 100%
+  );
+  --bg-input: rgba(15, 23, 42, 0.6); /* Translúcido para efeito vidro */
+
+  --text-primary: var(--xmas-snow);
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
 
-  /* A Cor Principal agora é Ouro */
-  --color-revoada: var(--ny-gold);
-  --color-revoada-light: var(--ny-gold-light);
+  /* A Cor Principal (Azul) vira Vermelho Natal */
+  --color-revoada: var(--xmas-red);
+  --color-revoada-light: #ff575a;
 
   /* Cores Funcionais */
-  --color-danger: #ff4d4d;
-  --color-success: #22c55e;
-  --color-info: var(--ny-gold);
+  --color-danger: #ff1744; /* Vermelho Alerta */
+  --color-success: var(--xmas-green); /* Verde Natal */
+  --color-info: var(--xmas-gold); /* Dourado */
   --color-warning: #f59e0b;
 
-  /* Bordas Metálicas */
-  --border-color: rgba(212, 175, 55, 0.3);
-  --border-focus: var(--ny-gold);
+  /* Bordas */
+  --border-color: rgba(248, 178, 41, 0.3); /* Dourado sutil */
+  --border-focus: var(--xmas-gold); /* Foco Dourado */
 
   /* Sombras */
-  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.6);
-
-  /* Gradiente Ouro */
-  --grad-gold: linear-gradient(135deg, #d4af37 0%, #f7e7ce 50%, #d4af37 100%);
+  --shadow-card: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
 /* Reset e Fontes */
@@ -54,12 +57,13 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: "Montserrat", sans-serif;
+  /* Fonte padrão para leitura */
+  font-family: "Roboto", "Segoe UI", Arial, sans-serif;
   scrollbar-width: thin;
-  scrollbar-color: var(--ny-gold) var(--bg-main);
+  scrollbar-color: var(--xmas-green) var(--bg-main);
 }
 
-/* Títulos com fonte Imperial (Cinzel) */
+/* Títulos com fonte especial de Natal */
 h1,
 h2,
 h3,
@@ -67,11 +71,10 @@ h3,
 .alert-title,
 .modal-header,
 .patch-header {
-  font-family: "Cinzel", serif;
-  letter-spacing: 1px;
+  font-family: "Merriweather", serif;
 }
 
-/* Scrollbar Customizada (Tema Ouro) */
+/* Scrollbar Customizada (Tema Natal) */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -79,62 +82,48 @@ h3,
   background: rgba(0, 0, 0, 0.3);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--ny-gold);
+  background-color: var(--xmas-green);
   border-radius: 4px;
-  border: 2px solid var(--ny-midnight);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--xmas-red);
 }
 
-/* Body com Animação de Fogos de Artifício 🎆 */
+/* Body com Animação de Neve */
 body {
   background-color: var(--bg-main);
-  background-image: var(--grad-dark);
   color: var(--text-primary);
   padding: 20px;
   font-size: 14px;
   line-height: 1.5;
   min-height: 100vh;
-  position: relative;
-  overflow-x: hidden;
+
+  /* Efeito de Neve Caindo */
+  background-image: radial-gradient(white 1px, transparent 2px),
+    radial-gradient(white 1px, transparent 2px);
+  background-size: 550px 550px, 350px 350px;
+  background-position: 0 0, 200px 250px;
+  animation: snowfall 20s linear infinite;
 }
 
-/* Camada de Fogos de Artifício */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-  background-image: radial-gradient(circle, gold 2px, transparent 2px),
-    radial-gradient(circle, white 1px, transparent 1px),
-    radial-gradient(circle, silver 2px, transparent 2px);
-  background-size: 500px 500px, 400px 400px, 300px 300px;
-  animation: fireworks-animation 12s linear infinite;
-  opacity: 0.2;
-}
-
-@keyframes fireworks-animation {
-  0% {
-    background-position: 0 0, 0 0, 0 0;
-    filter: hue-rotate(0deg);
+@keyframes snowfall {
+  from {
+    background-position: 0 0, 200px 250px;
   }
-  100% {
-    background-position: 500px 1000px, 400px 800px, 300px 600px;
-    filter: hue-rotate(360deg);
+  to {
+    background-position: 0 550px, 200px 800px;
   }
 }
 
 .container {
   max-width: 1600px;
   margin: 0 auto;
-  position: relative;
-  z-index: 1;
 }
 
 /* =========================================
-   2. TELA DE LOGIN (GALA)
+   2. TELA DE LOGIN
    ========================================= */
 .login-overlay {
   position: fixed;
@@ -142,347 +131,1440 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at center, #0f172a 0%, #000 100%);
+  /* Gradiente Noite de Natal */
+  background: radial-gradient(circle at center, #1a2332 0%, #050505 100%);
   z-index: 99999;
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 }
 
 .login-box {
   background-color: var(--bg-card);
   padding: 40px;
-  border-radius: 15px;
+  border-radius: 12px;
   text-align: center;
   max-width: 400px;
   width: 90%;
   position: relative;
-  box-shadow: 0 0 60px rgba(212, 175, 55, 0.2);
-  border: 2px solid var(--ny-gold);
+  box-shadow: 0 0 50px rgba(212, 36, 38, 0.2);
+
+  /* Borda Candy Cane (Bengala Doce) */
+  border: 4px solid transparent;
+  border-image: repeating-linear-gradient(
+      45deg,
+      var(--xmas-red),
+      var(--xmas-red) 10px,
+      var(--xmas-snow) 10px,
+      var(--xmas-snow) 20px
+    )
+    1;
 }
 
+/* Enfeite no topo do Login */
 .login-box::before {
-  content: "🥂";
+  content: "🎄";
   position: absolute;
-  top: -35px;
+  top: -25px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 3.5em;
-  filter: drop-shadow(0 0 10px var(--ny-gold));
+  font-size: 3em;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5));
+}
+
+.login-logo {
+  height: 100px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 0 5px var(--xmas-gold));
+}
+
+.login-box h2 {
+  color: var(--xmas-red);
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.login-box p {
+  color: var(--text-secondary);
+  margin-bottom: 30px;
 }
 
 .btn-discord-login {
-  background: var(--grad-gold);
-  color: #000;
+  background: linear-gradient(to bottom, var(--xmas-green), #0f4224);
+  color: white;
+  border: 2px solid var(--xmas-gold);
   padding: 12px 25px;
-  border-radius: 8px;
-  font-weight: 900;
-  text-transform: uppercase;
-  transition: all 0.3s;
+  border-radius: 6px;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  margin-bottom: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 4px 0 #0a2e18;
 }
 
 .btn-discord-login:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 25px var(--ny-gold);
+  background: linear-gradient(to bottom, #1a6b3c, #165b33);
+  transform: translateY(-2px);
+  color: var(--xmas-gold);
+  box-shadow: 0 2px 0 #0a2e18;
+}
+
+.login-footer {
+  font-size: 0.8em;
+  margin-top: 20px;
+  opacity: 0.7;
+  color: var(--xmas-gold);
 }
 
 /* =========================================
-   3. HEADER (VIP)
+   3. HEADER E TOPO
    ========================================= */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  background-color: rgba(15, 23, 42, 0.9);
+  padding: 15px 20px;
+  background-color: rgba(30, 41, 59, 0.9);
   border-radius: 12px;
   margin-bottom: 25px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-card);
+  position: relative;
+  /* Borda inferior pisca-pisca dourada */
+  border-bottom: 3px dashed var(--xmas-gold);
+}
+
+/* Neve acumulada no topo do Header */
+header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: var(--xmas-snow);
+  border-radius: 12px 12px 0 0;
+  opacity: 0.8;
 }
 
 header h1 {
-  color: var(--ny-gold);
-  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  font-size: 1.8em;
+  color: var(--xmas-gold);
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 0px var(--xmas-red);
+}
+
+header p.titulo {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+  margin-top: 2px;
 }
 
 .user-info {
-  background: rgba(212, 175, 55, 0.1);
-  padding: 8px 20px;
-  border-radius: 50px;
-  border: 1px solid var(--ny-gold);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(22, 91, 51, 0.3); /* Verde translúcido */
+  padding: 6px 15px;
+  border-radius: 30px;
+  border: 2px solid var(--xmas-green);
+}
+
+.avatar-small {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid var(--xmas-gold);
+  box-shadow: 0 0 5px var(--xmas-gold);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.user-label {
+  color: var(--xmas-gold);
+  font-size: 0.75em;
+  text-transform: uppercase;
+}
+.user-value {
+  color: var(--text-primary);
+  font-weight: bold;
+  font-size: 0.9em;
 }
 
 /* =========================================
-   4. CARDS (ESTILO DIAMANTE)
+   4. ESTRUTURA E CARDS
    ========================================= */
+.dados-preso-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.main-content {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.full-width {
+  grid-column: 1 / -1;
+}
+.dados-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .card {
   background-color: var(--bg-card);
   border-radius: 12px;
   padding: 20px;
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  margin-bottom: 20px;
   box-shadow: var(--shadow-card);
   position: relative;
   overflow: hidden;
+  /* Borda Festiva Vermelha */
+  border: 2px solid var(--xmas-red);
 }
 
-/* Brilho no topo do card */
+/* Efeito Gelo no topo do Card */
 .card::after {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 2px;
-  background: var(--grad-gold);
+  height: 8px;
+  background: linear-gradient(
+    180deg,
+    rgba(240, 248, 255, 0.4) 0%,
+    rgba(240, 248, 255, 0) 100%
+  );
+  pointer-events: none;
 }
 
 .card-header {
-  color: var(--ny-gold-light);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.3);
-  padding-bottom: 10px;
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--xmas-gold);
+  padding-bottom: 12px;
+  margin-bottom: 15px;
+  border-bottom: 2px dotted var(--xmas-red);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+}
+
+.card-header i {
+  color: var(--xmas-red);
+  margin-right: 10px;
+  filter: drop-shadow(0 0 2px var(--xmas-red));
 }
 
 /* =========================================
-   5. INPUTS (BLACK GLASS)
+   5. INPUTS E FORMULÁRIOS (EFEITO VIDRO)
    ========================================= */
+.input-group {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 15px;
+  margin-bottom: 5px;
+  align-items: center;
+}
+.input-group label {
+  font-size: 0.95em;
+  color: var(--text-secondary);
+  text-align: right;
+  width: 130px;
+  font-weight: 500;
+}
+
 input:not([type="file"]),
 textarea,
 select {
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: var(--bg-input); /* Translúcido */
   border: 1px solid var(--border-color);
-  color: #fff;
-  backdrop-filter: blur(10px);
+  color: var(--text-primary);
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 0.95em;
+  min-height: 40px;
+  transition: border-color 0.2s;
+  backdrop-filter: blur(5px); /* Efeito Frosted Glass */
 }
 
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: var(--ny-gold);
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+  border-color: var(--xmas-gold);
+  outline: none;
+  box-shadow: 0 0 10px rgba(248, 178, 41, 0.3);
+  background-color: rgba(15, 23, 42, 1);
 }
 
-/* Tags de Participantes (Ouro) */
-.officer-tag {
-  background: var(--grad-gold);
-  color: #000;
-  font-weight: 700;
-  border: none;
+textarea {
+  resize: vertical;
+  min-height: 100px;
+  max-height: 400px;
+  width: 100%;
+}
+
+/* Uploads */
+.upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.upload-box {
+  background-color: rgba(15, 23, 42, 0.6);
+  border: 2px dashed var(--border-color);
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  transition: 0.2s;
+  cursor: pointer;
+  position: relative;
+}
+
+.upload-box:hover,
+.upload-box.active-box {
+  border-color: var(--xmas-green);
+  background-color: rgba(22, 91, 51, 0.1);
+  box-shadow: 0 0 15px rgba(22, 91, 51, 0.3);
+}
+
+.upload-box label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: var(--text-primary);
+  font-size: 0.9em;
+}
+.paste-hint {
+  font-size: 0.75em;
+  color: var(--xmas-gold);
+  margin-bottom: 8px;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-content: center;
+}
+
+.preview-area {
+  width: 100%;
+  height: 130px;
+  background-color: #050505;
+  border: 2px dashed var(--border-color);
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.preview-area i {
+  font-size: 2.5em;
+  color: var(--border-color);
+  opacity: 0.5;
+}
+
+.preview-area img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+input[type="file"] {
+  width: 100%;
+  font-size: 0.8em;
+  color: var(--text-secondary);
 }
 
 /* =========================================
-   6. LISTA DE CRIMES (GALA STRIP)
+   6. PESQUISA E DROPDOWN (LÓGICA + TEMA)
    ========================================= */
-.category-title {
-  background: linear-gradient(
-    90deg,
-    rgba(212, 175, 55, 0.2) 0%,
-    transparent 100%
-  );
-  border-left: 4px solid var(--ny-gold);
-  color: var(--ny-gold-light);
-  font-family: "Cinzel", serif;
+.participantes-section {
+  border-top: 1px dashed var(--border-color);
+  padding-top: 15px;
+  margin-top: 10px;
 }
-.category-title::before {
-  content: "✨";
-  margin-right: 10px;
+.participante-selector-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  position: relative;
 }
 
+/* Wrapper para posicionamento (LÓGICA ORIGINAL) */
+.search-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.form-search {
+  width: 40%;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.95em;
+}
+
+/* Dropdown Flutuante (LÓGICA ORIGINAL + CORES NATAL) */
+.dropdown-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 250px;
+  overflow-y: auto;
+  background-color: var(--bg-card); /* Fundo Sólido */
+  border: 1px solid var(--xmas-gold);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  z-index: 1000;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+  display: none;
+}
+.dropdown-results:not(.hidden) {
+  display: block;
+}
+
+.dropdown-item {
+  padding: 12px 15px;
+  cursor: pointer;
+  color: var(--text-primary);
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  transition: all 0.2s;
+}
+.dropdown-item:hover {
+  background-color: rgba(212, 36, 38, 0.2); /* Vermelho translúcido */
+  padding-left: 20px;
+  color: var(--xmas-gold);
+}
+
+/* Botão Adicionar (+) */
+.btn-add {
+  background-color: var(--xmas-green);
+  color: white;
+  border: 1px solid var(--xmas-green);
+  width: 42px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+.btn-add:hover {
+  background-color: #1a6b3c;
+  box-shadow: 0 0 10px var(--xmas-green);
+}
+
+/* Tags de Participantes */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  min-height: 45px;
+  margin-top: 10px;
+}
+.officer-tag {
+  background: linear-gradient(135deg, var(--xmas-red), #a31a1c);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #ff575a;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+.officer-tag button {
+  background: none;
+  border: none;
+  color: var(--xmas-gold);
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* =========================================
+   7. LISTA DE CRIMES
+   ========================================= */
+.crimes-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+@media (max-width: 1200px) {
+  .crimes-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.category-title {
+  /* Fita de Natal */
+  background: linear-gradient(90deg, var(--xmas-red) 0%, transparent 90%);
+  border-left: 4px solid var(--xmas-gold);
+  border-bottom: 1px solid var(--xmas-red);
+  padding: 10px 15px;
+  font-weight: 900;
+  color: var(--xmas-snow);
+  text-transform: uppercase;
+  font-size: 0.9em;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+.category-title::before {
+  content: "🎁";
+  margin-right: 8px;
+  font-size: 1.1em;
+}
+
+.crime-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px dotted rgba(248, 178, 41, 0.3);
+  cursor: pointer;
+  transition: all 0.2s;
+  background: rgba(255, 255, 255, 0.01);
+}
 .crime-item:hover {
-  background-color: rgba(212, 175, 55, 0.1);
-  color: var(--ny-gold);
+  background-color: rgba(212, 36, 38, 0.1);
+  padding-left: 18px;
+  color: var(--xmas-gold);
+}
+.crime-item:hover::before {
+  content: "🦌";
+  position: absolute;
+  left: 5px;
 }
 
 .crime-item.selected {
-  border-left: 4px solid var(--ny-gold);
-  background: rgba(212, 175, 55, 0.15);
+  background: linear-gradient(90deg, rgba(212, 36, 38, 0.2), transparent);
+  border-left: 4px solid var(--xmas-green);
+  font-weight: bold;
+  color: var(--xmas-snow);
+}
+/* Etiquetas */
+.btn-info {
+  background-color: var(--color-danger);
+  color: white;
+  border: none;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.7em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
+.crime-condition {
+  font-size: 0.75em;
+  background-color: #1e3a8a;
+  color: #bfdbfe;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  font-weight: 600;
+}
 /* =========================================
-   7. RESUMO E TOTAIS (VIP AREA)
+   9. RESUMO DA SENTENÇA (DIREITA)
    ========================================= */
+.resumo-sentenca {
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+  min-width: 320px;
+}
+
+.resumo-section {
+  margin-bottom: 20px;
+  padding: 0 5px;
+}
+
+.section-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 0.5px;
+}
+
+.section-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.8em;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 20px 0;
+  opacity: 0.5;
+}
+
+/* Lista de Selecionados */
+.output-list {
+  min-height: 60px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  max-height: 350px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+}
+
+.crime-output-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 0.9em;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  align-items: center;
+}
+.crime-output-item:last-child {
+  border-bottom: none;
+}
+
+.crime-output-item span {
+  line-height: 1.4;
+  padding-right: 10px;
+}
+
+.crime-output-item button {
+  background: none;
+  border: none;
+  color: var(--color-danger);
+  cursor: pointer;
+  font-size: 1.1em;
+  transition: transform 0.2s;
+}
+.crime-output-item button:hover {
+  transform: scale(1.2);
+}
+
+/* Totais */
+.pena-multa .section-title {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 1.1em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 #pena-total {
-  color: var(--ny-gold-light);
-  text-shadow: 0 0 5px var(--ny-gold);
+  color: var(--color-danger);
+  font-weight: 800;
 }
 #multa-total {
-  color: #22c55e;
+  color: var(--color-success);
+  font-weight: 800;
 }
 
+/* Alerta */
 .alert-box {
-  background: rgba(255, 77, 77, 0.1);
-  border: 1px solid #ff4d4d;
-  color: #ff4d4d;
-  animation: pulse-glow 2s infinite;
-}
-
-@keyframes pulse-glow {
-  0% {
-    box-shadow: 0 0 5px rgba(255, 77, 77, 0.2);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(255, 77, 77, 0.4);
-  }
-  100% {
-    box-shadow: 0 0 5px rgba(255, 77, 77, 0.2);
-  }
-}
-
-/* =========================================
-   8. BOTÕES DE AÇÃO (RÉVEILLON)
-   ========================================= */
-#btn-enviar {
-  background: var(--grad-gold);
-  color: #000;
-  border: none;
-  font-weight: 900;
-  box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
-}
-
-#btn-enviar:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.2);
-}
-
-.btn-confirmar {
-  background: var(--grad-gold);
-  color: #000;
+  background-color: rgba(211, 47, 47, 0.15);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 15px;
+  text-align: center;
   font-weight: bold;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  animation: pulse 2s infinite;
+}
+
+/* Atenuantes */
+.atenuante-item {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 8px;
+  border-radius: 4px;
+}
+.atenuante-item label {
+  margin-left: 10px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.95em;
+}
+.atenuante-item input[type="checkbox"] {
+  accent-color: var(--color-revoada);
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Linhas Calculadas (Fiança, HP) */
+.calculated-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding-bottom: 5px;
+}
+.calculated-row label {
+  font-size: 0.95em;
+  color: var(--text-secondary);
+}
+.calculated-row input {
+  width: 45%;
+  text-align: right;
+  background-color: #252535;
+  font-weight: bold;
+}
+
+.calculated-row-radio {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding: 8px 0;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.1);
+}
+.radio-group {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+.radio-label {
+  margin-left: 6px !important;
+  cursor: pointer;
+  color: var(--text-primary) !important;
+  font-size: 0.95em;
+}
+input[type="radio"] {
+  accent-color: var(--color-revoada);
+  cursor: pointer;
+  transform: scale(1.1);
+}
+
+/* Fiança Breakdown (Estilo Premium) */
+.fianca-breakdown {
+  background-color: rgba(16, 185, 129, 0.08); /* Verde suave */
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+  border-left: 4px solid var(--color-success);
+}
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  font-size: 0.9em;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+.breakdown-row:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.breakdown-row i {
+  margin-right: 8px;
+  width: 20px;
+  text-align: center;
+  color: var(--text-primary);
+  opacity: 0.8;
+}
+.breakdown-row span:last-child {
+  font-weight: 700;
+  color: #fff;
+  font-size: 1.05em;
+  letter-spacing: 0.5px;
+}
+
+/* Botões de Ação */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+}
+.btn-action {
+  flex: 1;
+  padding: 14px;
   border: none;
+  border-radius: 6px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#btn-enviar {
+  background-color: #5865f2;
+  color: white;
+  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+}
+#btn-enviar:hover {
+  background-color: #4752c4;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
+}
+
+.btn-limpar {
+  background-color: var(--bg-header-category);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+.btn-limpar:hover {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+  color: white;
+}
+/* Botões de Ação */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+}
+.btn-action {
+  flex: 1;
+  padding: 14px;
+  border: 2px solid;
+  border-radius: 8px;
+  font-weight: 900;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  font-family: "Merriweather", serif;
+}
+#btn-enviar {
+  background: linear-gradient(to bottom right, var(--xmas-red), #a31a1c);
+  color: var(--xmas-gold);
+  border-color: var(--xmas-gold);
+  box-shadow: 0 5px 0 #7a1315, 0 0 15px rgba(212, 36, 38, 0.4);
+}
+#btn-enviar:hover {
+  background: linear-gradient(to bottom right, #ff383b, var(--xmas-red));
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #7a1315;
+  color: #fff;
+}
+.btn-limpar {
+  background-color: #333;
+  color: #ccc;
+  border-color: #555;
+  box-shadow: 0 5px 0 #222;
+}
+.btn-limpar:hover {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+  color: white;
+  transform: translateY(2px);
 }
 
 /* =========================================
-   9. MODAIS (GALA BOX)
+   9. MODAL DE CONFIRMAÇÃO
    ========================================= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(2, 6, 23, 0.9); /* Fundo bem escuro */
+  backdrop-filter: blur(8px);
+  z-index: 99999; /* Acima de tudo */
+  display: flex; /* Centraliza o conteúdo */
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* ESPECÍFICO PARA O MODAL DE CONFIRMAÇÃO */
+/* Isso garante que ele obedeça o Flexbox e fique visível se não tiver a classe hidden */
+#modal-confirmacao,
+#modal-patch-notes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999; /* Camada mais alta possível */
+}
+
+/* Conteúdo do Modal */
 .modal-box,
 .modal-content {
-  background: var(--ny-midnight);
-  border: 2px solid var(--ny-gold) !important;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+  background: var(--bg-card);
+  width: 100%;
+  max-width: 600px;
+  border-radius: 12px;
+  border: 4px solid transparent;
+  /* Borda Candy Cane */
+  border-image: repeating-linear-gradient(
+      45deg,
+      var(--xmas-red),
+      var(--xmas-red) 10px,
+      var(--xmas-green) 10px,
+      var(--xmas-green) 20px
+    )
+    1;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
 }
 
 .modal-header {
-  background: #111;
-  border-bottom: 2px solid var(--ny-gold);
-  color: var(--ny-gold);
+  padding: 20px;
+  background: #2c0a0a;
+  border-bottom: 2px solid var(--xmas-gold);
+  text-align: center;
+  color: var(--xmas-gold);
+  font-size: 1.3em;
+  font-weight: bold;
 }
-
 .modal-header h3::before,
 .modal-header h3::after {
-  content: "✨";
+  content: "🎄";
+  margin: 0 10px;
 }
 
+.modal-body {
+  padding: 25px;
+  overflow-y: auto;
+  color: #e2e8f0;
+}
+
+.conf-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+.conf-group {
+  margin-bottom: 10px;
+}
+.half {
+  flex: 1;
+}
+.conf-group label {
+  font-size: 0.85em;
+  color: var(--xmas-gold);
+  font-weight: bold;
+}
+.conf-value {
+  font-size: 1em;
+  color: var(--xmas-snow);
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+.conf-list {
+  list-style: none;
+}
+.conf-list li {
+  border-bottom: 1px dashed #444;
+  padding: 5px 0;
+}
 .conf-list li::before {
-  content: "🔸 ";
+  content: "❄️ ";
+  margin-right: 5px;
+}
+.img-wrapper img {
+  border: 2px solid var(--xmas-gold);
+  border-radius: 4px;
+}
+
+.modal-footer {
+  padding: 20px;
+  border-top: 2px solid var(--xmas-gold);
+  background: rgba(30, 41, 59, 0.5);
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+.btn-cancelar {
+  background: #444;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-confirmar {
+  background: linear-gradient(to bottom right, var(--xmas-green), #0f4224);
+  color: #fff;
+  border: 2px solid var(--xmas-gold);
+  padding: 10px 30px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(22, 91, 51, 0.5);
+}
+.btn-confirmar:hover {
+  background: linear-gradient(to bottom right, #1a6b3c, var(--xmas-green));
+  box-shadow: 0 0 25px rgba(22, 91, 51, 0.8);
 }
 
 /* =========================================
-   10. TOAST ALERTS (LUXO)
+   10. PATCH NOTES E UTILS
    ========================================= */
-.custom-alert {
-  background: rgba(10, 10, 10, 0.9);
-  border: 1px solid var(--ny-gold);
-  box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+.patch-notes-container {
+  margin-top: 25px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--xmas-gold);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  color: #ddd;
+  font-size: 0.9rem;
+  text-align: left;
+  backdrop-filter: blur(5px);
+}
+.patch-header {
+  background-color: #222;
+  padding: 10px 15px;
+  font-weight: bold;
+  border-bottom: 1px solid var(--xmas-gold);
+  color: var(--xmas-gold);
+  text-transform: uppercase;
+}
+.patch-scroll-area {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 10px;
+}
+.patch-entry {
+  margin-bottom: 15px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+}
+.patch-entry:last-child {
+  border-bottom: none;
+}
+.patch-title {
+  color: var(--text-secondary);
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8em;
+}
+.version {
+  color: var(--xmas-gold);
+  font-weight: bold;
 }
 
-.custom-alert.success {
-  border-left: 6px solid var(--ny-gold);
+#patch-notes-content ul {
+  list-style: none;
+  padding: 0;
 }
-.custom-alert.success i {
-  color: var(--ny-gold);
+#patch-notes-content li {
+  background: rgba(255, 255, 255, 0.05);
+  margin-bottom: 8px;
+  padding: 10px;
+  border-left: 3px solid var(--xmas-red);
+  border-radius: 4px;
+}
+#patch-notes-content h4 {
+  color: var(--xmas-gold);
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 5px;
+}
+#btn-fechar-patch {
+  background: linear-gradient(to bottom, var(--xmas-green), #0f4224) !important;
+  border: 2px solid var(--xmas-gold) !important;
+  color: var(--xmas-gold) !important;
+  box-shadow: 0 4px 0 #0a2e18 !important;
+  padding: 12px 35px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+#btn-fechar-patch:hover {
+  background: linear-gradient(to bottom, #1a6b3c, #165b33) !important;
+  transform: translateY(2px) !important;
+  box-shadow: 0 2px 0 #0a2e18 !important;
+  color: white !important;
 }
 
 /* =========================================
-   11. PLAYER DE MÚSICA (SPOTIFY ANO NOVO) 🥂
+   ALERTAS TOAST (REDESIGN FESTIVO ✨)
+   ========================================= */
+
+.custom-alert {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  /* Layout Flex para alinhar ícone e texto */
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  /* Tamanho e Espaçamento */
+  min-width: 320px;
+  max-width: 450px;
+  padding: 20px 25px;
+
+  /* EFEITO DE VIDRO (FROSTED GLASS) */
+  background: rgba(20, 25, 40, 0.85); /* Fundo escuro translúcido */
+  backdrop-filter: blur(12px); /* Desfoque do fundo */
+  -webkit-backdrop-filter: blur(12px);
+
+  /* Bordas e Sombras */
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Borda sutil geral */
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); /* Sombra profunda */
+
+  color: var(--xmas-snow);
+  z-index: 100000;
+
+  /* Animações de entrada e saída suave */
+  animation: alertSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards,
+    alertFadeOut 0.5s forwards 4.5s; /* Demora 4.5s para começar a sumir */
+  overflow: hidden;
+}
+
+/* Ícone do Alerta */
+.custom-alert i {
+  font-size: 28px;
+  filter: drop-shadow(
+    0 0 10px currentColor
+  ); /* O ícone brilha na própria cor */
+}
+
+/* Conteúdo de Texto */
+.alert-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alert-title {
+  font-family: "Merriweather", serif; /* Fonte do tema */
+  font-weight: 900;
+  font-size: 1.1em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.alert-msg {
+  font-size: 0.95em;
+  color: #cbd5e1; /* Um branco levemente acinzentado para leitura */
+  line-height: 1.4;
+}
+
+/* --- ESTILO DE ERRO (Krampus / Perigo) --- */
+.custom-alert.error {
+  /* Borda esquerda grossa estilo "Bengala Doce" */
+  border-left: 6px solid var(--color-danger);
+  /* Brilho vermelho pulsante */
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
+.custom-alert.error i,
+.custom-alert.error .alert-title {
+  color: #ff6b6b; /* Vermelho claro vibrante */
+}
+
+/* --- ESTILO DE SUCESSO (Natal / Noel) --- */
+.custom-alert.success {
+  /* Borda esquerda grossa dourada/verde */
+  border-left: 6px solid var(--xmas-gold);
+  /* Brilho verde/dourado pulsante */
+  box-shadow: 0 0 20px rgba(22, 91, 51, 0.4), 0 15px 35px rgba(0, 0, 0, 0.5);
+  background: rgba(22, 50, 35, 0.85); /* Fundo levemente esverdeado */
+}
+
+.custom-alert.success i,
+.custom-alert.success .alert-title {
+  color: var(--xmas-gold); /* Dourado vibrante */
+}
+
+/* --- ANIMAÇÕES --- */
+/* Entrada com um leve efeito de "pulo" (bounce) */
+@keyframes alertSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Saída suave para cima */
+@keyframes alertFadeOut {
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+  .main-content {
+    grid-template-columns: 60% 40%;
+  }
+}
+@media (max-width: 1000px) {
+  .dados-preso-container,
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+  .resumo-sentenca {
+    position: relative;
+    top: 0;
+  }
+}
+#app-content {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  opacity: 1;
+  transition: opacity 0.3s ease-in;
+}
+#user-avatar {
+  display: block;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #333;
+}
+#input-dinheiro-sujo {
+  font-weight: bold;
+  color: var(--xmas-gold) !important;
+  width: 60%;
+}
+/* .music-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ff575a, var(--xmas-red));
+  color: white;
+  border: 2px solid var(--xmas-gold);
+  box-shadow: 0 4px 15px rgba(212, 36, 38, 0.6);
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.3em;
+  transition: transform 0.2s;
+}
+.music-btn:hover {
+  transform: scale(1.1);
+}
+  */
+.badge-area {
+  display: flex;
+  gap: 12px;
+}
+
+.badge {
+  height: 50px;
+  transition: transform 0.2s;
+}
+.badge:hover {
+  transform: scale(1.1);
+}
+.login-logo {
+  height: 100px;
+  margin-bottom: 20px;
+}
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.btn-small {
+  background-color: var(--xmas-green);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 0 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-small:hover {
+  background-color: var(--color-revoada);
+  border-color: var(--color-revoada);
+}
+/* =========================================
+   9. UTILITÁRIOS (Mantenha no final)
+   ========================================= */
+
+/* Classe HIDDEN no final para ter prioridade absoluta */
+.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+/* =========================================
+   PLAYER DE MÚSICA ESTILO SPOTIFY (NATAL)
    ========================================= */
 .spotify-player-container {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: rgba(10, 10, 10, 0.95);
-  border: 2px solid var(--ny-gold);
+  background-color: rgba(20, 20, 20, 0.95); /* Fundo estilo Spotify */
+  border: 2px solid var(--xmas-gold); /* Borda natalina */
   border-radius: 12px;
   padding: 12px;
   display: flex;
   align-items: center;
   gap: 15px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
   z-index: 9999;
-  backdrop-filter: blur(10px);
-  width: 350px;
+  backdrop-filter: blur(5px);
+  max-width: 350px;
+  transition: all 0.3s ease;
 }
 
-/* Animação de bolhas de champagne no player */
-.spotify-player-container::after {
-  content: "° . °";
-  position: absolute;
-  top: 5px;
-  right: 10px;
-  color: var(--ny-gold-light);
-  font-size: 12px;
-  animation: bubbles 3s infinite;
+.spotify-player-container:hover {
+  box-shadow: 0 8px 25px rgba(212, 36, 38, 0.4); /* Brilho vermelho ao passar o mouse */
+  border-color: var(--xmas-red);
 }
 
-@keyframes bubbles {
-  0% {
-    transform: translateY(0);
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-}
-
+/* Capa do Álbum */
 .spotify-img-wrapper {
-  border: 1px solid var(--ny-gold);
-  border-radius: 8px;
-  animation: shimmer 2s infinite alternate;
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-@keyframes shimmer {
-  from {
-    box-shadow: 0 0 5px var(--ny-gold);
-  }
-  to {
-    box-shadow: 0 0 15px var(--ny-gold);
-  }
+.spotify-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Informações da Faixa */
+.spotify-track-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  flex-grow: 1; /* Ocupa o espaço disponível */
+  min-width: 120px; /* Garante um tamanho mínimo */
 }
 
 .track-title {
-  color: var(--ny-gold-light);
+  color: var(--xmas-snow);
+  font-weight: 700;
+  font-size: 0.95em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
 }
+
+.track-artist {
+  color: var(--text-secondary);
+  font-size: 0.75em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Controles */
+.spotify-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-btn:hover {
+  color: var(--xmas-snow);
+}
+
+.control-btn:active {
+  transform: scale(0.95);
+}
+
+.control-btn.small {
+  font-size: 1.2em;
+}
+
+/* Botão Play Principal (Destaque) */
 .play-btn-main {
-  background-color: var(--ny-gold);
-  color: #000;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: var(--xmas-snow); /* Fundo branco estilo Spotify */
+  color: #000; /* Ícone preto */
+  font-size: 1.1em;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .play-btn-main:hover {
-  background-color: var(--ny-gold-light);
-  transform: scale(1.1);
-}
-
-/* =========================================
-   9. UTILITÁRIOS
-   ========================================= */
-.hidden {
-  display: none !important;
-}
-
-/* Ajuste Fiança Breakdown */
-.fianca-breakdown {
-  background-color: rgba(212, 175, 55, 0.05);
-  border-left: 4px solid var(--ny-gold);
-}
-.breakdown-row span:last-child {
-  color: var(--ny-gold-light);
+  transform: scale(1.05);
+  background-color: var(--xmas-gold); /* Dourado natalino ao passar o mouse */
+  color: #fff;
 }
