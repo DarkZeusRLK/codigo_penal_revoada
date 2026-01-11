@@ -97,6 +97,12 @@ document.addEventListener("DOMContentLoaded", function () {
       src: "Música/Stardust - Music Sounds Better With You (Official Music Video).mp4",
       cover: "Imagens/capa_stardust.jpg",
     },
+    {
+      title: "Lady (Hear Me Tonight)",
+      artist: "Modjo",
+      src: "Música/Modjo - Lady (Hear Me Tonight) (Official Video) - ModjoOfficial (youtube).mp3",
+      cover: "Imagens/lady_modjo.jpg",
+    },
   ];
 
   let currentTrackIndex = 0;
