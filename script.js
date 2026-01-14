@@ -507,10 +507,10 @@ document.addEventListener("DOMContentLoaded", function () {
     penaTotalEl.textContent = penaFinal + " meses";
     multaTotalEl.textContent = "R$" + totalMulta.toLocaleString("pt-BR");
 
-    var radioFiancaSim = document.getElementById("fianca-sim");
-    var radioFiancaNao = document.getElementById("fianca-nao");
-    var boxDeposito = document.getElementById("box-upload-deposito");
-    var fiancaOutput = document.getElementById("fianca-output");
+  var radioFiancaSim = document.getElementById("fianca-sim");
+  var radioFiancaNao = document.getElementById("fianca-nao");
+  var boxDeposito = document.getElementById("box-upload-deposito");
+  var fiancaOutput = document.getElementById("fianca-output");
 
     if (isInfiancavel) {
       fiancaOutput.value = "INAFIANÇÁVEL";
@@ -528,7 +528,18 @@ document.addEventListener("DOMContentLoaded", function () {
       if (radioFiancaSim) radioFiancaSim.disabled = false;
 
       if (radioFiancaSim && radioFiancaSim.checked) {
-        if (boxDeposito) boxDeposito.classList.remove("hidden");
+        if (boxDeposito) {
+          boxDeposito.classList.remove("hidden");
+          // Scroll automático até o campo de comprovante
+          setTimeout(() => {
+            boxDeposito.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            boxDeposito.style.transition = 'all 0.3s';
+            boxDeposito.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.5)';
+            setTimeout(() => {
+              boxDeposito.style.boxShadow = '';
+            }, 2000);
+          }, 100);
+        }
       } else {
         if (boxDeposito) boxDeposito.classList.add("hidden");
       }
@@ -766,7 +777,23 @@ document.addEventListener("DOMContentLoaded", function () {
   var radioFiancaSim = document.getElementById("fianca-sim");
   var radioFiancaNao = document.getElementById("fianca-nao");
   if (radioFiancaSim) {
-    radioFiancaSim.addEventListener("change", calculateSentence);
+    radioFiancaSim.addEventListener("change", function() {
+      calculateSentence();
+      // Scroll automático quando marcar "sim"
+      if (this.checked) {
+        var boxDeposito = document.getElementById("box-upload-deposito");
+        if (boxDeposito && !boxDeposito.classList.contains("hidden")) {
+          setTimeout(() => {
+            boxDeposito.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            boxDeposito.style.transition = 'all 0.3s';
+            boxDeposito.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.5)';
+            setTimeout(() => {
+              boxDeposito.style.boxShadow = '';
+            }, 2000);
+          }, 100);
+        }
+      }
+    });
     radioFiancaNao.addEventListener("change", calculateSentence);
   }
 
@@ -872,6 +899,21 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       if (selectedCrimes.length === 0)
         return mostrarAlerta("Selecione ao menos um crime!", "error");
+
+      // Validação: Se marcou que pagou fiança, precisa ter comprovante
+      var pagouFianca = document.getElementById("fianca-sim").checked;
+      if (pagouFianca && !arquivoDeposito) {
+        var boxDeposito = document.getElementById("box-upload-deposito");
+        if (boxDeposito) {
+          boxDeposito.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          boxDeposito.style.transition = 'all 0.3s';
+          boxDeposito.style.boxShadow = '0 0 20px rgba(211, 47, 47, 0.5)';
+          setTimeout(() => {
+            boxDeposito.style.boxShadow = '';
+          }, 2000);
+        }
+        return mostrarAlerta("Se houve pagamento de fiança, é obrigatório anexar o comprovante com foto!", "error");
+      }
 
       var temDinheiroSujo = selectedCrimes.some((c) => c.artigo === "139");
       if (

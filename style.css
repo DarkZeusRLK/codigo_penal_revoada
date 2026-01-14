@@ -390,16 +390,27 @@ textarea {
   gap: 10px;
   justify-content: center;
   margin-top: 5px;
+  flex-wrap: wrap;
 }
 .confirm-imgs div {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .confirm-imgs img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
   border-radius: 6px;
   border: 1px solid #555;
+  background-color: rgba(0, 0, 0, 0.3);
+  max-width: 100%;
+}
+.confirm-imgs small {
+  margin-top: 5px;
+  font-size: 0.75em;
+  color: var(--text-secondary);
 }
 
 .modal-footer {
