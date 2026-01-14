@@ -124,88 +124,147 @@ body {
   position: relative;
   overflow-x: hidden;
 
-  /* EFEITO CARNAVAL: Confetes e Serpentinas no fundo */
-  background-image: 
-    /* Confetes verdes */
-    radial-gradient(circle at 20% 30%, rgba(0, 255, 95, 0.15) 2px, transparent 2px),
-    radial-gradient(circle at 60% 70%, rgba(0, 255, 95, 0.12) 1.5px, transparent 1.5px),
-    /* Confetes amarelos */
-    radial-gradient(circle at 80% 20%, rgba(254, 223, 0, 0.15) 2px, transparent 2px),
-    radial-gradient(circle at 40% 80%, rgba(254, 223, 0, 0.12) 1.5px, transparent 1.5px),
-    /* Confetes azuis */
-    radial-gradient(circle at 10% 60%, rgba(0, 102, 255, 0.1) 1.5px, transparent 1.5px),
-    /* Confetes rosa */
-    radial-gradient(circle at 90% 50%, rgba(255, 20, 147, 0.1) 1.5px, transparent 1.5px),
-    /* Padrão de fundo */
-    radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 
-    80px 80px,
-    120px 120px,
-    100px 100px,
-    90px 90px,
-    110px 110px,
-    95px 95px,
-    60px 60px;
-  background-position: 
-    0 0,
-    0 0,
-    0 0,
-    0 0,
-    0 0,
-    0 0,
-    0 0;
-  animation: confettiFall 25s linear infinite;
+  /* GRADIENTE ANIMADO "AURORA BOREAL" - Base Dark com Cores de Carnaval */
+  background: linear-gradient(
+    135deg,
+    #050505 0%,
+    #0a0a1a 25%,
+    #0f0a1f 50%,
+    #0a0a1a 75%,
+    #050505 100%
+  );
+  background-size: 400% 400%;
+  animation: auroraBoreal 20s ease infinite;
 }
 
-/* Efeito de brilho no fundo (Cores da bandeira) */
+/* Efeito de brilho no fundo (Aurora Boreal com cores do Brasil) */
 body::after {
   content: "";
   position: fixed;
-  bottom: 0;
+  top: 0;
   left: 0;
   width: 100%;
-  height: 50vh;
+  height: 100%;
   background: radial-gradient(
-    ellipse at bottom,
-    rgba(0, 151, 57, 0.1) 0%,
-    rgba(254, 223, 0, 0.08) 30%,
-    rgba(1, 33, 105, 0.06) 60%,
-    transparent 80%
-  );
+      ellipse 1200px 600px at 20% 30%,
+      rgba(0, 151, 57, 0.08) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 1000px 500px at 80% 70%,
+      rgba(254, 223, 0, 0.06) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 800px 400px at 50% 50%,
+      rgba(1, 33, 105, 0.05) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 600px 300px at 10% 80%,
+      rgba(255, 20, 147, 0.04) 0%,
+      transparent 50%
+    );
   pointer-events: none;
   z-index: -1;
-  animation: colorShift 8s ease-in-out infinite;
+  animation: auroraMove 15s ease-in-out infinite;
+  opacity: 0.7;
 }
 
-@keyframes confettiFall {
-  0% {
-    background-position: 
-      0 0,
-      0 0,
-      0 0,
-      0 0,
-      0 0,
-      0 0,
-      0 0;
-  }
+/* Camada de Glitter/Partículas Neon */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    /* Glitter Verde Neon */ radial-gradient(
+      circle at 15% 25%,
+      rgba(0, 255, 95, 0.12) 1px,
+      transparent 1px
+    ),
+    radial-gradient(
+      circle at 45% 65%,
+      rgba(0, 255, 95, 0.1) 0.8px,
+      transparent 0.8px
+    ),
+    /* Glitter Amarelo Dourado */
+      radial-gradient(
+        circle at 75% 15%,
+        rgba(254, 223, 0, 0.12) 1px,
+        transparent 1px
+      ),
+    radial-gradient(
+      circle at 35% 85%,
+      rgba(255, 235, 59, 0.1) 0.8px,
+      transparent 0.8px
+    ),
+    /* Glitter Azul Neon */
+      radial-gradient(
+        circle at 85% 55%,
+        rgba(0, 102, 255, 0.08) 0.8px,
+        transparent 0.8px
+      ),
+    /* Glitter Rosa/Roxo */
+      radial-gradient(
+        circle at 25% 75%,
+        rgba(255, 20, 147, 0.08) 0.8px,
+        transparent 0.8px
+      ),
+    radial-gradient(
+      circle at 65% 35%,
+      rgba(155, 89, 182, 0.08) 0.8px,
+      transparent 0.8px
+    );
+  background-size: 150px 150px, 180px 180px, 160px 160px, 170px 170px,
+    140px 140px, 165px 165px, 155px 155px;
+  background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+  pointer-events: none;
+  z-index: -1;
+  animation: glitterFloat 30s linear infinite;
+  opacity: 0.6;
+}
+
+@keyframes auroraBoreal {
+  0%,
   100% {
-    background-position: 
-      0 -800px,
-      0 -1200px,
-      0 -1000px,
-      0 -900px,
-      0 -1100px,
-      0 -950px,
-      0 -600px;
-  }
-}
-
-@keyframes colorShift {
-  0%, 100% {
-    opacity: 0.6;
+    background-position: 0% 50%;
   }
   50% {
-    opacity: 1;
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes auroraMove {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.7;
+  }
+  33% {
+    transform: translate(2%, -1%) scale(1.05);
+    opacity: 0.8;
+  }
+  66% {
+    transform: translate(-1%, 2%) scale(0.95);
+    opacity: 0.6;
+  }
+}
+
+@keyframes glitterFloat {
+  0% {
+    background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    background-position: 0 -1500px, 0 -1800px, 0 -1600px, 0 -1700px, 0 -1400px,
+      0 -1650px, 0 -1550px;
+    opacity: 0.4;
   }
 }
 
@@ -296,7 +355,8 @@ body::after {
 }
 
 @keyframes gradientShift {
-  0%, 100% {
+  0%,
+  100% {
     background-position: 0% 50%;
   }
   50% {
@@ -331,7 +391,11 @@ body::after {
 }
 
 .btn-discord-login:hover {
-  background: linear-gradient(135deg, var(--carnaval-verde-bright), var(--carnaval-verde));
+  background: linear-gradient(
+    135deg,
+    var(--carnaval-verde-bright),
+    var(--carnaval-verde)
+  );
   transform: translateY(-2px);
   box-shadow: 0 0 20px rgba(0, 255, 95, 0.6);
   color: #fff;
@@ -358,30 +422,69 @@ header {
   box-shadow: var(--shadow-card);
   position: relative;
   border: 1px solid var(--border-color);
-  /* Borda inferior verde e amarela */
+  /* Borda inferior verde e amarela animada */
   border-bottom: 3px solid transparent;
   border-image: linear-gradient(
+      90deg,
+      var(--carnaval-verde) 0%,
+      var(--carnaval-amarelo) 50%,
+      var(--carnaval-verde) 100%
+    )
+    1;
+  overflow: hidden;
+}
+
+/* Efeito de brilho pulsante na borda do header */
+header::before {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(
     90deg,
     var(--carnaval-verde) 0%,
     var(--carnaval-amarelo) 50%,
     var(--carnaval-verde) 100%
-  ) 1;
+  );
+  background-size: 200% 100%;
+  animation: borderFlow 3s linear infinite;
+  box-shadow: 0 0 10px rgba(0, 255, 95, 0.5), 0 0 20px rgba(254, 223, 0, 0.3);
+  z-index: 0;
 }
 
-/* Brilho no topo do Header */
-header::before {
+@keyframes borderFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+/* Brilho no topo do Header (movido para header::after já que ::before está sendo usado) */
+header::after {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--carnaval-verde), var(--carnaval-amarelo), var(--carnaval-verde), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--carnaval-verde),
+    var(--carnaval-amarelo),
+    var(--carnaval-verde),
+    transparent
+  );
   opacity: 0.8;
+  z-index: 1;
 }
 
-/* Bandeira do Brasil no header */
-header::after {
+/* Bandeira do Brasil no header (usando um elemento separado via pseudo-elemento no container) */
+.badge-area::after {
   content: "🇧🇷";
   position: absolute;
   top: 10px;
@@ -389,6 +492,7 @@ header::after {
   font-size: 1.5em;
   opacity: 0.3;
   animation: floatIcon 4s ease-in-out infinite;
+  pointer-events: none;
 }
 
 header h1 {
@@ -490,7 +594,7 @@ header p.titulo {
   border-color: var(--carnaval-verde);
 }
 
-/* Efeito de Reflexo no Card (Verde e Amarelo) */
+/* Efeito de Reflexo no Card (Verde e Amarelo com brilho sutil) */
 .card::after {
   content: "";
   position: absolute;
@@ -498,7 +602,29 @@ header p.titulo {
   left: 0;
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--carnaval-verde), var(--carnaval-amarelo), var(--carnaval-verde), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--carnaval-verde),
+    var(--carnaval-amarelo),
+    var(--carnaval-verde),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: borderGlow 3s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(0, 255, 95, 0.3);
+}
+
+@keyframes borderGlow {
+  0%,
+  100% {
+    background-position: 0% 50%;
+    opacity: 0.8;
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 1;
+  }
 }
 
 .card-header {
@@ -518,6 +644,20 @@ header p.titulo {
   color: var(--carnaval-amarelo);
   margin-right: 10px;
   filter: drop-shadow(0 0 5px var(--carnaval-amarelo));
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 5px var(--carnaval-amarelo));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 10px var(--carnaval-amarelo))
+      drop-shadow(0 0 15px var(--carnaval-verde));
+    transform: scale(1.05);
+  }
 }
 
 /* =========================================
@@ -1443,7 +1583,8 @@ input[type="radio"] {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 10px var(--color-danger);
   }
   50% {
