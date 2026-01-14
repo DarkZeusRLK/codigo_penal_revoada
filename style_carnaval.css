@@ -1,16 +1,16 @@
 /* =========================================
    🎭 CSS EDIÇÃO ESPECIAL: CARNAVAL BRASILEIRO 🎉
-   (Tema Festivo com Cores da Bandeira do Brasil)
+   (Baseado no style_reveillon.css - Estrutura Completa + Visual Carnaval)
    ========================================= */
 
-/* Importando fontes: Alegre (Festivo) e Roboto (Moderno) */
-@import url("https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;700;900&family=Roboto:wght@400;500;700;900&display=swap");
+/* Importando fontes: Alegreya (Festivo) e Montserrat (Moderno) */
+@import url("https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;700;900&family=Montserrat:wght@300;400;600;800&family=Roboto:wght@400;500;700&display=swap");
 
 /* =========================================
    1. VARIÁVEIS E CONFIGURAÇÕES GERAIS
    ========================================= */
 :root {
-  /* --- PALETA CARNAVAL (Verde, Amarelo, Azul, Rosa, Dourado) --- */
+  /* --- PALETA CARNAVAL (Verde, Amarelo, Azul, Rosa) --- */
   --carnaval-verde: #009739; /* Verde da Bandeira */
   --carnaval-verde-bright: #00ff5f; /* Verde Brilhante */
   --carnaval-amarelo: #fedf00; /* Amarelo da Bandeira */
@@ -23,21 +23,25 @@
   --carnaval-laranja: #ff6b35; /* Laranja Energético */
 
   /* --- FUNDOS --- */
-  --carnaval-bg-main: #0a0a0f; /* Preto Profundo */
-  --carnaval-bg-card: #1a1a2e; /* Azul Escuro */
-  --carnaval-bg-header: #16213e; /* Azul Médio */
+  --carnaval-midnight: #050505; /* Preto Absoluto */
+  --carnaval-night-blue: #0a0a0c; /* Azul Noite Profunda */
+  --carnaval-card-bg: #121214; /* Fundo dos Cards */
 
   /* --- MAPEAMENTO LÓGICO (MANTENDO COMPATIBILIDADE) --- */
-  --bg-main: var(--carnaval-bg-main);
-  --bg-card: var(--carnaval-bg-card);
+  --bg-main: var(--carnaval-midnight);
+  --bg-card: var(--carnaval-card-bg);
+
+  /* Gradiente do Cabeçalho de Categoria */
   --bg-header-category: linear-gradient(
     90deg,
-    #1a1a2e 0%,
-    #16213e 100%
+    #1a1a1a 0%,
+    var(--carnaval-card-bg) 100%
   );
 
+  --bg-input: rgba(255, 255, 255, 0.03); /* Vidro Escuro */
+
   --text-primary: #ffffff;
-  --text-secondary: #b0b0b0;
+  --text-secondary: #a1a1a1;
   --text-muted: #666666;
 
   /* Cor de Destaque (Verde e Amarelo) */
@@ -45,17 +49,22 @@
   --color-revoada-light: var(--carnaval-verde-bright);
 
   /* Cores Funcionais */
-  --color-danger: #ff1744; /* Vermelho Vibrante */
+  --color-danger: #ff4d4d; /* Vermelho Vivo para Erros */
   --color-success: var(--carnaval-verde-bright);
-  --color-info: var(--carnaval-azul-bright);
-  --color-warning: var(--carnaval-amarelo);
+  --color-info: var(--carnaval-amarelo);
+  --color-warning: #ffab00;
 
   /* Bordas e Sombras Festivas */
-  --border-color: rgba(0, 255, 95, 0.2);
+  --border-color: rgba(0, 255, 95, 0.25); /* Borda Verde Sutil */
   --border-focus: var(--carnaval-verde-bright);
-  --shadow-card: 0 8px 32px rgba(0, 151, 57, 0.3);
-  --glow-verde: 0 0 15px rgba(0, 255, 95, 0.4);
-  --glow-amarelo: 0 0 15px rgba(254, 223, 0, 0.4);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.8);
+  --glow-verde: 0 0 10px rgba(0, 255, 95, 0.3);
+  --glow-amarelo: 0 0 10px rgba(254, 223, 0, 0.3);
+
+  /* Variáveis para compatibilidade */
+  --ny-gold: var(--carnaval-amarelo);
+  --ny-gold-bright: var(--carnaval-amarelo-bright);
+  --ny-white: #ffffff;
 }
 
 /* Reset e Fontes */
@@ -63,7 +72,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: "Roboto", "Arial", sans-serif;
+  font-family: "Montserrat", "Roboto", sans-serif;
   scrollbar-width: thin;
   scrollbar-color: var(--carnaval-verde) var(--bg-main);
 }
@@ -79,16 +88,14 @@ h3,
 .category-title {
   font-family: "Alegreya Sans", sans-serif;
   letter-spacing: 1px;
-  font-weight: 900;
 }
 
 /* Scrollbar Customizada (Verde e Amarelo) */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.4);
-  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(
@@ -97,7 +104,7 @@ h3,
     var(--carnaval-amarelo) 100%
   );
   border-radius: 4px;
-  border: 1px solid var(--carnaval-bg-main);
+  border: 1px solid var(--carnaval-midnight);
 }
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(
@@ -107,90 +114,99 @@ h3,
   );
 }
 
-/* =========================================
-   2. ANIMAÇÕES FESTIVAS
-   ========================================= */
-@keyframes confetti-fall {
-  0% {
-    transform: translateY(-100vh) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100vh) rotate(720deg);
-    opacity: 0;
-  }
-}
-
-@keyframes pulse-carnaval {
-  0%, 100% {
-    box-shadow: 0 0 10px var(--carnaval-verde);
-  }
-  50% {
-    box-shadow: 0 0 25px var(--carnaval-amarelo), 0 0 35px var(--carnaval-verde);
-  }
-}
-
-@keyframes shake-carnaval {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px) rotate(-2deg); }
-  75% { transform: translateX(5px) rotate(2deg); }
-}
-
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-/* =========================================
-   3. BODY E FUNDO PRINCIPAL
-   ========================================= */
 body {
-  background: linear-gradient(
-    135deg,
-    var(--carnaval-bg-main) 0%,
-    #0f0f1a 50%,
-    var(--carnaval-bg-main) 100%
-  );
-  background-size: 200% 200%;
-  animation: gradient-shift 15s ease infinite;
+  background-color: var(--bg-main);
   color: var(--text-primary);
   padding: 20px;
   font-size: 14px;
   line-height: 1.5;
+  min-height: 100vh;
   position: relative;
   overflow-x: hidden;
+
+  /* EFEITO CARNAVAL: Confetes e Serpentinas no fundo */
+  background-image: 
+    /* Confetes verdes */
+    radial-gradient(circle at 20% 30%, rgba(0, 255, 95, 0.15) 2px, transparent 2px),
+    radial-gradient(circle at 60% 70%, rgba(0, 255, 95, 0.12) 1.5px, transparent 1.5px),
+    /* Confetes amarelos */
+    radial-gradient(circle at 80% 20%, rgba(254, 223, 0, 0.15) 2px, transparent 2px),
+    radial-gradient(circle at 40% 80%, rgba(254, 223, 0, 0.12) 1.5px, transparent 1.5px),
+    /* Confetes azuis */
+    radial-gradient(circle at 10% 60%, rgba(0, 102, 255, 0.1) 1.5px, transparent 1.5px),
+    /* Confetes rosa */
+    radial-gradient(circle at 90% 50%, rgba(255, 20, 147, 0.1) 1.5px, transparent 1.5px),
+    /* Padrão de fundo */
+    radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 
+    80px 80px,
+    120px 120px,
+    100px 100px,
+    90px 90px,
+    110px 110px,
+    95px 95px,
+    60px 60px;
+  background-position: 
+    0 0,
+    0 0,
+    0 0,
+    0 0,
+    0 0,
+    0 0,
+    0 0;
+  animation: confettiFall 25s linear infinite;
 }
 
-/* Efeito de confete no fundo (opcional, pode ser desativado) */
-body::before {
+/* Efeito de brilho no fundo (Cores da bandeira) */
+body::after {
   content: "";
   position: fixed;
-  top: 0;
+  bottom: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  background-image: 
-    radial-gradient(circle at 20% 50%, rgba(0, 255, 95, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(254, 223, 0, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 40% 20%, rgba(255, 20, 147, 0.05) 0%, transparent 50%);
+  height: 50vh;
+  background: radial-gradient(
+    ellipse at bottom,
+    rgba(0, 151, 57, 0.1) 0%,
+    rgba(254, 223, 0, 0.08) 30%,
+    rgba(1, 33, 105, 0.06) 60%,
+    transparent 80%
+  );
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
+  animation: colorShift 8s ease-in-out infinite;
+}
+
+@keyframes confettiFall {
+  0% {
+    background-position: 
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0;
+  }
+  100% {
+    background-position: 
+      0 -800px,
+      0 -1200px,
+      0 -1000px,
+      0 -900px,
+      0 -1100px,
+      0 -950px,
+      0 -600px;
+  }
+}
+
+@keyframes colorShift {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .container {
@@ -201,7 +217,7 @@ body::before {
 }
 
 /* =========================================
-   4. TELA DE LOGIN (TEMA CARNAVAL)
+   2. TELA DE LOGIN
    ========================================= */
 .login-overlay {
   position: fixed;
@@ -209,14 +225,8 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    135deg,
-    var(--carnaval-bg-main) 0%,
-    var(--carnaval-bg-card) 50%,
-    var(--carnaval-bg-main) 100%
-  );
-  background-size: 200% 200%;
-  animation: gradient-shift 10s ease infinite;
+  /* Gradiente Preto para Verde/Azul Escuro */
+  background: radial-gradient(circle at center, #0a1a0a 0%, #000000 100%);
   z-index: 99999;
   display: flex;
   justify-content: center;
@@ -225,51 +235,47 @@ body::before {
 }
 
 .login-box {
-  background: linear-gradient(
-    135deg,
-    var(--carnaval-bg-card) 0%,
-    var(--carnaval-bg-header) 100%
-  );
+  background-color: rgba(10, 10, 10, 0.95);
   padding: 40px;
-  border-radius: 12px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-  box-shadow: 
-    0 0 30px rgba(0, 255, 95, 0.3),
-    0 0 60px rgba(254, 223, 0, 0.2),
-    inset 0 0 20px rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
   text-align: center;
   max-width: 400px;
   width: 90%;
   position: relative;
-  overflow: hidden;
+  box-shadow: 0 0 80px rgba(0, 255, 95, 0.15);
+
+  /* Borda Verde e Amarela Dupla */
+  border: 1px solid var(--carnaval-verde);
+  outline: 1px solid rgba(254, 223, 0, 0.3);
+  outline-offset: 5px;
 }
 
+/* Enfeite no topo do Login (Bandeira do Brasil) */
 .login-box::before {
-  content: "";
+  content: "🇧🇷";
   position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(
-    45deg,
-    var(--carnaval-verde),
-    var(--carnaval-amarelo),
-    var(--carnaval-azul),
-    var(--carnaval-rosa)
-  );
-  background-size: 400% 400%;
-  animation: gradient-shift 3s ease infinite;
-  border-radius: 12px;
-  z-index: -1;
+  top: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 3.5em;
+  filter: drop-shadow(0 0 15px var(--carnaval-verde));
+  animation: floatIcon 3s ease-in-out infinite;
+}
+
+@keyframes floatIcon {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-10px);
+  }
 }
 
 .login-logo {
   height: 100px;
   margin-bottom: 20px;
-  filter: drop-shadow(0 0 10px var(--carnaval-verde));
-  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px var(--carnaval-verde));
 }
 
 .login-box h2 {
@@ -283,10 +289,19 @@ body::before {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradient-shift 3s ease infinite;
+  animation: gradientShift 3s ease infinite;
   margin-bottom: 10px;
   letter-spacing: 2px;
-  font-size: 1.8em;
+  text-transform: uppercase;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 .login-box p {
@@ -295,73 +310,55 @@ body::before {
 }
 
 .btn-discord-login {
-  background: linear-gradient(
-    135deg,
-    var(--carnaval-verde) 0%,
-    var(--carnaval-verde-bright) 100%
-  );
-  color: white;
+  background: linear-gradient(135deg, var(--carnaval-verde), #006b2e);
+  color: #fff;
   border: none;
   padding: 12px 25px;
-  border-radius: 6px;
+  border-radius: 2px;
   font-size: 1em;
-  font-weight: bold;
+  font-weight: 900;
+  text-transform: uppercase;
   cursor: pointer;
   transition: all 0.3s;
   width: 100%;
-  display: block;
-  text-decoration: none;
   margin-bottom: 10px;
-  box-shadow: 0 4px 15px rgba(0, 255, 95, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-discord-login::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  transition: left 0.5s;
-}
-
-.btn-discord-login:hover::before {
-  left: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
 .btn-discord-login:hover {
+  background: linear-gradient(135deg, var(--carnaval-verde-bright), var(--carnaval-verde));
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 255, 95, 0.5);
-  background: linear-gradient(
-    135deg,
-    var(--carnaval-verde-bright) 0%,
-    var(--carnaval-verde) 100%
-  );
+  box-shadow: 0 0 20px rgba(0, 255, 95, 0.6);
+  color: #fff;
 }
 
 .login-footer {
   font-size: 0.8em;
   margin-top: 20px;
   opacity: 0.7;
-  color: var(--carnaval-amarelo);
+  color: var(--carnaval-amarelo-bright);
 }
 
 /* =========================================
-   5. HEADER E TOPO (BANDEIRA DO BRASIL)
+   3. HEADER E TOPO
    ========================================= */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 0;
+  padding: 15px 20px;
+  background-color: rgba(20, 20, 20, 0.9);
+  border-radius: 8px;
+  margin-bottom: 25px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  border: 1px solid var(--border-color);
+  /* Borda inferior verde e amarela */
   border-bottom: 3px solid transparent;
   border-image: linear-gradient(
     90deg,
@@ -369,36 +366,33 @@ header {
     var(--carnaval-amarelo) 50%,
     var(--carnaval-verde) 100%
   ) 1;
-  margin-bottom: 25px;
-  position: relative;
-  background: linear-gradient(
-    90deg,
-    rgba(0, 151, 57, 0.1) 0%,
-    rgba(254, 223, 0, 0.1) 50%,
-    rgba(0, 151, 57, 0.1) 100%
-  );
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 151, 57, 0.2);
 }
 
+/* Brilho no topo do Header */
 header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--carnaval-verde), var(--carnaval-amarelo), var(--carnaval-verde), transparent);
+  opacity: 0.8;
+}
+
+/* Bandeira do Brasil no header */
+header::after {
   content: "🇧🇷";
   position: absolute;
   top: 10px;
   right: 10px;
-  font-size: 2em;
+  font-size: 1.5em;
   opacity: 0.3;
-  animation: float 4s ease-in-out infinite;
-}
-
-.logo-area {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+  animation: floatIcon 4s ease-in-out infinite;
 }
 
 header h1 {
+  font-size: 1.8em;
   background: linear-gradient(
     90deg,
     var(--carnaval-verde) 0%,
@@ -409,12 +403,11 @@ header h1 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradient-shift 4s ease infinite;
-  font-size: 1.8em;
+  animation: gradientShift 4s ease infinite;
   text-transform: uppercase;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 2px;
-  text-shadow: 0 0 20px rgba(0, 255, 95, 0.5);
+  text-shadow: 0 0 10px rgba(0, 255, 95, 0.3);
 }
 
 header p.titulo {
@@ -423,35 +416,14 @@ header p.titulo {
   margin-top: 2px;
 }
 
-.badge-area {
-  display: flex;
-  gap: 12px;
-}
-
-.badge {
-  height: 50px;
-  transition: transform 0.3s;
-  filter: drop-shadow(0 0 5px var(--carnaval-verde));
-}
-
-.badge:hover {
-  transform: scale(1.15) rotate(5deg);
-  filter: drop-shadow(0 0 10px var(--carnaval-amarelo));
-}
-
 .user-info {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: linear-gradient(
-    135deg,
-    rgba(0, 151, 57, 0.2) 0%,
-    rgba(254, 223, 0, 0.2) 100%
-  );
-  padding: 8px 15px;
-  border-radius: 30px;
-  border: 2px solid var(--carnaval-verde);
-  box-shadow: 0 0 10px rgba(0, 255, 95, 0.3);
+  background: rgba(0, 255, 95, 0.05);
+  padding: 6px 15px;
+  border-radius: 0;
+  border: 1px solid var(--carnaval-verde);
 }
 
 .avatar-small {
@@ -459,7 +431,7 @@ header p.titulo {
   height: 38px;
   border-radius: 50%;
   border: 2px solid var(--carnaval-amarelo);
-  box-shadow: 0 0 10px rgba(254, 223, 0, 0.5);
+  box-shadow: 0 0 8px var(--carnaval-amarelo);
 }
 
 .user-details {
@@ -467,81 +439,89 @@ header p.titulo {
   flex-direction: column;
   line-height: 1.2;
 }
-
 .user-label {
-  color: var(--text-secondary);
+  color: var(--carnaval-verde);
   font-size: 0.75em;
   text-transform: uppercase;
 }
-
 .user-value {
-  color: var(--carnaval-verde-bright);
+  color: var(--text-primary);
   font-weight: bold;
   font-size: 0.9em;
-  text-shadow: 0 0 5px rgba(0, 255, 95, 0.5);
 }
 
 /* =========================================
-   6. CARDS E ESTRUTURA
+   4. ESTRUTURA E CARDS
    ========================================= */
-.card {
-  background: linear-gradient(
-    135deg,
-    var(--carnaval-bg-card) 0%,
-    var(--carnaval-bg-header) 100%
-  );
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 
-    0 8px 32px rgba(0, 151, 57, 0.2),
-    inset 0 0 20px rgba(0, 0, 0, 0.3);
-  border: 2px solid transparent;
-  background-clip: padding-box;
-  position: relative;
-  overflow: hidden;
+.dados-preso-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.main-content {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.full-width {
+  grid-column: 1 / -1;
+}
+.dados-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.card::before {
+.card {
+  background-color: var(--bg-card);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  transition: border-color 0.3s;
+}
+
+.card:hover {
+  border-color: var(--carnaval-verde);
+}
+
+/* Efeito de Reflexo no Card (Verde e Amarelo) */
+.card::after {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    var(--carnaval-verde) 0%,
-    var(--carnaval-amarelo) 50%,
-    var(--carnaval-verde) 100%
-  );
-  background-size: 200% 100%;
-  animation: gradient-shift 3s ease infinite;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--carnaval-verde), var(--carnaval-amarelo), var(--carnaval-verde), transparent);
 }
 
 .card-header {
   font-size: 1.1em;
-  font-weight: 900;
-  color: var(--text-primary);
+  font-weight: 700;
+  color: var(--carnaval-verde);
   padding-bottom: 12px;
   margin-bottom: 15px;
-  border-bottom: 2px solid var(--carnaval-verde);
+  border-bottom: 1px solid rgba(0, 255, 95, 0.3);
   text-transform: uppercase;
   letter-spacing: 1px;
   display: flex;
   align-items: center;
-  text-shadow: 0 0 10px rgba(0, 255, 95, 0.5);
 }
 
 .card-header i {
   color: var(--carnaval-amarelo);
   margin-right: 10px;
   filter: drop-shadow(0 0 5px var(--carnaval-amarelo));
-  animation: pulse-carnaval 2s ease-in-out infinite;
 }
 
 /* =========================================
-   7. INPUTS E FORMULÁRIOS
+   5. INPUTS E FORMULÁRIOS (EFEITO VIDRO)
    ========================================= */
 .input-group {
   display: grid;
@@ -550,7 +530,6 @@ header p.titulo {
   margin-bottom: 5px;
   align-items: center;
 }
-
 .input-group label {
   font-size: 0.95em;
   color: var(--text-secondary);
@@ -562,33 +541,24 @@ header p.titulo {
 input:not([type="file"]),
 textarea,
 select {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 0, 0, 0.4) 0%,
-    rgba(26, 26, 46, 0.6) 100%
-  );
-  border: 2px solid var(--border-color);
+  background-color: var(--bg-input);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-primary);
   padding: 10px 12px;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 0.95em;
   min-height: 40px;
   transition: all 0.3s;
+  backdrop-filter: blur(5px);
 }
 
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: var(--carnaval-verde-bright);
+  border-color: var(--carnaval-verde);
   outline: none;
-  box-shadow: 
-    0 0 0 3px rgba(0, 255, 95, 0.2),
-    0 0 15px rgba(0, 255, 95, 0.4);
-  background: linear-gradient(
-    135deg,
-    rgba(0, 151, 57, 0.1) 0%,
-    rgba(26, 26, 46, 0.8) 100%
-  );
+  box-shadow: 0 0 10px rgba(0, 255, 95, 0.2);
+  background-color: rgba(20, 20, 25, 0.9);
 }
 
 textarea {
@@ -598,9 +568,7 @@ textarea {
   width: 100%;
 }
 
-/* =========================================
-   8. UPLOADS E PREVIEW
-   ========================================= */
+/* Uploads */
 .upload-section {
   display: flex;
   flex-direction: column;
@@ -608,32 +576,21 @@ textarea {
 }
 
 .upload-box {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 0, 0, 0.4) 0%,
-    rgba(26, 26, 46, 0.6) 100%
-  );
-  border: 2px solid var(--border-color);
-  padding: 12px;
+  background-color: rgba(20, 20, 20, 0.6);
+  border: 1px dashed var(--carnaval-verde);
+  padding: 15px;
   border-radius: 8px;
-  transition: all 0.3s;
-  outline: none;
+  text-align: center;
+  transition: 0.3s;
   cursor: pointer;
   position: relative;
 }
 
-.upload-box:focus,
+.upload-box:hover,
 .upload-box.active-box {
   border-color: var(--carnaval-verde-bright);
-  box-shadow: 
-    0 0 20px rgba(0, 255, 95, 0.4),
-    inset 0 0 20px rgba(0, 255, 95, 0.1);
-  background: linear-gradient(
-    135deg,
-    rgba(0, 151, 57, 0.2) 0%,
-    rgba(26, 26, 46, 0.8) 100%
-  );
-  animation: pulse-carnaval 2s ease-in-out infinite;
+  background-color: rgba(0, 255, 95, 0.1);
+  box-shadow: 0 0 15px rgba(0, 255, 95, 0.2);
 }
 
 .upload-box label {
@@ -642,19 +599,24 @@ textarea {
   font-weight: bold;
   color: var(--text-primary);
   font-size: 0.9em;
-  text-shadow: 0 0 5px rgba(0, 255, 95, 0.5);
+}
+.paste-hint {
+  font-size: 0.75em;
+  color: var(--carnaval-verde);
+  margin-bottom: 8px;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-content: center;
 }
 
 .preview-area {
   width: 100%;
   height: 130px;
-  background: linear-gradient(
-    135deg,
-    rgba(0, 0, 0, 0.6) 0%,
-    rgba(26, 26, 46, 0.8) 100%
-  );
-  border: 2px dashed var(--carnaval-verde);
-  border-radius: 6px;
+  background-color: #050505;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -665,9 +627,8 @@ textarea {
 
 .preview-area i {
   font-size: 2.5em;
-  color: var(--carnaval-verde);
-  opacity: 0.6;
-  filter: drop-shadow(0 0 5px var(--carnaval-verde));
+  color: var(--border-color);
+  opacity: 0.5;
 }
 
 .preview-area img {
@@ -679,149 +640,326 @@ textarea {
   object-fit: cover;
 }
 
+input[type="file"] {
+  width: 100%;
+  font-size: 0.8em;
+  color: var(--text-secondary);
+}
+
 /* =========================================
-   9. LISTA DE CRIMES
+   6. PESQUISA E DROPDOWN
+   ========================================= */
+.participantes-section {
+  border-top: 1px dashed var(--border-color);
+  padding-top: 15px;
+  margin-top: 10px;
+}
+.participante-selector-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.search-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.form-search {
+  width: 40%;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.95em;
+}
+
+.dropdown-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 250px;
+  overflow-y: auto;
+  background-color: #0a0a0c;
+  border: 1px solid var(--carnaval-verde);
+  border-top: none;
+  z-index: 1000;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9);
+  display: none;
+}
+.dropdown-results:not(.hidden) {
+  display: block;
+}
+
+.dropdown-item {
+  padding: 12px 15px;
+  cursor: pointer;
+  color: var(--text-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  transition: all 0.2s;
+}
+.dropdown-item:hover {
+  background-color: rgba(0, 255, 95, 0.2);
+  padding-left: 20px;
+  color: var(--carnaval-verde);
+}
+
+/* Botão Adicionar (+) */
+.btn-add {
+  background-color: var(--carnaval-verde);
+  color: #fff;
+  border: 1px solid var(--carnaval-verde);
+  width: 42px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+.btn-add:hover {
+  background-color: var(--carnaval-verde-bright);
+  box-shadow: 0 0 15px var(--carnaval-verde);
+}
+
+/* Tags de Participantes */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  min-height: 45px;
+  margin-top: 10px;
+}
+.officer-tag {
+  /* Gradiente Verde */
+  background: linear-gradient(135deg, #006b2e, #004d21);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 0;
+  font-size: 0.85em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--carnaval-verde);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+.officer-tag button {
+  background: none;
+  border: none;
+  color: var(--carnaval-amarelo);
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* =========================================
+   7. LISTA DE CRIMES
    ========================================= */
 .crimes-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 25px;
-  padding: 0 20px 20px 20px;
+  gap: 20px;
+}
+@media (max-width: 1200px) {
+  .crimes-list {
+    grid-template-columns: 1fr;
+  }
 }
 
 .category-title {
+  /* Fita Verde e Amarela */
   background: linear-gradient(
     90deg,
-    var(--carnaval-bg-header) 0%,
-    var(--carnaval-bg-card) 100%
+    rgba(0, 255, 95, 0.2) 0%,
+    rgba(254, 223, 0, 0.15) 50%,
+    transparent 90%
   );
-  border-left: 4px solid var(--carnaval-verde);
-  border-bottom: 2px solid var(--carnaval-amarelo);
-  padding: 12px 15px;
+  border-left: 5px solid var(--carnaval-verde);
+  border-bottom: 1px solid rgba(254, 223, 0, 0.2);
+  padding: 10px 15px;
   font-weight: 900;
-  color: var(--text-primary);
+  color: var(--ny-white);
   text-transform: uppercase;
   font-size: 0.9em;
-  margin-top: 25px;
+  margin-top: 20px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
-  letter-spacing: 1px;
-  text-shadow: 0 0 10px rgba(0, 255, 95, 0.5);
-  box-shadow: 0 4px 10px rgba(0, 151, 57, 0.2);
 }
-
-.category-content {
-  display: block;
-  padding: 5px 0;
+.category-title::before {
+  content: "🎉";
+  margin-right: 8px;
+  font-size: 1.1em;
 }
 
 .crime-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 15px;
-  border-bottom: 1px solid rgba(0, 255, 95, 0.1);
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   cursor: pointer;
-  font-size: 0.9em;
-  transition: all 0.3s;
-  border-left: 3px solid transparent;
+  transition: all 0.2s;
+  background: rgba(255, 255, 255, 0.01);
 }
-
 .crime-item:hover {
-  background: linear-gradient(
-    90deg,
-    rgba(0, 151, 57, 0.1) 0%,
-    transparent 100%
-  );
-  padding-left: 20px;
-  border-left-color: var(--carnaval-verde);
-  transform: translateX(5px);
+  background-color: rgba(0, 255, 95, 0.1);
+  padding-left: 18px;
+  color: var(--carnaval-verde);
+}
+.crime-item:hover::before {
+  content: "🎊";
+  position: absolute;
+  left: 5px;
 }
 
 .crime-item.selected {
-  background: linear-gradient(
-    90deg,
-    rgba(0, 151, 57, 0.2) 0%,
-    transparent 100%
-  );
-  border-left: 3px solid var(--carnaval-verde);
-  color: #fff;
-  box-shadow: 0 0 10px rgba(0, 255, 95, 0.3);
+  background: linear-gradient(90deg, rgba(0, 255, 95, 0.15), transparent);
+  border-left: 4px solid var(--carnaval-verde);
+  font-weight: bold;
+  color: var(--carnaval-verde);
 }
-
+/* Etiquetas */
 .btn-info {
-  background: linear-gradient(
-    135deg,
-    var(--color-danger) 0%,
-    #ff6b6b 100%
-  );
-  color: white;
-  border: none;
+  background-color: #333;
+  color: var(--ny-white);
+  border: 1px solid var(--color-danger);
   padding: 3px 8px;
-  border-radius: 4px;
+  border-radius: 2px;
   font-size: 0.7em;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 2px 5px rgba(255, 23, 68, 0.4);
 }
 
 .crime-condition {
   font-size: 0.75em;
-  background: linear-gradient(
-    135deg,
-    var(--carnaval-azul) 0%,
-    var(--carnaval-azul-bright) 100%
-  );
+  background-color: var(--carnaval-azul);
   color: #fff;
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: 2px;
   margin-left: 8px;
   font-weight: 600;
+  border: 1px solid var(--carnaval-azul-bright);
 }
 
 /* =========================================
-   10. RESUMO DA SENTENÇA
+   8. RESUMO DA SENTENÇA (DIREITA)
    ========================================= */
 .resumo-sentenca {
   position: sticky;
   top: 20px;
   height: fit-content;
   min-width: 320px;
+  /* Borda brilhante no resumo */
+  border: 1px solid var(--carnaval-verde);
+  box-shadow: 0 0 15px rgba(0, 255, 95, 0.1);
+}
+
+.resumo-section {
+  margin-bottom: 20px;
+  padding: 0 5px;
 }
 
 .section-title {
   font-weight: 700;
   margin-bottom: 8px;
-  color: var(--text-primary);
+  color: var(--carnaval-verde);
   text-transform: uppercase;
   font-size: 0.9em;
   letter-spacing: 1px;
-  text-shadow: 0 0 5px rgba(0, 255, 95, 0.3);
+}
+
+.section-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.8em;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid rgba(0, 255, 95, 0.2);
+  margin: 20px 0;
+}
+
+/* Lista de Selecionados */
+.output-list {
+  min-height: 60px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  max-height: 350px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+}
+
+.crime-output-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 0.9em;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  align-items: center;
+}
+.crime-output-item:last-child {
+  border-bottom: none;
+}
+
+.crime-output-item span {
+  line-height: 1.4;
+  padding-right: 10px;
+}
+
+.crime-output-item button {
+  background: none;
+  border: none;
+  color: var(--color-danger);
+  cursor: pointer;
+  font-size: 1.1em;
+  transition: transform 0.2s;
+}
+.crime-output-item button:hover {
+  transform: scale(1.2);
+  text-shadow: 0 0 5px red;
+}
+
+/* Totais */
+.pena-multa .section-title {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 1.1em;
+  border-bottom: 1px solid rgba(0, 255, 95, 0.3);
 }
 
 #pena-total {
-  color: var(--color-danger);
+  color: #ff5252;
   font-weight: 800;
-  text-shadow: 0 0 10px rgba(255, 23, 68, 0.5);
+  text-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
 }
-
 #multa-total {
   color: var(--carnaval-amarelo);
   font-weight: 800;
-  text-shadow: 0 0 10px rgba(254, 223, 0, 0.5);
+  text-shadow: 0 0 5px rgba(254, 223, 0, 0.5);
 }
 
+/* Alerta de Perigo */
 .alert-box {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 23, 68, 0.2) 0%,
-    rgba(255, 23, 68, 0.1) 100%
-  );
-  border: 2px solid var(--color-danger);
+  background-color: rgba(255, 0, 0, 0.05);
+  border: 1px solid var(--color-danger);
   color: var(--color-danger);
   padding: 12px;
-  border-radius: 6px;
+  border-radius: 4px;
   margin-top: 15px;
   text-align: center;
   font-weight: bold;
@@ -830,101 +968,173 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  animation: pulse-carnaval 2s ease-in-out infinite;
-  box-shadow: 0 0 20px rgba(255, 23, 68, 0.4);
+  animation: pulse 2s infinite;
+}
+
+/* Atenuantes */
+.atenuante-item {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  transition: 0.3s;
+}
+.atenuante-item:hover {
+  border-color: var(--carnaval-verde);
+}
+.atenuante-item label {
+  margin-left: 10px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.95em;
+}
+.atenuante-item input[type="checkbox"] {
+  accent-color: var(--carnaval-verde);
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Linhas Calculadas (Fiança, HP) */
+.calculated-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding-bottom: 5px;
+}
+.calculated-row label {
+  font-size: 0.95em;
+  color: var(--text-secondary);
+}
+.calculated-row input {
+  width: 45%;
+  text-align: right;
+  background-color: #000;
+  font-weight: bold;
+  border: 1px solid var(--carnaval-verde);
+  color: var(--carnaval-verde);
+}
+
+.calculated-row-radio {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding: 8px 0;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.1);
+}
+.radio-group {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+.radio-label {
+  margin-left: 6px !important;
+  cursor: pointer;
+  color: var(--text-primary) !important;
+  font-size: 0.95em;
+}
+input[type="radio"] {
+  accent-color: var(--carnaval-verde);
+  cursor: pointer;
+  transform: scale(1.1);
 }
 
 /* =========================================
-   11. BOTÕES DE AÇÃO
+   PARTE 2: BREAKDOWNS E MODAIS
    ========================================= */
+
+/* Fiança Breakdown (Estilo Premium) */
+.fianca-breakdown {
+  background-color: rgba(0, 255, 95, 0.05); /* Verde suave */
+  padding: 15px;
+  border-radius: 4px;
+  margin-top: 20px;
+  border-left: 4px solid var(--carnaval-verde);
+}
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed rgba(0, 255, 95, 0.2);
+  font-size: 0.9em;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+.breakdown-row:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.breakdown-row i {
+  margin-right: 8px;
+  width: 20px;
+  text-align: center;
+  color: var(--carnaval-verde);
+  opacity: 0.8;
+}
+.breakdown-row span:last-child {
+  font-weight: 700;
+  color: var(--ny-white);
+  font-size: 1.05em;
+  letter-spacing: 0.5px;
+}
+
+/* Botões de Ação */
 .action-buttons {
   display: flex;
   gap: 12px;
   margin-top: 25px;
 }
-
 .btn-action {
   flex: 1;
   padding: 14px;
-  border: none;
-  border-radius: 6px;
-  font-weight: 800;
+  border: 2px solid;
+  border-radius: 4px;
+  font-weight: 900;
   cursor: pointer;
-  transition: all 0.3s;
   text-transform: uppercase;
-  font-size: 0.9em;
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  position: relative;
-  overflow: hidden;
+  transition: all 0.2s;
+  font-family: "Alegreya Sans", sans-serif;
 }
 
 #btn-enviar {
-  background: linear-gradient(
-    135deg,
-    var(--carnaval-verde) 0%,
-    var(--carnaval-verde-bright) 100%
-  );
-  color: white;
-  box-shadow: 0 4px 15px rgba(0, 255, 95, 0.4);
+  background: linear-gradient(to bottom right, var(--carnaval-verde), #006b2e);
+  color: #fff;
+  border-color: var(--carnaval-verde);
+  box-shadow: 0 0 15px rgba(0, 255, 95, 0.4);
 }
-
-#btn-enviar::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  transition: left 0.5s;
-}
-
-#btn-enviar:hover::before {
-  left: 100%;
-}
-
 #btn-enviar:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 255, 95, 0.6);
   background: linear-gradient(
-    135deg,
-    var(--carnaval-verde-bright) 0%,
-    var(--carnaval-verde) 100%
+    to bottom right,
+    var(--carnaval-verde-bright),
+    var(--carnaval-verde)
   );
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(0, 255, 95, 0.7);
+  color: #fff;
 }
 
 .btn-limpar {
-  background: linear-gradient(
-    135deg,
-    var(--carnaval-bg-header) 0%,
-    var(--carnaval-bg-card) 100%
-  );
-  color: var(--text-primary);
-  border: 2px solid var(--border-color);
+  background-color: #111;
+  color: #888;
+  border-color: #333;
 }
-
 .btn-limpar:hover {
-  background: linear-gradient(
-    135deg,
-    var(--color-danger) 0%,
-    #ff6b6b 100%
-  );
+  background-color: var(--color-danger);
   border-color: var(--color-danger);
   color: white;
-  box-shadow: 0 4px 15px rgba(255, 23, 68, 0.4);
+  transform: translateY(-2px);
 }
 
 /* =========================================
-   12. MODAL DE CONFIRMAÇÃO
+   9. MODAL DE CONFIRMAÇÃO (VIP)
    ========================================= */
 .modal-overlay {
   position: fixed;
@@ -933,88 +1143,568 @@ textarea {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.9);
-  z-index: 1000;
+  backdrop-filter: blur(8px);
+  z-index: 99999;
   display: flex;
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(5px);
+  padding: 20px;
 }
 
+/* Modais flexíveis */
+#modal-confirmacao,
+#modal-patch-notes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+}
+
+/* Conteúdo do Modal */
+.modal-box,
 .modal-content {
-  background: linear-gradient(
-    135deg,
-    var(--carnaval-bg-card) 0%,
-    var(--carnaval-bg-header) 100%
-  );
-  width: 90%;
+  background: var(--carnaval-card-bg);
+  width: 100%;
   max-width: 600px;
-  max-height: 90vh;
-  border-radius: 12px;
+  border-radius: 4px;
   border: 2px solid var(--carnaval-verde);
+  box-shadow: 0 0 80px rgba(0, 0, 0, 1);
   display: flex;
   flex-direction: column;
-  box-shadow: 
-    0 10px 40px rgba(0, 151, 57, 0.4),
-    inset 0 0 30px rgba(0, 0, 0, 0.5);
-  position: relative;
-  overflow: hidden;
-}
-
-.modal-content::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(
-    90deg,
-    var(--carnaval-verde) 0%,
-    var(--carnaval-amarelo) 50%,
-    var(--carnaval-verde) 100%
-  );
-  background-size: 200% 100%;
-  animation: gradient-shift 3s ease infinite;
+  max-height: 90vh;
 }
 
 .modal-header {
-  padding: 15px 20px;
-  background: linear-gradient(
-    135deg,
-    rgba(0, 151, 57, 0.2) 0%,
-    rgba(254, 223, 0, 0.1) 100%
-  );
+  padding: 20px;
+  background: #000;
   border-bottom: 2px solid var(--carnaval-verde);
-  border-radius: 12px 12px 0 0;
   text-align: center;
-  color: #fff;
+  color: var(--carnaval-verde);
+  font-size: 1.3em;
+  font-weight: bold;
+}
+.modal-header h3::before,
+.modal-header h3::after {
+  content: "🎉";
+  margin: 0 10px;
 }
 
 .modal-body {
-  padding: 20px;
+  padding: 25px;
   overflow-y: auto;
+  color: #e2e8f0;
+}
+
+.conf-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+.conf-group {
+  margin-bottom: 10px;
+}
+.half {
+  flex: 1;
+}
+.conf-group label {
+  font-size: 0.85em;
+  color: var(--carnaval-verde);
+  font-weight: bold;
+}
+.conf-value {
+  font-size: 1em;
+  color: var(--ny-white);
+  padding: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
+.conf-list {
+  list-style: none;
+}
+.conf-list li {
+  border-bottom: 1px dashed #444;
+  padding: 5px 0;
+}
+.conf-list li::before {
+  content: "🎊 ";
+  margin-right: 5px;
+}
+.img-wrapper img {
+  border: 1px solid var(--carnaval-verde);
+  border-radius: 2px;
+}
+
+.modal-footer {
+  padding: 20px;
+  border-top: 1px solid var(--carnaval-verde);
+  background: #000;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+.btn-cancelar {
+  background: #222;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 10px 20px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.btn-confirmar {
+  background: var(--carnaval-verde);
+  color: #fff;
+  border: none;
+  padding: 10px 30px;
+  border-radius: 2px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(0, 255, 95, 0.5);
+}
+.btn-confirmar:hover {
+  background: var(--carnaval-verde-bright);
+  box-shadow: 0 0 25px rgba(0, 255, 95, 0.8);
+}
+
+/* =========================================
+   10. PATCH NOTES E UTILS
+   ========================================= */
+.patch-notes-container {
+  margin-top: 25px;
+  background-color: rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--carnaval-verde);
+  border-radius: 4px;
+  width: 100%;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
   color: #ddd;
-  font-size: 0.95rem;
-}
-
-.confirm-section {
-  margin-bottom: 15px;
-}
-
-.confirm-section h4 {
-  background: linear-gradient(
-    90deg,
-    var(--carnaval-verde) 0%,
-    var(--carnaval-amarelo) 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 5px;
   font-size: 0.9rem;
+  text-align: left;
+  backdrop-filter: blur(5px);
+}
+.patch-header {
+  background-color: #000;
+  padding: 10px 15px;
+  font-weight: bold;
+  border-bottom: 1px solid var(--carnaval-verde);
+  color: var(--carnaval-verde);
   text-transform: uppercase;
 }
+.patch-scroll-area {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 10px;
+}
+.patch-entry {
+  margin-bottom: 15px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+}
+.patch-entry:last-child {
+  border-bottom: none;
+}
+.patch-title {
+  color: var(--text-secondary);
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8em;
+}
+.version {
+  color: var(--carnaval-verde);
+  font-weight: bold;
+}
 
+#patch-notes-content ul {
+  list-style: none;
+  padding: 0;
+}
+#patch-notes-content li {
+  background: rgba(255, 255, 255, 0.02);
+  margin-bottom: 8px;
+  padding: 10px;
+  border-left: 3px solid var(--carnaval-verde);
+  border-radius: 2px;
+}
+#patch-notes-content h4 {
+  color: var(--carnaval-verde);
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 5px;
+}
+#btn-fechar-patch {
+  background: #111 !important;
+  border: 1px solid var(--carnaval-verde) !important;
+  color: var(--carnaval-verde) !important;
+  padding: 12px 35px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-weight: bold;
+}
+#btn-fechar-patch:hover {
+  background: var(--carnaval-verde) !important;
+  color: #fff !important;
+}
+
+/* =========================================
+   ALERTAS TOAST (REDESIGN CARNAVAL 🎉)
+   ========================================= */
+
+.custom-alert {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 320px;
+  max-width: 450px;
+  padding: 20px 25px;
+
+  /* EFEITO DE VIDRO ESCURO */
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(12px);
+
+  /* Borda e Sombra Verde */
+  border-radius: 4px;
+  border: 1px solid rgba(0, 255, 95, 0.2);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+
+  color: var(--ny-white);
+  z-index: 100000;
+
+  animation: alertSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards,
+    alertFadeOut 0.5s forwards 4.5s;
+  overflow: hidden;
+}
+
+.custom-alert i {
+  font-size: 28px;
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+.alert-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alert-title {
+  font-family: "Alegreya Sans", sans-serif;
+  font-weight: 900;
+  font-size: 1.1em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.alert-msg {
+  font-size: 0.95em;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+/* --- ESTILO DE ERRO --- */
+.custom-alert.error {
+  border-left: 4px solid var(--color-danger);
+  box-shadow: 0 0 20px rgba(255, 62, 62, 0.2);
+}
+.custom-alert.error i,
+.custom-alert.error .alert-title {
+  color: var(--color-danger);
+}
+
+/* --- ESTILO DE SUCESSO (VERDE) --- */
+.custom-alert.success {
+  border-left: 4px solid var(--carnaval-verde);
+  box-shadow: 0 0 20px rgba(0, 255, 95, 0.2);
+}
+.custom-alert.success i,
+.custom-alert.success .alert-title {
+  color: var(--carnaval-verde);
+}
+
+/* Animações */
+@keyframes alertSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes alertFadeOut {
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px var(--color-danger);
+  }
+  50% {
+    box-shadow: 0 0 25px var(--color-danger), 0 0 35px var(--color-danger);
+  }
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+  .main-content {
+    grid-template-columns: 60% 40%;
+  }
+}
+@media (max-width: 1000px) {
+  .dados-preso-container,
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+  .resumo-sentenca {
+    position: relative;
+    top: 0;
+  }
+}
+
+#app-content {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  opacity: 1;
+  transition: opacity 0.3s ease-in;
+}
+#user-avatar {
+  display: block;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #333;
+  border: 1px solid var(--carnaval-verde);
+}
+#input-dinheiro-sujo {
+  font-weight: bold;
+  color: var(--carnaval-verde) !important;
+  width: 60%;
+}
+
+.badge-area {
+  display: flex;
+  gap: 12px;
+}
+
+.badge {
+  height: 50px;
+  transition: transform 0.2s;
+}
+.badge:hover {
+  transform: scale(1.1);
+}
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.btn-small {
+  background-color: #222;
+  color: var(--carnaval-verde);
+  border: 1px solid var(--carnaval-verde);
+  padding: 0 15px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-small:hover {
+  background-color: var(--carnaval-verde);
+  color: #fff;
+}
+
+/* =========================================
+   9. UTILITÁRIOS
+   ========================================= */
+.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* =========================================
+   PLAYER DE MÚSICA ESTILO SPOTIFY (CARNAVAL)
+   ========================================= */
+.spotify-player-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(10, 10, 12, 0.95);
+  border: 1px solid var(--carnaval-verde);
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+  max-width: 350px;
+  transition: all 0.3s ease;
+}
+
+/* Efeito de Confetes no Player */
+.spotify-player-container::after {
+  content: "🎊";
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  color: var(--carnaval-amarelo);
+  font-size: 14px;
+  animation: confettiBounce 3s infinite;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+@keyframes confettiBounce {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-20px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.spotify-player-container:hover {
+  box-shadow: 0 0 25px rgba(0, 255, 95, 0.3);
+  border-color: var(--carnaval-verde-bright);
+}
+
+/* Capa do Álbum (Vinil Giratório) */
+.spotify-img-wrapper {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #111;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+  position: relative;
+}
+
+/* Brilho do Vinil */
+.spotify-img-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 15px;
+  height: 15px;
+  background: #000;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--carnaval-verde);
+  z-index: 1;
+}
+
+.spotify-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: rotateVinyl 8s linear infinite;
+}
+
+@keyframes rotateVinyl {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Informações da Faixa */
+.spotify-track-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  flex-grow: 1;
+  min-width: 120px;
+}
+
+.track-title {
+  color: var(--carnaval-verde);
+  font-weight: 700;
+  font-size: 0.95em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+
+.track-artist {
+  color: var(--text-secondary);
+  font-size: 0.75em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Controles */
+.spotify-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-btn:hover {
+  color: var(--carnaval-verde);
+  text-shadow: 0 0 5px var(--carnaval-verde);
+}
+
+.control-btn:active {
+  transform: scale(0.95);
+}
+
+.control-btn.small {
+  font-size: 1.2em;
+}
+
+/* Botão Play Principal */
+.play-btn-main {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--carnaval-verde);
+  color: #fff;
+  font-size: 1.2em;
+  box-shadow: 0 0 10px rgba(0, 255, 95, 0.4);
+}
+
+.play-btn-main:hover {
+  transform: scale(1.1);
+  background-color: var(--carnaval-verde-bright);
+  color: #fff;
+}
+
+/* Confirm Images no Modal */
 .confirm-imgs {
   display: flex;
   gap: 10px;
@@ -1047,241 +1737,74 @@ textarea {
   color: var(--text-secondary);
 }
 
-.modal-footer {
-  padding: 15px;
-  border-top: 2px solid var(--carnaval-verde);
+.confirm-section {
+  margin-bottom: 15px;
+}
+
+.confirm-section h4 {
+  background: linear-gradient(
+    90deg,
+    var(--carnaval-verde) 0%,
+    var(--carnaval-amarelo) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.confirm-row {
   display: flex;
   gap: 10px;
-  justify-content: flex-end;
-  background: linear-gradient(
-    135deg,
-    rgba(0, 151, 57, 0.1) 0%,
-    rgba(26, 26, 46, 0.3) 100%
-  );
-  border-radius: 0 0 12px 12px;
 }
 
-.btn-cancelar {
-  background: linear-gradient(
-    135deg,
-    var(--carnaval-bg-header) 0%,
-    var(--carnaval-bg-card) 100%
-  );
-  color: #fff;
-  border: 2px solid var(--border-color);
-  padding: 10px 20px;
+.confirm-section.half {
+  flex: 1;
+}
+
+.info-text {
+  background: #151520;
+  padding: 8px;
   border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s;
+  border: 1px solid #333;
 }
 
-.btn-cancelar:hover {
-  border-color: var(--carnaval-verde);
-  box-shadow: 0 4px 10px rgba(0, 255, 95, 0.3);
-}
-
-.btn-confirmar {
-  background: linear-gradient(
-    135deg,
-    var(--carnaval-verde) 0%,
-    var(--carnaval-verde-bright) 100%
-  );
+.info-text.highlight {
   color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
   font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 15px rgba(0, 255, 95, 0.4);
-}
-
-.btn-confirmar:hover {
-  background: linear-gradient(
-    135deg,
-    var(--carnaval-verde-bright) 0%,
-    var(--carnaval-verde) 100%
-  );
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 255, 95, 0.6);
-}
-
-/* =========================================
-   13. ALERTAS TOAST
-   ========================================= */
-.custom-alert {
-  position: fixed;
-  top: 25px;
-  right: 25px;
-  background: linear-gradient(
-    135deg,
-    var(--carnaval-bg-card) 0%,
-    var(--carnaval-bg-header) 100%
-  );
-  padding: 18px 25px;
-  border-radius: 8px;
-  box-shadow: 
-    0 8px 30px rgba(0, 0, 0, 0.6),
-    0 0 20px rgba(0, 255, 95, 0.3);
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  z-index: 9999;
-  border-left: 6px solid;
-  animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
-    fadeOut 0.5s forwards 4s;
-  color: white;
-}
-
-.custom-alert.error {
-  border-color: var(--color-danger);
-  box-shadow: 
-    0 8px 30px rgba(0, 0, 0, 0.6),
-    0 0 20px rgba(255, 23, 68, 0.4);
-}
-
-.custom-alert.error i {
-  color: var(--color-danger);
-  font-size: 1.5em;
-  filter: drop-shadow(0 0 5px var(--color-danger));
-}
-
-.custom-alert.success {
   border-color: var(--carnaval-verde);
-  box-shadow: 
-    0 8px 30px rgba(0, 0, 0, 0.6),
-    0 0 20px rgba(0, 255, 95, 0.4);
 }
 
-.custom-alert.success i {
-  color: var(--carnaval-verde-bright);
-  font-size: 1.5em;
-  filter: drop-shadow(0 0 5px var(--carnaval-verde-bright));
+.confirm-list {
+  list-style: none;
+  padding: 0;
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateX(120%);
+.confirm-list li {
+  padding: 4px 0;
+  border-bottom: 1px solid #333;
+  font-size: 0.85rem;
+}
+
+/* Responsividade do Player */
+@media screen and (max-width: 1450px), screen and (max-height: 800px) {
+  .spotify-player-container {
+    max-width: 280px;
+    padding: 10px;
   }
-  to {
-    transform: translateX(0);
+
+  .spotify-img-wrapper {
+    width: 50px;
+    height: 50px;
   }
-}
 
-@keyframes fadeOut {
-  to {
-    opacity: 0;
-    transform: translateY(-15px);
+  .track-title {
+    font-size: 0.8rem;
   }
-}
 
-/* =========================================
-   14. RESPONSIVIDADE
-   ========================================= */
-@media (max-width: 1200px) {
-  .main-content {
-    grid-template-columns: 60% 40%;
+  .track-artist {
+    font-size: 0.7rem;
   }
-}
-
-@media (max-width: 1000px) {
-  .dados-preso-container {
-    grid-template-columns: 1fr;
-  }
-  .main-content {
-    grid-template-columns: 1fr;
-  }
-  .crimes-list {
-    grid-template-columns: 1fr;
-  }
-  .resumo-sentenca {
-    position: relative;
-    top: 0;
-  }
-}
-
-/* =========================================
-   15. UTILITÁRIOS
-   ========================================= */
-.hidden {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-}
-
-/* Efeito especial para elementos com fiança */
-#container-radio-fianca {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 151, 57, 0.2) 0%,
-    rgba(254, 223, 0, 0.1) 100%
-  ) !important;
-  border: 2px solid var(--carnaval-verde) !important;
-  box-shadow: 0 0 15px rgba(0, 255, 95, 0.3) !important;
-  animation: pulse-carnaval 3s ease-in-out infinite;
-}
-
-/* Player de música estilo carnaval */
-.spotify-player-container {
-  background: linear-gradient(
-    135deg,
-    var(--carnaval-bg-card) 0%,
-    var(--carnaval-bg-header) 100%
-  );
-  border: 2px solid var(--carnaval-verde);
-  box-shadow: 0 4px 15px rgba(0, 151, 57, 0.3);
-}
-
-/* =========================================
-   16. EFEITOS ESPECIAIS CARNAVAL
-   ========================================= */
-
-/* Efeito de brilho nos botões */
-.btn-small,
-.btn-action {
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-small::after,
-.btn-action::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.btn-small:active::after,
-.btn-action:active::after {
-  width: 300px;
-  height: 300px;
-}
-
-/* Animação de shake em elementos importantes */
-@keyframes shake-important {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
-  20%, 40%, 60%, 80% { transform: translateX(3px); }
-}
-
-/* Efeito de confete em elementos de sucesso */
-.success-confetti {
-  position: relative;
-}
-
-.success-confetti::before {
-  content: "🎉";
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 2em;
-  animation: confetti-fall 2s ease-out;
-  pointer-events: none;
 }
