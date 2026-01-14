@@ -1355,3 +1355,151 @@ input[type="radio"] {
 #modal-patch-notes .modal-body::-webkit-scrollbar-thumb:hover {
   background-color: var(--color-secondary, #777);
 }
+
+/* =========================================
+   11. PLAYER DE MÚSICA ESTILO SPOTIFY
+   ========================================= */
+.spotify-player-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(19, 27, 38, 0.95);
+  border: 1px solid var(--color-revoada);
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+  max-width: 350px;
+  transition: all 0.3s ease;
+}
+
+.spotify-player-container:hover {
+  box-shadow: 0 0 25px rgba(0, 86, 179, 0.3);
+  border-color: var(--color-revoada-light);
+}
+
+/* Capa do Álbum (Vinil Giratório) */
+.spotify-img-wrapper {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #111;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+  position: relative;
+}
+
+/* Brilho do Vinil */
+.spotify-img-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 15px;
+  height: 15px;
+  background: #000;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--color-revoada);
+  z-index: 1;
+}
+
+.spotify-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: rotateVinyl 8s linear infinite;
+}
+
+@keyframes rotateVinyl {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Informações da Faixa */
+.spotify-track-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  flex-grow: 1;
+  min-width: 120px;
+}
+
+.track-title {
+  color: var(--color-revoada);
+  font-weight: 700;
+  font-size: 0.95em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+
+.track-artist {
+  color: var(--text-secondary);
+  font-size: 0.75em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Controles */
+.spotify-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+}
+
+.control-btn:hover {
+  color: var(--text-primary);
+  text-shadow: 0 0 5px var(--color-revoada);
+}
+
+.control-btn:active {
+  transform: scale(0.95);
+}
+
+.control-btn.small {
+  font-size: 1.2em;
+}
+
+/* Botão Play Principal */
+.play-btn-main {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--color-revoada);
+  color: #fff;
+  font-size: 1.2em;
+  box-shadow: 0 0 10px rgba(0, 86, 179, 0.4);
+}
+
+.play-btn-main:hover {
+  transform: scale(1.1);
+  background-color: var(--color-revoada-light);
+  color: #fff;
+}
