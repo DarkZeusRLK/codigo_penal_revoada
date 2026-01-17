@@ -533,6 +533,26 @@ input[type="file"] {
   font-size: 0.8em;
   color: var(--text-secondary);
 }
+.btn-escolher-arquivo {
+  background-color: rgba(212, 175, 55, 0.2);
+  border: 1px solid var(--ny-gold);
+  color: var(--ny-gold);
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  margin-top: 8px;
+  width: 100%;
+}
+.btn-escolher-arquivo:hover {
+  background-color: var(--ny-gold);
+  color: #000;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
 
 /* =========================================
    6. PESQUISA E DROPDOWN
@@ -1116,6 +1136,84 @@ input[type="radio"] {
   content: "🎆 ";
   margin-right: 5px;
 }
+.confirm-section {
+  margin-bottom: 20px;
+}
+.confirm-section h4 {
+  color: var(--ny-gold);
+  margin-bottom: 10px;
+  font-size: 0.95em;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  padding-bottom: 5px;
+}
+.info-text {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 10px 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: var(--text-primary);
+  font-size: 0.95em;
+  line-height: 1.5;
+}
+.info-text.highlight {
+  color: var(--ny-gold);
+  font-weight: 700;
+  border-color: var(--ny-gold);
+  background: rgba(212, 175, 55, 0.1);
+}
+.confirm-imgs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 10px;
+}
+.conf-img-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+.conf-img-box small {
+  color: var(--ny-gold);
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.conf-img-box img {
+  width: 100%;
+  max-width: 250px;
+  height: auto;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 4px;
+  border: 2px solid var(--ny-gold);
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+}
+.crimes-detail {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  max-height: 200px;
+  overflow-y: auto;
+}
+.crimes-detail .crime-item {
+  padding: 6px 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  font-size: 0.9em;
+  color: var(--text-primary);
+}
+.crimes-detail .crime-item:last-child {
+  border-bottom: none;
+}
 .img-wrapper img {
   border: 1px solid var(--ny-gold);
   border-radius: 2px;
@@ -1427,6 +1525,65 @@ input[type="radio"] {
   backdrop-filter: blur(10px);
   max-width: 350px;
   transition: all 0.3s ease;
+  cursor: grab;
+  user-select: none;
+}
+.spotify-player-container:active {
+  cursor: grabbing;
+}
+.spotify-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+.btn-minimize {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--ny-gold);
+  color: var(--ny-gold);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.8em;
+  transition: all 0.2s;
+  z-index: 10;
+}
+.btn-minimize:hover {
+  background: var(--ny-gold);
+  color: #000;
+  transform: scale(1.1);
+}
+.btn-restore {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(10, 10, 12, 0.95);
+  border: 1px solid var(--ny-gold);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ny-gold);
+  font-size: 1.5em;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  transition: all 0.3s ease;
+}
+.btn-restore:hover {
+  background: var(--ny-gold);
+  color: #000;
+  transform: scale(1.1);
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
 }
 
 /* Efeito de Bolhas de Champagne no Player */

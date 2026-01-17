@@ -191,6 +191,116 @@ document.addEventListener("DOMContentLoaded", function () {
     audioEl.addEventListener("ended", nextTrack);
   }
 
+  // Funcionalidade de arrastar e minimizar o player Spotify
+  const spotifyPlayer = document.getElementById("spotify-player");
+  const btnMinimize = document.getElementById("btn-minimize-spotify");
+  const btnRestore = document.getElementById("btn-restore-spotify");
+
+  if (spotifyPlayer) {
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+
+    // Carrega posição salva do localStorage
+    const savedPos = localStorage.getItem("spotify-player-position");
+    if (savedPos) {
+      const pos = JSON.parse(savedPos);
+      spotifyPlayer.style.left = pos.x + "px";
+      spotifyPlayer.style.top = pos.y + "px";
+      spotifyPlayer.style.right = "auto";
+      spotifyPlayer.style.bottom = "auto";
+      xOffset = pos.x - (window.innerWidth - spotifyPlayer.offsetWidth - 20);
+      yOffset = pos.y - (window.innerHeight - spotifyPlayer.offsetHeight - 20);
+    }
+
+    // Função para salvar posição
+    function savePosition() {
+      const rect = spotifyPlayer.getBoundingClientRect();
+      const pos = {
+        x: rect.left,
+        y: rect.top
+      };
+      localStorage.setItem("spotify-player-position", JSON.stringify(pos));
+    }
+
+    // Mouse down no player
+    spotifyPlayer.addEventListener("mousedown", function(e) {
+      if (e.target === btnMinimize || e.target.closest('.spotify-controls') || 
+          e.target.closest('.spotify-track-info') || e.target.closest('.spotify-img-wrapper')) {
+        return; // Não arrasta se clicar nos controles
+      }
+      initialX = e.clientX - xOffset;
+      initialY = e.clientY - yOffset;
+
+      if (e.target === spotifyPlayer || e.target.closest('.spotify-content')) {
+        isDragging = true;
+        spotifyPlayer.style.cursor = "grabbing";
+      }
+    });
+
+    // Mouse move
+    document.addEventListener("mousemove", function(e) {
+      if (isDragging) {
+        e.preventDefault();
+        currentX = e.clientX - initialX;
+        currentY = e.clientY - initialY;
+
+        xOffset = currentX;
+        yOffset = currentY;
+
+        // Limita dentro da tela
+        const maxX = window.innerWidth - spotifyPlayer.offsetWidth;
+        const maxY = window.innerHeight - spotifyPlayer.offsetHeight;
+        
+        currentX = Math.max(0, Math.min(currentX, maxX));
+        currentY = Math.max(0, Math.min(currentY, maxY));
+
+        spotifyPlayer.style.left = currentX + "px";
+        spotifyPlayer.style.top = currentY + "px";
+        spotifyPlayer.style.right = "auto";
+        spotifyPlayer.style.bottom = "auto";
+      }
+    });
+
+    // Mouse up
+    document.addEventListener("mouseup", function() {
+      if (isDragging) {
+        isDragging = false;
+        spotifyPlayer.style.cursor = "grab";
+        savePosition();
+      }
+    });
+
+    // Botão minimizar
+    if (btnMinimize) {
+      btnMinimize.addEventListener("click", function(e) {
+        e.stopPropagation();
+        spotifyPlayer.classList.add("hidden");
+        if (btnRestore) btnRestore.classList.remove("hidden");
+        localStorage.setItem("spotify-player-minimized", "true");
+      });
+    }
+
+    // Botão restaurar
+    if (btnRestore) {
+      btnRestore.addEventListener("click", function() {
+        spotifyPlayer.classList.remove("hidden");
+        btnRestore.classList.add("hidden");
+        localStorage.setItem("spotify-player-minimized", "false");
+      });
+
+      // Verifica se estava minimizado
+      if (localStorage.getItem("spotify-player-minimized") === "true") {
+        spotifyPlayer.classList.add("hidden");
+        btnRestore.classList.remove("hidden");
+      }
+    }
+  }
+
   // =========================================================
   // 3. UTILITÁRIOS (ALERTAS)
   // =========================================================
@@ -819,9 +929,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!box || !input) return;
 
-    box.addEventListener("click", function (e) {
-      if (e.target !== input && e.target.tagName !== "LABEL") input.click();
+    // Remove o clique simples - só abre no duplo clique ou botão
+    box.addEventListener("dblclick", function (e) {
+      if (e.target !== input && e.target.tagName !== "LABEL" && !e.target.closest(".btn-escolher-arquivo")) {
+        input.click();
+      }
     });
+
+    // Botão "Escolher Arquivo"
+    var btnEscolher = box.querySelector('.btn-escolher-arquivo');
+    if (btnEscolher) {
+      btnEscolher.addEventListener("click", function(e) {
+        e.stopPropagation();
+        input.click();
+      });
+    }
 
     box.addEventListener("paste", function (e) {
       if (e.clipboardData && e.clipboardData.items) {
@@ -945,20 +1067,44 @@ document.addEventListener("DOMContentLoaded", function () {
           : "");
       document.getElementById("conf-preso").textContent =
         nomePreso + " (RG: " + document.getElementById("rg").value + ")";
+      
+      var advogadoValue = document.getElementById("advogado").value;
+      document.getElementById("conf-advogado").textContent = advogadoValue || "Nenhum";
+      
       document.getElementById("conf-sentenca").textContent =
-        penaTotalEl.textContent;
+        "Pena: " + penaTotalEl.textContent;
       document.getElementById("conf-multa").textContent =
-        multaTotalEl.textContent;
+        "Multa: " + multaTotalEl.textContent;
 
       var pagouFianca = document.getElementById("fianca-sim").checked;
-      var ulCrimes = document.getElementById("conf-crimes");
-      ulCrimes.innerHTML = "";
+      var fiancaOutput = document.getElementById("fianca-output").value;
+      document.getElementById("conf-fianca").textContent = fiancaOutput || "Não se aplica";
+
+      // Crimes detalhados
+      var crimesDetail = document.getElementById("conf-crimes-detail");
+      crimesDetail.innerHTML = "";
       selectedCrimes.forEach((c) => {
-        var li = document.createElement("li");
-        li.textContent = c.nome;
-        ulCrimes.appendChild(li);
+        var div = document.createElement("div");
+        div.className = "crime-item";
+        div.textContent = c.nome.replace(/\*\*/g, "");
+        crimesDetail.appendChild(div);
       });
 
+      // Itens apreendidos
+      var itensApreendidos = document.getElementById("itens-apreendidos").value;
+      document.getElementById("conf-itens").textContent = itensApreendidos || "Nenhum";
+
+      // Dinheiro sujo
+      var dinheiroSujoValue = inputDinheiroSujo.value;
+      var dinheiroSujoSection = document.getElementById("conf-dinheiro-sujo-section");
+      if (dinheiroSujoValue) {
+        document.getElementById("conf-dinheiro-sujo").textContent = "R$ " + dinheiroSujoValue;
+        dinheiroSujoSection.classList.remove("hidden");
+      } else {
+        dinheiroSujoSection.classList.add("hidden");
+      }
+
+      // Detalhes/Atenuantes
       var ulDetalhes = document.getElementById("conf-detalhes");
       ulDetalhes.innerHTML = "";
       checkboxes.forEach((cb) => {
@@ -971,7 +1117,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
-      if (hpSimBtn.checked) {
+      if (hpSimBtn && hpSimBtn.checked && inputHpMinutos && inputHpMinutos.value) {
         var li = document.createElement("li");
         li.innerHTML = `🏥 Reanimado no HP (-${inputHpMinutos.value}m)`;
         ulDetalhes.appendChild(li);
@@ -979,8 +1125,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       var liFianca = document.createElement("li");
       liFianca.innerHTML = pagouFianca
-        ? `<b style="color:var(--color-success)">PAGOU FIANÇA</b>`
-        : `<b style="color:#ef4444">NÃO PAGOU FIANÇA</b>`;
+        ? `<b style="color:var(--color-success)">✅ PAGOU FIANÇA</b>`
+        : `<b style="color:#ef4444">❌ NÃO PAGOU FIANÇA</b>`;
       ulDetalhes.appendChild(liFianca);
 
       // Imagens Modal
@@ -998,6 +1144,17 @@ document.addEventListener("DOMContentLoaded", function () {
         boxConfDep.classList.remove("hidden");
       } else {
         boxConfDep.classList.add("hidden");
+      }
+
+      // Foto extra
+      var boxConfExtra = document.getElementById("box-conf-extra");
+      if (document.getElementById("img-preview-extra").src && 
+          !document.getElementById("img-preview-extra").classList.contains("hidden")) {
+        document.getElementById("conf-img-extra").src =
+          document.getElementById("img-preview-extra").src;
+        boxConfExtra.classList.remove("hidden");
+      } else {
+        boxConfExtra.classList.add("hidden");
       }
 
       modalConf.classList.remove("hidden");
@@ -1125,6 +1282,13 @@ document.addEventListener("DOMContentLoaded", function () {
                   inline: true,
                 },
                 { name: "📝 Detalhes", value: atenuantesTexto },
+                {
+                  name: "🏥 Reanimação no HP",
+                  value: hpSimBtn && hpSimBtn.checked && inputHpMinutos && inputHpMinutos.value
+                    ? `Sim - Desconto de ${inputHpMinutos.value} minutos`
+                    : "Não",
+                  inline: true,
+                },
               ],
               footer: {
                 text:

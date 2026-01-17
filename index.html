@@ -26,32 +26,42 @@
     </div>
   </div>
 
-  <div class="spotify-player-container">
+  <div class="spotify-player-container" id="spotify-player">
     <audio id="bg-music" preload="auto"></audio>
+    
+    <button id="btn-minimize-spotify" class="btn-minimize" title="Minimizar">
+      <i class="fa-solid fa-times"></i>
+    </button>
 
-    <div class="spotify-img-wrapper">
-      <img id="player-cover" src="Imagens/placeholder_cover.jpg" alt="Capa do Álbum">
-    </div>
+    <div class="spotify-content">
+      <div class="spotify-img-wrapper">
+        <img id="player-cover" src="Imagens/placeholder_cover.jpg" alt="Capa do Álbum">
+      </div>
 
-    <div class="spotify-track-info">
-      <span id="player-title" class="track-title">Selecione uma música</span>
-      <span id="player-artist" class="track-artist">Sistema Revoada</span>
-    </div>
+      <div class="spotify-track-info">
+        <span id="player-title" class="track-title">Selecione uma música</span>
+        <span id="player-artist" class="track-artist">Sistema Revoada</span>
+      </div>
 
-    <div class="spotify-controls">
-      <button id="btn-prev" class="control-btn small" title="Anterior">
-        <i class="fa-solid fa-backward-step"></i>
-      </button>
+      <div class="spotify-controls">
+        <button id="btn-prev" class="control-btn small" title="Anterior">
+          <i class="fa-solid fa-backward-step"></i>
+        </button>
 
-      <button id="btn-play-pause" class="control-btn play-btn-main" title="Tocar/Pausar">
-        <i class="fa-solid fa-play"></i>
-      </button>
+        <button id="btn-play-pause" class="control-btn play-btn-main" title="Tocar/Pausar">
+          <i class="fa-solid fa-play"></i>
+        </button>
 
-      <button id="btn-next" class="control-btn small" title="Próximo">
-        <i class="fa-solid fa-forward-step"></i>
-      </button>
+        <button id="btn-next" class="control-btn small" title="Próximo">
+          <i class="fa-solid fa-forward-step"></i>
+        </button>
+      </div>
     </div>
   </div>
+
+  <button id="btn-restore-spotify" class="btn-restore hidden" title="Restaurar Player">
+    <i class="fa-brands fa-spotify"></i>
+  </button>
 
   <div class="container">
 
@@ -118,43 +128,48 @@
       <div class="upload-section">
         <div class="upload-box" id="box-upload-preso" tabindex="0">
           <label>📸 Foto Preso (Obrigatório)</label>
-          <p class="paste-hint"><i class="fa-regular fa-clipboard"></i> Clique e Ctrl+V</p>
+          <p class="paste-hint"><i class="fa-regular fa-clipboard"></i> Clique e Ctrl+V ou duplo clique</p>
           <div class="preview-area" id="preview-box-preso">
             <i class="fa-solid fa-user placeholder-icon"></i>
             <img id="img-preview-preso" class="hidden" src="">
           </div>
-          <input type="file" id="upload-preso" accept="image/*">
+          <button type="button" class="btn-escolher-arquivo" data-target="upload-preso">Escolher Arquivo</button>
+          <input type="file" id="upload-preso" accept="image/*" style="display: none;">
         </div>
 
         <div class="upload-box" id="box-upload-mochila" tabindex="0">
           <label>🎒 Inventário (Obrigatório)</label>
-          <p class="paste-hint"><i class="fa-regular fa-clipboard"></i> Clique e Ctrl+V</p>
+          <p class="paste-hint"><i class="fa-regular fa-clipboard"></i> Clique e Ctrl+V ou duplo clique</p>
           <div class="preview-area" id="preview-box-mochila">
             <i class="fa-solid fa-suitcase placeholder-icon"></i>
             <img id="img-preview-mochila" class="hidden" src="">
           </div>
-          <input type="file" id="upload-mochila" accept="image/*">
+          <button type="button" class="btn-escolher-arquivo" data-target="upload-mochila">Escolher Arquivo</button>
+          <input type="file" id="upload-mochila" accept="image/*" style="display: none;">
         </div>
 
         <div class="upload-box hidden" id="box-upload-deposito" tabindex="0" style="border-color: var(--color-success);">
           <label style="color: var(--color-success);">💸 Comprovante Fiança</label>
+          <p class="paste-hint"><i class="fa-regular fa-clipboard"></i> Clique e Ctrl+V ou duplo clique</p>
           <div class="preview-area" id="preview-box-deposito">
             <i class="fa-solid fa-receipt placeholder-icon" style="color: var(--color-success);"></i>
             <img id="img-preview-deposito" class="hidden" src="">
           </div>
-          <input type="file" id="upload-deposito" accept="image/*">
+          <button type="button" class="btn-escolher-arquivo" data-target="upload-deposito">Escolher Arquivo</button>
+          <input type="file" id="upload-deposito" accept="image/*" style="display: none;">
         </div>
 
         <button id="btn-show-extra" class="btn-small" style="align-self: center; padding: 10px;" title="Adicionar Foto Extra/Veículo"><i class="fa-solid fa-plus"></i> Adicionar outra Foto</button>
 
         <div class="upload-box hidden" id="box-upload-extra" tabindex="0" style="border-color: #f1c40f;">
           <label style="color: #f1c40f;">🚗 Extra / Porta-malas</label>
-          <p class="paste-hint"><i class="fa-regular fa-clipboard"></i> Clique e Ctrl+V</p>
+          <p class="paste-hint"><i class="fa-regular fa-clipboard"></i> Clique e Ctrl+V ou duplo clique</p>
           <div class="preview-area" id="preview-box-extra">
             <i class="fa-solid fa-camera placeholder-icon" style="color: #f1c40f;"></i>
             <img id="img-preview-extra" class="hidden" src="">
           </div>
-          <input type="file" id="upload-extra" accept="image/*">
+          <button type="button" class="btn-escolher-arquivo" data-target="upload-extra">Escolher Arquivo</button>
+          <input type="file" id="upload-extra" accept="image/*" style="display: none;">
         </div>
       </div>
     </section>
@@ -457,8 +472,13 @@
         </div>
 
         <div class="confirm-section">
+          <h4>💰 Fiança</h4>
+          <p id="conf-fianca" class="info-text highlight"></p>
+        </div>
+
+        <div class="confirm-section">
           <h4>📜 Crimes Selecionados</h4>
-          <ul id="conf-crimes" class="confirm-list"></ul>
+          <div id="conf-crimes-detail" class="crimes-detail"></div>
         </div>
 
         <div class="confirm-section">
@@ -467,11 +487,34 @@
         </div>
 
         <div class="confirm-section">
+          <h4>📦 Itens Apreendidos</h4>
+          <p id="conf-itens" class="info-text"></p>
+        </div>
+
+        <div id="conf-dinheiro-sujo-section" class="confirm-section hidden">
+          <h4>💸 Dinheiro Sujo</h4>
+          <p id="conf-dinheiro-sujo" class="info-text highlight"></p>
+        </div>
+
+        <div class="confirm-section">
           <h4>📷 Evidências</h4>
           <div class="confirm-imgs">
-            <div><small>Preso</small><img id="conf-img-preso" src=""></div>
-            <div><small>Inventário</small><img id="conf-img-mochila" src=""></div>
-            <div id="box-conf-deposito" class="hidden"><small>Depósito</small><img id="conf-img-deposito" src=""></div>
+            <div class="conf-img-box">
+              <small>👤 Foto do Preso</small>
+              <img id="conf-img-preso" src="" alt="Foto do Preso">
+            </div>
+            <div class="conf-img-box">
+              <small>🎒 Inventário</small>
+              <img id="conf-img-mochila" src="" alt="Inventário">
+            </div>
+            <div id="box-conf-deposito" class="conf-img-box hidden">
+              <small>💸 Comprovante de Fiança</small>
+              <img id="conf-img-deposito" src="" alt="Comprovante">
+            </div>
+            <div id="box-conf-extra" class="conf-img-box hidden">
+              <small>🚗 Foto Extra</small>
+              <img id="conf-img-extra" src="" alt="Foto Extra">
+            </div>
           </div>
         </div>
       </div>
