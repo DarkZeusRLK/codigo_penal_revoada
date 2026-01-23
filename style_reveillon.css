@@ -878,6 +878,25 @@ hr {
   animation: pulse 2s infinite;
 }
 
+.alert-inafiancavel {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 760px;
+  background: rgba(10, 10, 10, 0.95);
+  border: 1px solid var(--ny-gold);
+  color: var(--ny-gold-bright);
+  padding: 14px 18px;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(212, 175, 55, 0.2);
+  text-align: center;
+  font-weight: 700;
+  z-index: 20000;
+}
+
 /* Atenuantes */
 .atenuante-item {
   margin-bottom: 10px;

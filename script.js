@@ -545,6 +545,7 @@ document.addEventListener("DOMContentLoaded", function () {
   );
   var containerHp = document.getElementById("container-hp-minutos");
   var alertPenaMaxima = document.getElementById("alerta-pena-maxima");
+  var alertaInfiancavel = document.getElementById("alerta-inafiancavel");
 
   // Trava Primário vs Reincidente
   var chkPrimario = document.getElementById("atenuante-primario");
@@ -621,6 +622,10 @@ document.addEventListener("DOMContentLoaded", function () {
   var radioFiancaNao = document.getElementById("fianca-nao");
   var boxDeposito = document.getElementById("box-upload-deposito");
   var fiancaOutput = document.getElementById("fianca-output");
+
+    if (alertaInfiancavel) {
+      alertaInfiancavel.classList.toggle("hidden", !isInfiancavel);
+    }
 
     if (isInfiancavel) {
       fiancaOutput.value = "INAFIANÇÁVEL";
@@ -1330,6 +1335,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (response.ok) {
           mostrarAlerta("Relatório Enviado com Sucesso!", "success");
+          if (alertaInfiancavel) alertaInfiancavel.classList.add("hidden");
           setTimeout(() => location.reload(), 2000);
         } else {
           throw new Error("Erro no servidor: " + response.status);

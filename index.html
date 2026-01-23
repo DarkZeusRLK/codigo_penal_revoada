@@ -5,12 +5,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculadora Penal - REVOADA RJ</title>
-  <link rel="stylesheet" href="style_reveillon.css">
+  <link rel="stylesheet" href="style_carnaval.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="shortcut icon" href="Imagens/image.png" type="image/x-icon">
 </head>
 
 <body>
+  <div id="alerta-inafiancavel" class="alert-inafiancavel hidden" role="alert" aria-live="polite">
+    Independentemente do cidadÃ£o cometer um crime inafianÃ§avel ele sempre terÃ¡ direito ao advogado.
+  </div>
 
   <div id="login-screen" class="login-overlay">
     <div class="login-box">
@@ -28,7 +31,7 @@
 
   <div class="spotify-player-container" id="spotify-player">
     <audio id="bg-music" preload="auto"></audio>
-    
+
     <button id="btn-minimize-spotify" class="btn-minimize" title="Minimizar">
       <i class="fa-solid fa-times"></i>
     </button>
