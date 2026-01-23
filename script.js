@@ -869,7 +869,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   var dicaBox = document.getElementById("dicas-rotativas");
   if (dicaBox) {
+    if (localStorage.getItem("dicas_ocultas") === "1") {
+      dicaBox.classList.add("hidden");
+      return;
+    }
     var dicaText = dicaBox.querySelector(".dica-text");
+    var dicaClose = document.getElementById("btn-fechar-dica");
     var dicasRotativas = [
       "Lembre-se de que na foto do preso ele deve estar sem acessórios no rosto e com o RG junto.",
       "Lembre-se de escrever todos os itens que foram apreendidos.",
@@ -891,6 +896,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     atualizarDica();
     setInterval(atualizarDica, 25000);
+
+    if (dicaClose) {
+      dicaClose.addEventListener("click", function () {
+        dicaBox.classList.add("hidden");
+        localStorage.setItem("dicas_ocultas", "1");
+      });
+    }
   }
 
   // Trava Primário vs Reincidente
