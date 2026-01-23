@@ -718,6 +718,181 @@ document.addEventListener("DOMContentLoaded", function () {
   var alertPenaMaxima = document.getElementById("alerta-pena-maxima");
   var alertaInfiancavel = document.getElementById("alerta-inafiancavel");
 
+  var CRIME_TIPIFICACOES = {
+    "Tentativa de Homicídio":
+      "Quando um indivíduo tenta matar alguém mas não consegue (pinou, a polícia chegou, e etc).",
+    "Homicídio Culposo":
+      "Quando um indivíduo mata alguém sem intenção (sem querer - exemplo: queria atirar em um assaltante, pinou e acertou um cidadão de bem).",
+    "Homicídio Doloso": "Quando um indivíduo mata alguém de propósito.",
+    "Homicídio Doloso Qualificado":
+      "Quando um indivíduo mata utilizando meios cruéis (tortura/humilhação) ou que incapacitaram a vítima (algema, capuz).",
+    "Omissão de Socorro":
+      "Quando um indivíduo gera dano físico e foge sem prestar auxílio, empreendendo fuga ou ignorando a vítima.",
+    "Lesão Corporal":
+      "Quando um indivíduo gera dano físico a outro; a pessoa fica machucada, mas não morre.",
+    Sequestro: "Autoexplicativo.",
+    "Assédio Moral":
+      "Quando um indivíduo profere atitudes, gestos, palavras ou escritos que possam ferir a integridade física ou psíquica de outra pessoa.",
+    "Calúnia, Injúria ou Difamação":
+      "Quando alguém acusa outra pessoa de ter cometido um crime, ofende a honra, ou divulga informações mentirosas sobre essa pessoa.",
+    "Invasão de Propriedade":
+      "Quando alguém invade espaços, casas sem autorização (inclusive QRU de Roubo a Residência) ou entra locais proibidos (reserva de armamento).",
+    "Perturbação do Sossego Alheio":
+      "Quando um indivíduo está perturbando um local com carros de som e/ou atitudes que incomodam alguém (randolagem).",
+    Ameaça: "Autoexplicativo.",
+    Extorsão:
+      "Quando um indivíduo tenta chantagear outra pessoa com informações (falsas ou verdadeiras) a fim de obter benefício (ser solto da prisão, dinheiro, ou etc).",
+    "Agressão a Funcionário Público": "Bater em médicos, policiais, mecânicos e/ou advogados.",
+    "Falsidade Ideológica":
+      "Fingir ser alguém conhecido ou fingir ser de uma profissão (falar ou usar roupas). Exemplo: \"Sou o pinguim\" - \"Sou advogado\" - Usar farda da polícia.",
+    Prevaricação:
+      "Não realizar as obrigações da sua profissão (exemplos: um médico ignorar um corpo desmaiado, um policial ignorar um crime em andamento e etc).",
+    "Abuso de Autoridade":
+      "Utilizar seus poderes de forma inadequada ou excessiva e/ou aproveitar das suas funções para obter benefício próprio.",
+    "Falsa Comunicação de Crime": "Autoexplicativo.",
+    "Tentativa de Suborno":
+      "Oferecer dinheiro ou benefícios para que um policial descumpra seu dever (não prender alguém, fazer vista grossa em local de crime e etc).",
+    Desacato: "Ofender um funcionário público durante suas atribuições profissionais.",
+    Desobediência:
+      "Desobedecer uma ordem legal (descer do veículo, se aproximar da viatura, levantar a mão).",
+    "Obstrução de Justiça":
+      "Quando alguém tenta atrapalhar um procedimento policial (esconder um corpo ou veículo com itens ilegais, bater na QSV, atrapalhar a revista, etc).",
+    "Ocultação de Provas":
+      "Quando um indivíduo esconde itens ilícitos, veículos, corpos mortos e/ou dropá-los em local impossível a fim de dificultar o procedimento policial.",
+    "Resistência à Prisão":
+      "Quando alguém não coopera no procedimento prisional, age de forma agressiva, tenta fugir, corre algemado, tenta se esconder e etc.",
+    "Desmanche de Veículos":
+      "Tentar desmanchar um veículo, desmanchá-lo e/ou levá-lo para um local que realiza esse tipo de atividade.",
+    Roubo:
+      "Quando um indivíduo utiliza de violência ou grave ameaça para retirar algum item ou bem móvel de alguém.",
+    "Furto a Caixa Eletrônico": "Autoexplicativo.",
+    Furto:
+      "Quando um indivíduo tenta subtrair (retirar) algo de alguém sem utilizar de violência ou grave ameaça. Ou seja, pegar escondido, na miúda, ou sem alguém ver.",
+    "Receptação de Veículos":
+      "Quando um indivíduo é encontrado com um veículo que não é seu, e que ao ligar para o dono é noticiado o roubo ou furto.",
+    "Roubo de Veículos":
+      "Quando um indivíduo utiliza de violência ou grave ameaça para subtrair o veículo de outra pessoa.",
+    "Tentativa de Furto":
+      "Quando um indivíduo tenta pegar algo escondido, na miúda, ou sem alguém ver - mas é flagrado antes de conseguir.",
+    "Furto de Veículos":
+      "Quando um indivíduo aproveita-se de um descuido e leva o veículo de alguém sem utilizar de violência ou grave ameaça.",
+    "Dano a Patrimônio Público":
+      "Destruir ou danificar prédios, veículos ou bens públicos (bater em viaturas, quebrar postes de iluminação ou explodir postos de gasolina).",
+    "Atentado ao Pudor":
+      "Constranger, ameaçar ou praticar ato libidinoso, assediatório ou sexual (andar pelado, falar coisas pornográficas ou induzir cunhos sexualizados à algo).",
+    "Formação de Quadrilha":
+      "Quando 3 ou mais pessoas estão reunidas para execução de ato(s) criminoso(s) ou ilegal(is).",
+    "Associação Criminosa":
+      "Quando 3 ou mais pessoas estão reunidas para execução de ato(s) criminoso(s) ou ilegal(is).",
+    "Apologia ao Crime":
+      "Realizar venda de itens ilegais na internet, utilizar-se de roupas, músicas, frases, ou ofensas que promovam o crime e/ou criminosos.",
+    "Posse de Arma em Público": "Autoexplicativo.",
+    "Uso de Máscara": "Autoexplicativo.",
+    "Uso de Equipamentos Restritos":
+      "Posse de taser, coldre, roupa imitando colete ou outros equipamentos exclusivos da polícia (exceção: porte legalizado de taser).",
+    Vadiagem: "Autoexplicativo.",
+    "Tentativa de Fuga": "Autoexplicativo.",
+    Vandalismo: "Autoexplicativo.",
+    "Réu Reincidente":
+      "Quando o indivíduo possui registro de prisões ou fianças no discord, e não possui limpeza de ficha (se tiver limpeza de ficha após é réu primário).",
+    Cúmplice:
+      "Quando um indivíduo não pratica um crime diretamente, mas está junto do criminoso (roubo de caixinha, sequestro, tráfico e etc).",
+    "Disparo de Arma de Fogo": "Autoexplicativo.",
+    "Dinheiro Sujo":
+      "Autoexplicativo (qualquer quantidade é crime, R$ 1.00 ou R$ 100kk).",
+    "Tráfico de Armas": "3 ou mais armas (do mesmo tipo ou diferentes).",
+    "Tráfico de Itens Ilegais":
+      "3 ou mais itens ilegais (do mesmo tipo ou diferentes).",
+    "Tráfico de Munições":
+      "101 ou mais munições (do mesmo tipo ou diferentes).",
+    "Tráfico de Drogas": "101 ou mais drogas (do mesmo tipo ou diferentes).",
+    "Porte de Arma Pesada": "1 ou 2 armas pesadas.",
+    "Porte de Arma Leve": "1 ou 2 armas leves.",
+    "Porte de Arma Branca":
+      "Somente é crime se utilizado para agredir ou matar.",
+    "Posse de Suprimentos de Armas": "360 ou mais (sem somar os tipos).",
+    "Posse de Suprimentos de Munição": "360 ou mais (sem somar os tipos).",
+    "Posse de Componentes Narcóticos": "360 ou mais (sem somar os tipos).",
+    "Posse de Munição": "Até 99 munições (do mesmo tipo ou diferentes).",
+    "Posse de Coletes": "1 ou 2 coletes (se for 3 ou mais vira tráfico de itens ilegais).",
+    "Aviãozinho": "De 6 a 99 drogas (do mesmo tipo ou diferentes).",
+    "Posse de Drogas": "De 1 a 5 drogas (do mesmo tipo ou diferentes).",
+    "Posse de Itens Ilegais": "1 ou 2 itens ilegais (do mesmo tipo ou diferentes).",
+    "Condução Imprudente": "Autoexplicativo.",
+    "Dirigir na Contra Mão": "Autoexplicativo.",
+    "Alta Velocidade": "Autoexplicativo.",
+    "Poluição Sonora": "Autoexplicativo.",
+    "Corridas Ilegais": "Autoexplicativo.",
+    "Uso Excessivo de Insufilm": "Autoexplicativo.",
+    "Veículo Muito Danificado": "Autoexplicativo.",
+    "Veículo Ilegalmente Estacionado": "Autoexplicativo.",
+    "Não Ceder Passagem a Viaturas": "Autoexplicativo.",
+    "Impedir o Fluxo do Tráfego": "Autoexplicativo.",
+  };
+
+  function extrairNomeBaseCrime(item) {
+    var nameEl = item.querySelector(".crime-name");
+    var rawName = "";
+    if (nameEl) {
+      var conditionEl = nameEl.querySelector(".crime-condition");
+      if (conditionEl && nameEl.childNodes.length > 0) {
+        rawName = nameEl.childNodes[0].textContent || "";
+      } else {
+        rawName = nameEl.textContent || "";
+      }
+    } else {
+      rawName = item.textContent || "";
+    }
+    return rawName
+      .replace(/^Art\.\s*\d+\s*-\s*/i, "")
+      .replace(/\*\*$/g, "")
+      .trim();
+  }
+
+  function aplicarTipificacoesCrimes() {
+    crimeItems.forEach((item) => {
+      var baseName = extrairNomeBaseCrime(item);
+      var tip = CRIME_TIPIFICACOES[baseName];
+      if (!tip && baseName.startsWith("Desacato")) {
+        tip = CRIME_TIPIFICACOES.Desacato;
+      }
+      if (!tip && baseName.startsWith("Desobediência")) {
+        tip = CRIME_TIPIFICACOES.Desobediência;
+      }
+      if (tip) {
+        item.setAttribute("data-tip", tip);
+      }
+    });
+  }
+
+  aplicarTipificacoesCrimes();
+
+  var dicaBox = document.getElementById("dicas-rotativas");
+  if (dicaBox) {
+    var dicaText = dicaBox.querySelector(".dica-text");
+    var dicasRotativas = [
+      "Lembre-se de que na foto do preso ele deve estar sem acessórios no rosto e com o RG junto.",
+      "Lembre-se de escrever todos os itens que foram apreendidos.",
+      "Ao manter o cursor sobre um crime, a tipificação dele irá aparecer.",
+      "Lembre-se de que a foto da mochila do preso deve ser de tela inteira.",
+      "Lembre-se de que caso o cidadão seja novato, basta apreender os itens e tirar print do que foi apreendido.",
+    ];
+    var dicaIndex = 0;
+
+    function atualizarDica() {
+      if (!dicaText || !dicasRotativas.length) return;
+      dicaText.classList.add("is-fading");
+      setTimeout(() => {
+        dicaText.textContent = dicasRotativas[dicaIndex];
+        dicaText.classList.remove("is-fading");
+        dicaIndex = (dicaIndex + 1) % dicasRotativas.length;
+      }, 200);
+    }
+
+    atualizarDica();
+    setInterval(atualizarDica, 25000);
+  }
+
   // Trava Primário vs Reincidente
   var chkPrimario = document.getElementById("atenuante-primario");
   if (chkPrimario) {

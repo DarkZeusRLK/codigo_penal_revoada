@@ -339,6 +339,10 @@ header p.titulo {
   border: 2px solid var(--xmas-red);
 }
 
+.crimes-aplicados {
+  overflow: visible;
+}
+
 /* Efeito Gelo no topo do Card */
 .card::after {
   content: "";
@@ -661,6 +665,7 @@ input[type="file"] {
   cursor: pointer;
   transition: all 0.2s;
   background: rgba(255, 255, 255, 0.01);
+  position: relative;
 }
 .crime-item:hover {
   background-color: rgba(212, 36, 38, 0.1);
@@ -700,6 +705,68 @@ input[type="file"] {
   border-radius: 4px;
   margin-left: 8px;
   font-weight: 600;
+}
+
+.crime-item[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 14px;
+  top: 100%;
+  margin-top: 10px;
+  width: clamp(220px, 32vw, 360px);
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(10, 20, 30, 0.98);
+  color: var(--xmas-snow);
+  border: 1px solid rgba(248, 178, 41, 0.4);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  font-size: 0.85em;
+  line-height: 1.4;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  z-index: 20;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.crime-item[data-tip]:hover::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Caixa de dicas */
+.dica-box {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  width: min(320px, 88vw);
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: linear-gradient(
+    135deg,
+    rgba(248, 178, 41, 0.2),
+    rgba(15, 23, 42, 0.9)
+  );
+  border: 1px solid rgba(248, 178, 41, 0.4);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
+  color: var(--xmas-snow);
+  z-index: 9998;
+}
+.dica-title {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--xmas-gold);
+  margin-bottom: 6px;
+  font-size: 0.75em;
+}
+.dica-text {
+  font-size: 0.9em;
+  line-height: 1.4;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.dica-text.is-fading {
+  opacity: 0;
+  transform: translateY(4px);
 }
 /* =========================================
    9. RESUMO DA SENTENÇA (DIREITA)
