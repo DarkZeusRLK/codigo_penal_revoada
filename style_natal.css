@@ -773,6 +773,26 @@ input[type="file"] {
   transform: scale(1.05);
   background: rgba(248, 178, 41, 0.2);
 }
+.dica-reopen {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(248, 178, 41, 0.55);
+  background: rgba(15, 23, 42, 0.95);
+  color: var(--xmas-snow);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  z-index: 9998;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.dica-reopen:hover {
+  transform: translateY(-1px);
+  background: rgba(248, 178, 41, 0.2);
+}
 .dica-title {
   font-weight: 800;
   text-transform: uppercase;
@@ -1477,6 +1497,9 @@ input[type="radio"] {
     left: 12px;
     right: 12px;
     width: auto;
+  }
+  .dica-reopen {
+    left: 12px;
   }
 }
 #app-content {

@@ -869,12 +869,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   var dicaBox = document.getElementById("dicas-rotativas");
   if (dicaBox) {
-    if (localStorage.getItem("dicas_ocultas") === "1") {
-      dicaBox.classList.add("hidden");
-      return;
-    }
     var dicaText = dicaBox.querySelector(".dica-text");
     var dicaClose = document.getElementById("btn-fechar-dica");
+    var dicaOpen = document.getElementById("btn-abrir-dica");
     var dicasRotativas = [
       "Lembre-se de que na foto do preso ele deve estar sem acessórios no rosto e com o RG junto.",
       "Lembre-se de escrever todos os itens que foram apreendidos.",
@@ -883,6 +880,7 @@ document.addEventListener("DOMContentLoaded", function () {
       "Lembre-se de que caso o cidadão seja novato, basta apreender os itens e tirar print do que foi apreendido.",
     ];
     var dicaIndex = 0;
+    var dicaInterval = null;
 
     function atualizarDica() {
       if (!dicaText || !dicasRotativas.length) return;
@@ -894,13 +892,41 @@ document.addEventListener("DOMContentLoaded", function () {
       }, 200);
     }
 
-    atualizarDica();
-    setInterval(atualizarDica, 25000);
+    function iniciarDicas() {
+      if (dicaInterval) return;
+      atualizarDica();
+      dicaInterval = setInterval(atualizarDica, 25000);
+    }
+
+    function pararDicas() {
+      if (dicaInterval) {
+        clearInterval(dicaInterval);
+        dicaInterval = null;
+      }
+    }
+
+    if (localStorage.getItem("dicas_ocultas") === "1") {
+      dicaBox.classList.add("hidden");
+      if (dicaOpen) dicaOpen.classList.remove("hidden");
+    } else {
+      iniciarDicas();
+    }
 
     if (dicaClose) {
       dicaClose.addEventListener("click", function () {
         dicaBox.classList.add("hidden");
         localStorage.setItem("dicas_ocultas", "1");
+        if (dicaOpen) dicaOpen.classList.remove("hidden");
+        pararDicas();
+      });
+    }
+
+    if (dicaOpen) {
+      dicaOpen.addEventListener("click", function () {
+        dicaBox.classList.remove("hidden");
+        dicaOpen.classList.add("hidden");
+        localStorage.removeItem("dicas_ocultas");
+        iniciarDicas();
       });
     }
   }
