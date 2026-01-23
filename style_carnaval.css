@@ -1727,6 +1727,76 @@ input[type="radio"] {
   display: flex;
   align-items: center;
   gap: 15px;
+  position: relative;
+}
+.carnaval-masks {
+  position: absolute;
+  top: 6px;
+  right: 22px;
+  display: flex;
+  gap: 14px;
+  pointer-events: none;
+  z-index: 2;
+}
+.carnaval-mask {
+  position: relative;
+  width: 38px;
+  height: 26px;
+  border-radius: 16px 16px 18px 18px;
+  background: linear-gradient(
+    135deg,
+    var(--carnaval-rosa),
+    var(--carnaval-laranja)
+  );
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(255, 20, 147, 0.35);
+  opacity: 0.9;
+}
+.carnaval-mask::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  width: 1px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.35);
+  transform: translateX(-50%);
+}
+.carnaval-mask::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow: 16px 0 0 rgba(0, 0, 0, 0.6);
+}
+.carnaval-mask.mask-alt {
+  background: linear-gradient(
+    135deg,
+    var(--carnaval-azul-bright),
+    var(--carnaval-roxo)
+  );
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(0, 102, 255, 0.35);
+}
+.carnaval-mask.mask-alt-2 {
+  background: linear-gradient(
+    135deg,
+    var(--carnaval-verde),
+    var(--carnaval-amarelo)
+  );
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(254, 223, 0, 0.35);
+}
+.carnaval-mask.logo-mask {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  width: 34px;
+  height: 24px;
 }
 .btn-small {
   background-color: #222;
@@ -1770,6 +1840,65 @@ input[type="radio"] {
   backdrop-filter: blur(10px);
   max-width: 350px;
   transition: all 0.3s ease;
+  cursor: grab;
+  user-select: none;
+}
+.spotify-player-container:active {
+  cursor: grabbing;
+}
+.spotify-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+.btn-minimize {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--carnaval-verde);
+  color: var(--carnaval-verde);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.8em;
+  transition: all 0.2s;
+  z-index: 10;
+}
+.btn-minimize:hover {
+  background: var(--carnaval-verde);
+  color: #fff;
+  transform: scale(1.1);
+}
+.btn-restore {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(10, 10, 12, 0.95);
+  border: 1px solid var(--carnaval-verde);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--carnaval-verde);
+  font-size: 1.5em;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  transition: all 0.3s ease;
+}
+.btn-restore:hover {
+  background: var(--carnaval-verde);
+  color: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 0 25px rgba(0, 255, 95, 0.6);
 }
 
 /* Efeito de Confetes no Player */
