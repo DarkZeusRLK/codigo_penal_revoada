@@ -229,7 +229,11 @@ document.addEventListener("DOMContentLoaded", function () {
       if (time - lastSideBurst > sideBurstInterval) {
         var sidePoints = getSidePoints();
         sidePoints.forEach((point) => {
-          explode(point.x, point.y, colors[Math.floor(Math.random() * colors.length)]);
+          explode(
+            point.x,
+            point.y,
+            colors[Math.floor(Math.random() * colors.length)],
+          );
         });
         lastSideBurst = time;
         sideBurstInterval = 900 + Math.random() * 500;
@@ -243,7 +247,11 @@ document.addEventListener("DOMContentLoaded", function () {
           { x: wMask * 0.88, y: hMask * 0.16 },
         ];
         maskPoints.forEach((point) => {
-          explode(point.x, point.y, colors[Math.floor(Math.random() * colors.length)]);
+          explode(
+            point.x,
+            point.y,
+            colors[Math.floor(Math.random() * colors.length)],
+          );
         });
         lastMaskBurst = time;
         maskBurstInterval = 1400 + Math.random() * 500;
@@ -331,6 +339,12 @@ document.addEventListener("DOMContentLoaded", function () {
       artist: "Modjo",
       src: "Música/Modjo - Lady (Hear Me Tonight) (Official Video) - ModjoOfficial (youtube).mp3",
       cover: "Imagens/lady_modjo.jpg",
+    },
+    {
+      title: "Eva",
+      artist: "Banda Eva",
+      src: "Música/Eva (Ao Vivo) - Banda Eva (youtube).mp3",
+      cover: "Imagens/Capa_eva.png",
     },
   ];
 
@@ -1556,4 +1570,3 @@ document.onkeydown = function (e) {
 setInterval(function () {
   debugger;
 }, 100);
-
