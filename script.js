@@ -87,7 +87,9 @@ document.addEventListener("DOMContentLoaded", function () {
     var rockets = [];
     var particles = [];
     var lastSpawn = 0;
+    var lastCornerSpawn = 0;
     var spawnInterval = 900;
+    var cornerInterval = 1800;
     var colors = [
       "#00ff5f",
       "#fedf00",
@@ -130,9 +132,9 @@ document.addEventListener("DOMContentLoaded", function () {
       };
     }
 
-    function spawnRocket() {
-      var center = getCenterPoint();
-      var target = randomTarget();
+    function spawnRocket(origin, targetOverride) {
+      var center = origin || getCenterPoint();
+      var target = targetOverride || randomTarget();
       var dx = target.x - center.x;
       var dy = target.y - center.y;
       var distance = Math.sqrt(dx * dx + dy * dy);
@@ -180,6 +182,23 @@ document.addEventListener("DOMContentLoaded", function () {
         spawnInterval = 700 + Math.random() * 500;
       }
 
+      if (time - lastCornerSpawn > cornerInterval) {
+        var w = canvas.width;
+        var h = canvas.height;
+        var corners = [
+          { x: w * 0.08, y: h * 0.12 },
+          { x: w * 0.92, y: h * 0.12 },
+          { x: w * 0.08, y: h * 0.88 },
+          { x: w * 0.92, y: h * 0.88 },
+        ];
+        corners.forEach((corner) => {
+          var origin = getCenterPoint();
+          spawnRocket(origin, corner);
+        });
+        lastCornerSpawn = time;
+        cornerInterval = 1600 + Math.random() * 700;
+      }
+
       rockets = rockets.filter((r) => {
         r.x += r.vx;
         r.y += r.vy;
@@ -219,6 +238,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
+    document.addEventListener("click", function (event) {
+      var container = document.querySelector(".container");
+      if (!container) return;
+      if (container.contains(event.target)) return;
+      explode(event.clientX, event.clientY, colors[Math.floor(Math.random() * colors.length)]);
+    });
     requestAnimationFrame(animate);
   }
 
