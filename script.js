@@ -90,6 +90,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var lastCornerSpawn = 0;
     var spawnInterval = 900;
     var cornerInterval = 1800;
+    var clickBurstUntil = 0;
     var colors = [
       "#00ff5f",
       "#fedf00",
@@ -153,17 +154,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function explode(x, y, color) {
-      var count = 48 + Math.floor(Math.random() * 18);
+      var count = 70 + Math.floor(Math.random() * 25);
       for (var i = 0; i < count; i++) {
         var angle = Math.random() * Math.PI * 2;
-        var speed = Math.random() * 4 + 1.5;
+        var speed = Math.random() * 5 + 1.5;
         particles.push({
           x: x,
           y: y,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
           life: 0,
-          maxLife: 60 + Math.floor(Math.random() * 20),
+          maxLife: 70 + Math.floor(Math.random() * 30),
           color: color,
           size: 1 + Math.random() * 2,
         });
@@ -172,14 +173,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function animate(time) {
       ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = "rgba(5, 5, 5, 0.2)";
+      var fadeAlpha = time < clickBurstUntil ? 0.6 : 0.2;
+      ctx.fillStyle = "rgba(5, 5, 5, " + fadeAlpha + ")";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.globalCompositeOperation = "lighter";
 
       if (time - lastSpawn > spawnInterval) {
         spawnRocket();
+        if (Math.random() > 0.45) spawnRocket();
         lastSpawn = time;
-        spawnInterval = 700 + Math.random() * 500;
+        spawnInterval = 520 + Math.random() * 420;
       }
 
       if (time - lastCornerSpawn > cornerInterval) {
@@ -194,9 +197,14 @@ document.addEventListener("DOMContentLoaded", function () {
         corners.forEach((corner) => {
           var origin = getCenterPoint();
           spawnRocket(origin, corner);
+          if (Math.random() > 0.6)
+            spawnRocket(origin, {
+              x: corner.x + (Math.random() * 80 - 40),
+              y: corner.y + (Math.random() * 80 - 40),
+            });
         });
         lastCornerSpawn = time;
-        cornerInterval = 1600 + Math.random() * 700;
+        cornerInterval = 1200 + Math.random() * 600;
       }
 
       rockets = rockets.filter((r) => {
@@ -242,7 +250,12 @@ document.addEventListener("DOMContentLoaded", function () {
       var container = document.querySelector(".container");
       if (!container) return;
       if (container.contains(event.target)) return;
-      explode(event.clientX, event.clientY, colors[Math.floor(Math.random() * colors.length)]);
+      explode(
+        event.clientX,
+        event.clientY,
+        colors[Math.floor(Math.random() * colors.length)]
+      );
+      clickBurstUntil = performance.now() + 3000;
     });
     requestAnimationFrame(animate);
   }
