@@ -1544,17 +1544,14 @@ input[type="radio"] {
   backdrop-filter: blur(10px);
   max-width: 350px;
   transition: all 0.3s ease;
-  cursor: grab;
   user-select: none;
-}
-.spotify-player-container:active {
-  cursor: grabbing;
 }
 .spotify-content {
   display: flex;
   align-items: center;
   gap: 15px;
   flex: 1;
+  min-width: 0;
 }
 .btn-minimize {
   position: absolute;
@@ -1687,6 +1684,7 @@ input[type="radio"] {
   overflow: hidden;
   flex: 1 1 auto;
   min-width: 0;
+  max-width: 180px;
 }
 
 .track-title {
@@ -1715,6 +1713,7 @@ input[type="radio"] {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .control-btn {

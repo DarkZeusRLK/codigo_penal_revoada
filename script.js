@@ -378,93 +378,17 @@ document.addEventListener("DOMContentLoaded", function () {
     audioEl.addEventListener("ended", nextTrack);
   }
 
-  // Funcionalidade de arrastar e minimizar o player Spotify
+  // Funcionalidade de minimizar o player Spotify
   const spotifyPlayer = document.getElementById("spotify-player");
   const btnMinimize = document.getElementById("btn-minimize-spotify");
   const btnRestore = document.getElementById("btn-restore-spotify");
 
   if (spotifyPlayer) {
-    let isDragging = false;
-    let currentX;
-    let currentY;
-    let initialX;
-    let initialY;
-    let xOffset = 0;
-    let yOffset = 0;
-
-    // Carrega posição salva do localStorage
-    const savedPos = localStorage.getItem("spotify-player-position");
-    if (savedPos) {
-      const pos = JSON.parse(savedPos);
-      spotifyPlayer.style.left = pos.x + "px";
-      spotifyPlayer.style.top = pos.y + "px";
-      spotifyPlayer.style.right = "auto";
-      spotifyPlayer.style.bottom = "auto";
-      xOffset = pos.x - (window.innerWidth - spotifyPlayer.offsetWidth - 20);
-      yOffset = pos.y - (window.innerHeight - spotifyPlayer.offsetHeight - 20);
-    }
-
-    // Função para salvar posição
-    function savePosition() {
-      const rect = spotifyPlayer.getBoundingClientRect();
-      const pos = {
-        x: rect.left,
-        y: rect.top,
-      };
-      localStorage.setItem("spotify-player-position", JSON.stringify(pos));
-    }
-
-    // Mouse down no player
-    spotifyPlayer.addEventListener("mousedown", function (e) {
-      if (
-        e.target === btnMinimize ||
-        e.target.closest(".spotify-controls") ||
-        e.target.closest(".spotify-track-info") ||
-        e.target.closest(".spotify-img-wrapper")
-      ) {
-        return; // Não arrasta se clicar nos controles
-      }
-      initialX = e.clientX - xOffset;
-      initialY = e.clientY - yOffset;
-
-      if (e.target === spotifyPlayer || e.target.closest(".spotify-content")) {
-        isDragging = true;
-        spotifyPlayer.style.cursor = "grabbing";
-      }
-    });
-
-    // Mouse move
-    document.addEventListener("mousemove", function (e) {
-      if (isDragging) {
-        e.preventDefault();
-        currentX = e.clientX - initialX;
-        currentY = e.clientY - initialY;
-
-        xOffset = currentX;
-        yOffset = currentY;
-
-        // Limita dentro da tela
-        const maxX = window.innerWidth - spotifyPlayer.offsetWidth;
-        const maxY = window.innerHeight - spotifyPlayer.offsetHeight;
-
-        currentX = Math.max(0, Math.min(currentX, maxX));
-        currentY = Math.max(0, Math.min(currentY, maxY));
-
-        spotifyPlayer.style.left = currentX + "px";
-        spotifyPlayer.style.top = currentY + "px";
-        spotifyPlayer.style.right = "auto";
-        spotifyPlayer.style.bottom = "auto";
-      }
-    });
-
-    // Mouse up
-    document.addEventListener("mouseup", function () {
-      if (isDragging) {
-        isDragging = false;
-        spotifyPlayer.style.cursor = "grab";
-        savePosition();
-      }
-    });
+    localStorage.removeItem("spotify-player-position");
+    spotifyPlayer.style.left = "";
+    spotifyPlayer.style.top = "";
+    spotifyPlayer.style.right = "";
+    spotifyPlayer.style.bottom = "";
 
     // Botão minimizar
     if (btnMinimize) {
