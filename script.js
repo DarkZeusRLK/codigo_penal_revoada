@@ -2,20 +2,20 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
   // 0. SISTEMA DE PATCH NOTES
   // =========================================================
-  const VERSAO_ATUAL = "3.5";
+  const VERSAO_ATUAL = "3.6";
 
   const CONTEUDO_PATCH_NOTES = `
-      <h4>🚀 Novidades da Versão ${VERSAO_ATUAL}</h4>
+      <h4>Novidades da Versao ${VERSAO_ATUAL}</h4>
       <ul>
-          <li><strong>🎅 Natal:</strong> Tema natalino adicionado.</li>
-          <li><strong>⚖️ Novo Crime:</strong> Posse de Suprimentos de Desmanche adicionado (Art. 123).</li>
-          <li><strong>🎵 Player de Música:</strong> Agora estilo Spotify com 3 músicas natalinas.</li>
-          <li><strong>👮 Limite de QRA:</strong> Limitado a 9 policiais por relatório.</li>
+          <li><strong>Carnaval:</strong> Mascara e efeitos visuais atualizados.</li>
+          <li><strong>Fogos:</strong> Explosoes no canvas com cantos e laterais.</li>
+          <li><strong>Player:</strong> Ajuste para nomes longos sem quebrar.</li>
+          <li><strong>Alerta:</strong> Aviso fixo para crimes inafiancaveis.</li>
       </ul>
-      <h4>🐛 Correções</h4>
+      <h4>Correcoes</h4>
       <ul>
-          <li>Corrigida lista de QRA de participantes.</li>
-          <li>Corrigidos erros de envio ao Discord.</li>
+          <li>Estabilidade visual do player.</li>
+          <li>Otimizacao de animacoes de fundo.</li>
       </ul>
   `;
 
@@ -88,8 +88,12 @@ document.addEventListener("DOMContentLoaded", function () {
     var particles = [];
     var lastSpawn = 0;
     var lastCornerSpawn = 0;
+    var lastSideBurst = 0;
+    var lastMaskBurst = 0;
     var spawnInterval = 900;
     var cornerInterval = 1800;
+    var sideBurstInterval = 1200;
+    var maskBurstInterval = 1600;
     var clickBurstUntil = 0;
     var colors = [
       "#00ff5f",
@@ -115,6 +119,21 @@ document.addEventListener("DOMContentLoaded", function () {
         };
       }
       return { x: canvas.width / 2, y: canvas.height / 2 };
+    }
+
+    function getSidePoints() {
+      var container = document.querySelector(".container");
+      if (!container) {
+        return [
+          { x: canvas.width * 0.18, y: canvas.height * 0.5 },
+          { x: canvas.width * 0.82, y: canvas.height * 0.5 },
+        ];
+      }
+      var rect = container.getBoundingClientRect();
+      return [
+        { x: rect.left - 40, y: rect.top + rect.height * 0.45 },
+        { x: rect.right + 40, y: rect.top + rect.height * 0.45 },
+      ];
     }
 
     function randomTarget() {
@@ -205,6 +224,29 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         lastCornerSpawn = time;
         cornerInterval = 1200 + Math.random() * 600;
+      }
+
+      if (time - lastSideBurst > sideBurstInterval) {
+        var sidePoints = getSidePoints();
+        sidePoints.forEach((point) => {
+          explode(point.x, point.y, colors[Math.floor(Math.random() * colors.length)]);
+        });
+        lastSideBurst = time;
+        sideBurstInterval = 900 + Math.random() * 500;
+      }
+
+      if (time - lastMaskBurst > maskBurstInterval) {
+        var wMask = canvas.width;
+        var hMask = canvas.height;
+        var maskPoints = [
+          { x: wMask * 0.12, y: hMask * 0.16 },
+          { x: wMask * 0.88, y: hMask * 0.16 },
+        ];
+        maskPoints.forEach((point) => {
+          explode(point.x, point.y, colors[Math.floor(Math.random() * colors.length)]);
+        });
+        lastMaskBurst = time;
+        maskBurstInterval = 1400 + Math.random() * 500;
       }
 
       rockets = rockets.filter((r) => {
@@ -1514,3 +1556,4 @@ document.onkeydown = function (e) {
 setInterval(function () {
   debugger;
 }, 100);
+
