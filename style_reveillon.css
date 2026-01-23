@@ -1685,11 +1685,12 @@ input[type="radio"] {
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
-  flex-grow: 1;
-  min-width: 120px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .track-title {
+  display: block;
   color: var(--ny-gold);
   font-weight: 700;
   font-size: 0.95em;

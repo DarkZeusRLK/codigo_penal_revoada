@@ -253,7 +253,7 @@ document.addEventListener("DOMContentLoaded", function () {
       explode(
         event.clientX,
         event.clientY,
-        colors[Math.floor(Math.random() * colors.length)]
+        colors[Math.floor(Math.random() * colors.length)],
       );
       clickBurstUntil = performance.now() + 3000;
     });
@@ -267,22 +267,22 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
   const playlist = [
     {
-      title: "Happy",
-      artist: "Pharrel Williams",
-      src: "Música/Pharrell Williams - Happy (Official Video).mp4",
-      cover: "Imagens/Capa_de_Happy_(Pharrell_Williams).jpg",
+      title: "Eu quero Festa, Eu quero Samba",
+      artist: "Rio",
+      src: "Música/Rio Filme Eu quero festa samba portugues - Maurício Victor (youtube).mp3",
+      cover: "Imagens/Capa_rio.png",
     },
     {
-      title: "FireWork",
-      artist: "Katy Perry",
-      src: "Música/Katy Perry - Firework (Lyrics).mp4",
-      cover: "Imagens/katy_perry_firework.jpeg",
+      title: "Waka Waka",
+      artist: "Shakira",
+      src: "Música/Shakira - Waka Waka (This Time for Africa) (The Official 2010 FIFA World Cup™ Song) - shakiraVEVO (youtube).mp3",
+      cover: "Imagens/Capa_waka_waka.jpg",
     },
     {
-      title: "Music Sounds Better With You",
-      artist: "Stardust",
-      src: "Música/Stardust - Music Sounds Better With You (Official Music Video).mp4",
-      cover: "Imagens/capa_stardust.jpg",
+      title: "We Are One",
+      artist: "PitBull",
+      src: "Música/We Are One (Ole Ola) [The Official 2014 FIFA World Cup Song] (Olodum Mix) - PitbullVEVO (youtube).mp3",
+      cover: "Imagens/Capa_we_are_one.png",
     },
     {
       title: "Lady (Hear Me Tonight)",
@@ -409,28 +409,32 @@ document.addEventListener("DOMContentLoaded", function () {
       const rect = spotifyPlayer.getBoundingClientRect();
       const pos = {
         x: rect.left,
-        y: rect.top
+        y: rect.top,
       };
       localStorage.setItem("spotify-player-position", JSON.stringify(pos));
     }
 
     // Mouse down no player
-    spotifyPlayer.addEventListener("mousedown", function(e) {
-      if (e.target === btnMinimize || e.target.closest('.spotify-controls') || 
-          e.target.closest('.spotify-track-info') || e.target.closest('.spotify-img-wrapper')) {
+    spotifyPlayer.addEventListener("mousedown", function (e) {
+      if (
+        e.target === btnMinimize ||
+        e.target.closest(".spotify-controls") ||
+        e.target.closest(".spotify-track-info") ||
+        e.target.closest(".spotify-img-wrapper")
+      ) {
         return; // Não arrasta se clicar nos controles
       }
       initialX = e.clientX - xOffset;
       initialY = e.clientY - yOffset;
 
-      if (e.target === spotifyPlayer || e.target.closest('.spotify-content')) {
+      if (e.target === spotifyPlayer || e.target.closest(".spotify-content")) {
         isDragging = true;
         spotifyPlayer.style.cursor = "grabbing";
       }
     });
 
     // Mouse move
-    document.addEventListener("mousemove", function(e) {
+    document.addEventListener("mousemove", function (e) {
       if (isDragging) {
         e.preventDefault();
         currentX = e.clientX - initialX;
@@ -442,7 +446,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Limita dentro da tela
         const maxX = window.innerWidth - spotifyPlayer.offsetWidth;
         const maxY = window.innerHeight - spotifyPlayer.offsetHeight;
-        
+
         currentX = Math.max(0, Math.min(currentX, maxX));
         currentY = Math.max(0, Math.min(currentY, maxY));
 
@@ -454,7 +458,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Mouse up
-    document.addEventListener("mouseup", function() {
+    document.addEventListener("mouseup", function () {
       if (isDragging) {
         isDragging = false;
         spotifyPlayer.style.cursor = "grab";
@@ -464,7 +468,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Botão minimizar
     if (btnMinimize) {
-      btnMinimize.addEventListener("click", function(e) {
+      btnMinimize.addEventListener("click", function (e) {
         e.stopPropagation();
         spotifyPlayer.classList.add("hidden");
         if (btnRestore) btnRestore.classList.remove("hidden");
@@ -474,7 +478,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Botão restaurar
     if (btnRestore) {
-      btnRestore.addEventListener("click", function() {
+      btnRestore.addEventListener("click", function () {
         spotifyPlayer.classList.remove("hidden");
         btnRestore.classList.add("hidden");
         localStorage.setItem("spotify-player-minimized", "false");
@@ -620,7 +624,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var selectedOficialIdInput = document.getElementById("selected-oficial-id");
   var btnAddPart = document.getElementById("btn-add-participante");
   var listaParticipantesVisual = document.getElementById(
-    "lista-participantes-visual"
+    "lista-participantes-visual",
   );
   var participantesSelecionados = [];
 
@@ -648,7 +652,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       var filtrados = LISTA_OFICIAIS.filter((o) =>
-        o.nome.toLowerCase().includes(termo)
+        o.nome.toLowerCase().includes(termo),
       );
       if (filtrados.length === 0) {
         dropdownResults.classList.add("hidden");
@@ -706,7 +710,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   window.removerParticipante = function (nome, btn) {
     participantesSelecionados = participantesSelecionados.filter(
-      (p) => p.nome !== nome
+      (p) => p.nome !== nome,
     );
     btn.parentElement.remove();
   };
@@ -717,7 +721,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var selectedCrimes = [];
   var crimeItems = document.querySelectorAll(".crime-item");
   var checkboxes = document.querySelectorAll(
-    '.atenuantes input[type="checkbox"]'
+    '.atenuantes input[type="checkbox"]',
   );
   var inputHpMinutos = document.getElementById("hp-minutos");
   var hpSimBtn = document.getElementById("hp-sim");
@@ -728,7 +732,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var multaTotalEl = document.getElementById("multa-total");
   var crimesListOutput = document.getElementById("crimes-list-output");
   var containerDinheiroSujo = document.getElementById(
-    "container-dinheiro-sujo"
+    "container-dinheiro-sujo",
   );
   var containerHp = document.getElementById("container-hp-minutos");
   var alertPenaMaxima = document.getElementById("alerta-pena-maxima");
@@ -743,7 +747,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (isReincidente) {
           mostrarAlerta(
             "Conflito: Remova o crime de Reincidente antes.",
-            "error"
+            "error",
           );
           this.checked = false;
           calculateSentence();
@@ -789,14 +793,14 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     var penaComDesconto = Math.max(
       0,
-      penaBaseCalculo * (1 - Math.abs(descontoPercent) / 100)
+      penaBaseCalculo * (1 - Math.abs(descontoPercent) / 100),
     );
 
     // Desconto HP
     if (hpSimBtn && hpSimBtn.checked && inputHpMinutos.value) {
       penaComDesconto = Math.max(
         0,
-        penaComDesconto - parseInt(inputHpMinutos.value)
+        penaComDesconto - parseInt(inputHpMinutos.value),
       );
     }
 
@@ -805,10 +809,10 @@ document.addEventListener("DOMContentLoaded", function () {
     penaTotalEl.textContent = penaFinal + " meses";
     multaTotalEl.textContent = "R$" + totalMulta.toLocaleString("pt-BR");
 
-  var radioFiancaSim = document.getElementById("fianca-sim");
-  var radioFiancaNao = document.getElementById("fianca-nao");
-  var boxDeposito = document.getElementById("box-upload-deposito");
-  var fiancaOutput = document.getElementById("fianca-output");
+    var radioFiancaSim = document.getElementById("fianca-sim");
+    var radioFiancaNao = document.getElementById("fianca-nao");
+    var boxDeposito = document.getElementById("box-upload-deposito");
+    var fiancaOutput = document.getElementById("fianca-output");
 
     if (alertaInfiancavel) {
       alertaInfiancavel.classList.toggle("hidden", !isInfiancavel);
@@ -834,11 +838,11 @@ document.addEventListener("DOMContentLoaded", function () {
           boxDeposito.classList.remove("hidden");
           // Scroll automático até o campo de comprovante
           setTimeout(() => {
-            boxDeposito.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            boxDeposito.style.transition = 'all 0.3s';
-            boxDeposito.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.5)';
+            boxDeposito.scrollIntoView({ behavior: "smooth", block: "center" });
+            boxDeposito.style.transition = "all 0.3s";
+            boxDeposito.style.boxShadow = "0 0 20px rgba(16, 185, 129, 0.5)";
             setTimeout(() => {
-              boxDeposito.style.boxShadow = '';
+              boxDeposito.style.boxShadow = "";
             }, 2000);
           }, 100);
         }
@@ -886,7 +890,7 @@ document.addEventListener("DOMContentLoaded", function () {
       div.className = "crime-output-item";
       div.innerHTML = `<span>${c.nome.replace(
         /\*\*/g,
-        ""
+        "",
       )}</span> <button onclick="removerCrime(${idx})"><i class="fa-solid fa-xmark"></i></button>`;
       crimesListOutput.appendChild(div);
     });
@@ -938,7 +942,7 @@ document.addEventListener("DOMContentLoaded", function () {
         )
           return mostrarAlerta(
             "Conflito: Réu não pode ser Reincidente e Primário.",
-            "error"
+            "error",
           );
         // --- TRAVA: ITENS OBRIGATÓRIOS ---
         const ARTIGOS_COM_ITENS = [
@@ -964,7 +968,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ];
 
         var exigeItem = selectedCrimes.some((c) =>
-          ARTIGOS_COM_ITENS.includes(c.artigo)
+          ARTIGOS_COM_ITENS.includes(c.artigo),
         );
         var textoItens = document
           .getElementById("itens-apreendidos")
@@ -973,7 +977,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (exigeItem && textoItens.length < 3) {
           mostrarAlerta(
             "⚠️ Para os crimes selecionados, é OBRIGATÓRIO descrever os Itens Apreendidos!",
-            "error"
+            "error",
           );
           document.getElementById("itens-apreendidos").focus();
           return;
@@ -985,7 +989,7 @@ document.addEventListener("DOMContentLoaded", function () {
         )
           return mostrarAlerta(
             "Selecione apenas Tráfico OU Posse de Munições.",
-            "error"
+            "error",
           );
         if (
           artigo === "126" &&
@@ -993,7 +997,7 @@ document.addEventListener("DOMContentLoaded", function () {
         )
           return mostrarAlerta(
             "Conflito: Tráfico vs Posse de Itens Ilegais.",
-            "error"
+            "error",
           );
         const ITENS_ILEGAIS = ["126 ", "138"];
         if (
@@ -1002,7 +1006,7 @@ document.addEventListener("DOMContentLoaded", function () {
         )
           return mostrarAlerta(
             "Selecione apenas Tráfico OU Posse de Itens.",
-            "error"
+            "error",
           );
 
         const DROGAS = ["134", "135", "137"];
@@ -1012,7 +1016,7 @@ document.addEventListener("DOMContentLoaded", function () {
         )
           return mostrarAlerta(
             "Selecione apenas uma modalidade de Drogas.",
-            "error"
+            "error",
           );
 
         // Adiciona
@@ -1063,7 +1067,7 @@ document.addEventListener("DOMContentLoaded", function () {
           if (regexDinheiro.test(textoAtual)) {
             textareaItens.value = textoAtual.replace(
               regexDinheiro,
-              novoTextoDinheiro
+              novoTextoDinheiro,
             );
           } else {
             textareaItens.value = novoTextoDinheiro + textoAtual;
@@ -1079,18 +1083,18 @@ document.addEventListener("DOMContentLoaded", function () {
   var radioFiancaSim = document.getElementById("fianca-sim");
   var radioFiancaNao = document.getElementById("fianca-nao");
   if (radioFiancaSim) {
-    radioFiancaSim.addEventListener("change", function() {
+    radioFiancaSim.addEventListener("change", function () {
       calculateSentence();
       // Scroll automático quando marcar "sim"
       if (this.checked) {
         var boxDeposito = document.getElementById("box-upload-deposito");
         if (boxDeposito && !boxDeposito.classList.contains("hidden")) {
           setTimeout(() => {
-            boxDeposito.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            boxDeposito.style.transition = 'all 0.3s';
-            boxDeposito.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.5)';
+            boxDeposito.scrollIntoView({ behavior: "smooth", block: "center" });
+            boxDeposito.style.transition = "all 0.3s";
+            boxDeposito.style.boxShadow = "0 0 20px rgba(16, 185, 129, 0.5)";
             setTimeout(() => {
-              boxDeposito.style.boxShadow = '';
+              boxDeposito.style.boxShadow = "";
             }, 2000);
           }, 100);
         }
@@ -1123,15 +1127,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Remove o clique simples - só abre no duplo clique ou botão
     box.addEventListener("dblclick", function (e) {
-      if (e.target !== input && e.target.tagName !== "LABEL" && !e.target.closest(".btn-escolher-arquivo")) {
+      if (
+        e.target !== input &&
+        e.target.tagName !== "LABEL" &&
+        !e.target.closest(".btn-escolher-arquivo")
+      ) {
         input.click();
       }
     });
 
     // Botão "Escolher Arquivo"
-    var btnEscolher = box.querySelector('.btn-escolher-arquivo');
+    var btnEscolher = box.querySelector(".btn-escolher-arquivo");
     if (btnEscolher) {
-      btnEscolher.addEventListener("click", function(e) {
+      btnEscolher.addEventListener("click", function (e) {
         e.stopPropagation();
         input.click();
       });
@@ -1175,13 +1183,13 @@ document.addEventListener("DOMContentLoaded", function () {
     "box-upload-mochila",
     "upload-mochila",
     "img-preview-mochila",
-    "mochila"
+    "mochila",
   );
   setupUpload(
     "box-upload-deposito",
     "upload-deposito",
     "img-preview-deposito",
-    "deposito"
+    "deposito",
   );
   setupUpload("box-upload-extra", "upload-extra", "img-preview-extra", "extra");
 
@@ -1209,7 +1217,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!arquivoPreso || !arquivoMochila)
         return mostrarAlerta(
           "Fotos do Preso e Inventário são obrigatórias!",
-          "error"
+          "error",
         );
       if (selectedCrimes.length === 0)
         return mostrarAlerta("Selecione ao menos um crime!", "error");
@@ -1219,14 +1227,17 @@ document.addEventListener("DOMContentLoaded", function () {
       if (pagouFianca && !arquivoDeposito) {
         var boxDeposito = document.getElementById("box-upload-deposito");
         if (boxDeposito) {
-          boxDeposito.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          boxDeposito.style.transition = 'all 0.3s';
-          boxDeposito.style.boxShadow = '0 0 20px rgba(211, 47, 47, 0.5)';
+          boxDeposito.scrollIntoView({ behavior: "smooth", block: "center" });
+          boxDeposito.style.transition = "all 0.3s";
+          boxDeposito.style.boxShadow = "0 0 20px rgba(211, 47, 47, 0.5)";
           setTimeout(() => {
-            boxDeposito.style.boxShadow = '';
+            boxDeposito.style.boxShadow = "";
           }, 2000);
         }
-        return mostrarAlerta("Se houve pagamento de fiança, é obrigatório anexar o comprovante com foto!", "error");
+        return mostrarAlerta(
+          "Se houve pagamento de fiança, é obrigatório anexar o comprovante com foto!",
+          "error",
+        );
       }
 
       var temDinheiroSujo = selectedCrimes.some((c) => c.artigo === "139");
@@ -1243,12 +1254,12 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!isPrimario && !isReincidente)
         return mostrarAlerta(
           "Defina se o Réu é Primário ou Reincidente!",
-          "error"
+          "error",
         );
       if (isPrimario && isReincidente)
         return mostrarAlerta(
           "Réu não pode ser Primário e Reincidente ao mesmo tempo!",
-          "error"
+          "error",
         );
 
       // Preenche Modal
@@ -1259,10 +1270,11 @@ document.addEventListener("DOMContentLoaded", function () {
           : "");
       document.getElementById("conf-preso").textContent =
         nomePreso + " (RG: " + document.getElementById("rg").value + ")";
-      
+
       var advogadoValue = document.getElementById("advogado").value;
-      document.getElementById("conf-advogado").textContent = advogadoValue || "Nenhum";
-      
+      document.getElementById("conf-advogado").textContent =
+        advogadoValue || "Nenhum";
+
       document.getElementById("conf-sentenca").textContent =
         "Pena: " + penaTotalEl.textContent;
       document.getElementById("conf-multa").textContent =
@@ -1270,7 +1282,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       var pagouFianca = document.getElementById("fianca-sim").checked;
       var fiancaOutput = document.getElementById("fianca-output").value;
-      document.getElementById("conf-fianca").textContent = fiancaOutput || "Não se aplica";
+      document.getElementById("conf-fianca").textContent =
+        fiancaOutput || "Não se aplica";
 
       // Crimes detalhados
       var crimesDetail = document.getElementById("conf-crimes-detail");
@@ -1284,13 +1297,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Itens apreendidos
       var itensApreendidos = document.getElementById("itens-apreendidos").value;
-      document.getElementById("conf-itens").textContent = itensApreendidos || "Nenhum";
+      document.getElementById("conf-itens").textContent =
+        itensApreendidos || "Nenhum";
 
       // Dinheiro sujo
       var dinheiroSujoValue = inputDinheiroSujo.value;
-      var dinheiroSujoSection = document.getElementById("conf-dinheiro-sujo-section");
+      var dinheiroSujoSection = document.getElementById(
+        "conf-dinheiro-sujo-section",
+      );
       if (dinheiroSujoValue) {
-        document.getElementById("conf-dinheiro-sujo").textContent = "R$ " + dinheiroSujoValue;
+        document.getElementById("conf-dinheiro-sujo").textContent =
+          "R$ " + dinheiroSujoValue;
         dinheiroSujoSection.classList.remove("hidden");
       } else {
         dinheiroSujoSection.classList.add("hidden");
@@ -1309,7 +1326,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
-      if (hpSimBtn && hpSimBtn.checked && inputHpMinutos && inputHpMinutos.value) {
+      if (
+        hpSimBtn &&
+        hpSimBtn.checked &&
+        inputHpMinutos &&
+        inputHpMinutos.value
+      ) {
         var li = document.createElement("li");
         li.innerHTML = `🏥 Reanimado no HP (-${inputHpMinutos.value}m)`;
         ulDetalhes.appendChild(li);
@@ -1340,8 +1362,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Foto extra
       var boxConfExtra = document.getElementById("box-conf-extra");
-      if (document.getElementById("img-preview-extra").src && 
-          !document.getElementById("img-preview-extra").classList.contains("hidden")) {
+      if (
+        document.getElementById("img-preview-extra").src &&
+        !document
+          .getElementById("img-preview-extra")
+          .classList.contains("hidden")
+      ) {
         document.getElementById("conf-img-extra").src =
           document.getElementById("img-preview-extra").src;
         boxConfExtra.classList.remove("hidden");
@@ -1355,7 +1381,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (btnCancelar)
     btnCancelar.addEventListener("click", () =>
-      modalConf.classList.add("hidden")
+      modalConf.classList.add("hidden"),
     );
 
   function comprimirImagemAsync(file) {
@@ -1476,9 +1502,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 { name: "📝 Detalhes", value: atenuantesTexto },
                 {
                   name: "🏥 Reanimação no HP",
-                  value: hpSimBtn && hpSimBtn.checked && inputHpMinutos && inputHpMinutos.value
-                    ? `Sim - Desconto de ${inputHpMinutos.value} minutos`
-                    : "Não",
+                  value:
+                    hpSimBtn &&
+                    hpSimBtn.checked &&
+                    inputHpMinutos &&
+                    inputHpMinutos.value
+                      ? `Sim - Desconto de ${inputHpMinutos.value} minutos`
+                      : "Não",
                   inline: true,
                 },
               ],
