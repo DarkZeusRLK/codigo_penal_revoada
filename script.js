@@ -76,6 +76,155 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // =========================================================
+  // 1.5. FOGOS DE ARTIFICIO (CANVAS)
+  // =========================================================
+  function setupCarnavalFireworks() {
+    var canvas = document.getElementById("fireworks-canvas");
+    if (!canvas) return;
+    var ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    var rockets = [];
+    var particles = [];
+    var lastSpawn = 0;
+    var spawnInterval = 900;
+    var colors = [
+      "#00ff5f",
+      "#fedf00",
+      "#ff1493",
+      "#0066ff",
+      "#ffd700",
+      "#ff6b35",
+    ];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function getCenterPoint() {
+      var container = document.querySelector(".container");
+      if (container) {
+        var rect = container.getBoundingClientRect();
+        return {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        };
+      }
+      return { x: canvas.width / 2, y: canvas.height / 2 };
+    }
+
+    function randomTarget() {
+      var w = canvas.width;
+      var h = canvas.height;
+      var corners = [
+        { x: w * 0.12, y: h * 0.18 },
+        { x: w * 0.88, y: h * 0.18 },
+        { x: w * 0.12, y: h * 0.82 },
+        { x: w * 0.88, y: h * 0.82 },
+      ];
+      var base = corners[Math.floor(Math.random() * corners.length)];
+      return {
+        x: base.x + (Math.random() * 60 - 30),
+        y: base.y + (Math.random() * 60 - 30),
+      };
+    }
+
+    function spawnRocket() {
+      var center = getCenterPoint();
+      var target = randomTarget();
+      var dx = target.x - center.x;
+      var dy = target.y - center.y;
+      var distance = Math.sqrt(dx * dx + dy * dy);
+      var speed = Math.max(6, Math.min(10, distance / 40));
+      rockets.push({
+        x: center.x,
+        y: center.y,
+        vx: (dx / distance) * speed + (Math.random() - 0.5) * 0.8,
+        vy: (dy / distance) * speed + (Math.random() - 0.5) * 0.8,
+        targetX: target.x,
+        targetY: target.y,
+        life: 0,
+        maxLife: Math.max(25, Math.min(45, distance / 12)),
+        color: colors[Math.floor(Math.random() * colors.length)],
+      });
+    }
+
+    function explode(x, y, color) {
+      var count = 48 + Math.floor(Math.random() * 18);
+      for (var i = 0; i < count; i++) {
+        var angle = Math.random() * Math.PI * 2;
+        var speed = Math.random() * 4 + 1.5;
+        particles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 0,
+          maxLife: 60 + Math.floor(Math.random() * 20),
+          color: color,
+          size: 1 + Math.random() * 2,
+        });
+      }
+    }
+
+    function animate(time) {
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = "rgba(5, 5, 5, 0.2)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = "lighter";
+
+      if (time - lastSpawn > spawnInterval) {
+        spawnRocket();
+        lastSpawn = time;
+        spawnInterval = 700 + Math.random() * 500;
+      }
+
+      rockets = rockets.filter((r) => {
+        r.x += r.vx;
+        r.y += r.vy;
+        r.life += 1;
+        ctx.fillStyle = r.color;
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        var nearTarget =
+          Math.abs(r.x - r.targetX) < 8 && Math.abs(r.y - r.targetY) < 8;
+        if (nearTarget || r.life > r.maxLife) {
+          explode(r.x, r.y, r.color);
+          return false;
+        }
+        return true;
+      });
+
+      particles = particles.filter((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.03;
+        p.life += 1;
+        var alpha = 1 - p.life / p.maxLife;
+        if (alpha < 0) alpha = 0;
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        return p.life < p.maxLife;
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+    requestAnimationFrame(animate);
+  }
+
+  setupCarnavalFireworks();
+
+  // =========================================================
   // 2. PLAYER DE MÚSICA ESTILO SPOTIFY
   // =========================================================
   const playlist = [
