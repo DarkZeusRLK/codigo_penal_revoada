@@ -742,9 +742,10 @@ document.addEventListener("DOMContentLoaded", function () {
     Ameaça: "Autoexplicativo.",
     Extorsão:
       "Quando um indivíduo tenta chantagear outra pessoa com informações (falsas ou verdadeiras) a fim de obter benefício (ser solto da prisão, dinheiro, ou etc).",
-    "Agressão a Funcionário Público": "Bater em médicos, policiais, mecânicos e/ou advogados.",
+    "Agressão a Funcionário Público":
+      "Bater em médicos, policiais, mecânicos e/ou advogados.",
     "Falsidade Ideológica":
-      "Fingir ser alguém conhecido ou fingir ser de uma profissão (falar ou usar roupas). Exemplo: \"Sou o pinguim\" - \"Sou advogado\" - Usar farda da polícia.",
+      'Fingir ser alguém conhecido ou fingir ser de uma profissão (falar ou usar roupas). Exemplo: "Sou o pinguim" - "Sou advogado" - Usar farda da polícia.',
     Prevaricação:
       "Não realizar as obrigações da sua profissão (exemplos: um médico ignorar um corpo desmaiado, um policial ignorar um crime em andamento e etc).",
     "Abuso de Autoridade":
@@ -752,7 +753,8 @@ document.addEventListener("DOMContentLoaded", function () {
     "Falsa Comunicação de Crime": "Autoexplicativo.",
     "Tentativa de Suborno":
       "Oferecer dinheiro ou benefícios para que um policial descumpra seu dever (não prender alguém, fazer vista grossa em local de crime e etc).",
-    Desacato: "Ofender um funcionário público durante suas atribuições profissionais.",
+    Desacato:
+      "Ofender um funcionário público durante suas atribuições profissionais.",
     Desobediência:
       "Desobedecer uma ordem legal (descer do veículo, se aproximar da viatura, levantar a mão).",
     "Obstrução de Justiça":
@@ -814,10 +816,12 @@ document.addEventListener("DOMContentLoaded", function () {
     "Posse de Suprimentos de Munição": "360 ou mais (sem somar os tipos).",
     "Posse de Componentes Narcóticos": "360 ou mais (sem somar os tipos).",
     "Posse de Munição": "Até 99 munições (do mesmo tipo ou diferentes).",
-    "Posse de Coletes": "1 ou 2 coletes (se for 3 ou mais vira tráfico de itens ilegais).",
-    "Aviãozinho": "De 6 a 99 drogas (do mesmo tipo ou diferentes).",
+    "Posse de Coletes":
+      "1 ou 2 coletes (se for 3 ou mais vira tráfico de itens ilegais).",
+    Aviãozinho: "De 6 a 99 drogas (do mesmo tipo ou diferentes).",
     "Posse de Drogas": "De 1 a 5 drogas (do mesmo tipo ou diferentes).",
-    "Posse de Itens Ilegais": "1 ou 2 itens ilegais (do mesmo tipo ou diferentes).",
+    "Posse de Itens Ilegais":
+      "1 ou 2 itens ilegais (do mesmo tipo ou diferentes).",
     "Condução Imprudente": "Autoexplicativo.",
     "Dirigir na Contra Mão": "Autoexplicativo.",
     "Alta Velocidade": "Autoexplicativo.",
@@ -1020,7 +1024,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Fiança: Multa x 3 (Teto 1.4kk)
       var valorMulta = totalMulta;
       var calculoFianca = valorMulta * 3;
-      var valorFiancaFinal = Math.min(calculoFianca, 1400000);
+      var valorFiancaFinal = Math.min(calculoFianca, 2500000);
 
       fiancaOutput.value = "R$ " + valorFiancaFinal.toLocaleString("pt-BR");
 
