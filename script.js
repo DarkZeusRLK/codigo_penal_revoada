@@ -1054,12 +1054,12 @@ document.addEventListener("DOMContentLoaded", function () {
         fiancaBreakdown.classList.remove("hidden");
         document.getElementById("valor-policial").textContent =
           "R$ " +
-          (valorFiancaFinal * 0.35).toLocaleString("pt-BR", {
+          (valorFiancaFinal * 0.3).toLocaleString("pt-BR", {
             maximumFractionDigits: 0,
           });
         document.getElementById("valor-painel").textContent =
           "R$ " +
-          (valorFiancaFinal * 0.35).toLocaleString("pt-BR", {
+          (valorFiancaFinal * 0.4).toLocaleString("pt-BR", {
             maximumFractionDigits: 0,
           });
         document.getElementById("valor-advogado").textContent =
