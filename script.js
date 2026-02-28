@@ -339,7 +339,7 @@ document.addEventListener("DOMContentLoaded", function () {
       title: "What I've Done ",
       artist: "Linkin Park",
       src: "Música/What I've Done (Official Music Video) [4K Upgrade] - Linkin Park - Linkin Park (youtube).mp3",
-      cover: "Imagens/Album_NF.webp",
+      cover: "Imagens/Album_linkinpark.webp",
     },
   ];
 
