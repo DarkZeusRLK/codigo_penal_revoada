@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const CONTEUDO_PATCH_NOTES = `
       <h4>Novidades da Versao ${VERSAO_ATUAL}</h4>
       <ul>
-          <li><strong>Carnaval:</strong> Mascara e efeitos visuais atualizados.</li>
-          <li><strong>Fogos:</strong> Explosoes no canvas com cantos e laterais.</li>
+          <li><strong>Visual:</strong> Ajustes no layout e refinamento dos componentes.</li>
+          <li><strong>Interface:</strong> Melhorias de clareza e legibilidade geral.</li>
           <li><strong>Player:</strong> Ajuste para nomes longos sem quebrar.</li>
           <li><strong>Alerta:</strong> Aviso fixo para crimes inafiancaveis.</li>
       </ul>
@@ -310,7 +310,7 @@ document.addEventListener("DOMContentLoaded", function () {
     requestAnimationFrame(animate);
   }
 
-  setupCarnavalFireworks();
+  // Efeitos sazonais removidos do tema padrão.
 
   // =========================================================
   // 2. PLAYER DE MÚSICA ESTILO SPOTIFY
