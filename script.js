@@ -2,20 +2,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
   // 0. SISTEMA DE PATCH NOTES
   // =========================================================
-  const VERSAO_ATUAL = "3.6";
+  const VERSAO_ATUAL = "3.7";
 
   const CONTEUDO_PATCH_NOTES = `
       <h4>Novidades da Versao ${VERSAO_ATUAL}</h4>
       <ul>
           <li><strong>Visual:</strong> Ajustes no layout e refinamento dos componentes.</li>
-          <li><strong>Interface:</strong> Melhorias de clareza e legibilidade geral.</li>
+          <li><strong>Interface:</strong> Redefinição da estilização original.</li>
           <li><strong>Player:</strong> Ajuste para nomes longos sem quebrar.</li>
           <li><strong>Alerta:</strong> Aviso fixo para crimes inafiancaveis.</li>
-      </ul>
-      <h4>Correcoes</h4>
-      <ul>
-          <li>Estabilidade visual do player.</li>
-          <li>Otimizacao de animacoes de fundo.</li>
       </ul>
   `;
 
@@ -317,22 +312,22 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
   const playlist = [
     {
-      title: "Eu quero Festa, Eu quero Samba",
-      artist: "Rio",
-      src: "Música/Rio Filme Eu quero festa samba portugues - Maurício Victor (youtube).mp3",
-      cover: "Imagens/Capa_rio.png",
+      title: "Riders on the Storm",
+      artist: "Snoop Dogg",
+      src: "Música/Snoop Dogg - Riders on the Storm (feat. The Doors) - Rebel Music Studios (youtube).mp3",
+      cover: "Imagens/Album_NF.webp",
     },
     {
-      title: "Waka Waka",
-      artist: "Shakira",
-      src: "Música/Shakira - Waka Waka (This Time for Africa) (The Official 2010 FIFA World Cup™ Song) - shakiraVEVO (youtube).mp3",
-      cover: "Imagens/Capa_waka_waka.jpg",
+      title: "Feel Good Inc.",
+      artist: "Gorillaz",
+      src: "Música/Gorillaz - Feel Good Inc. (Official Video) - Gorillaz (youtube).mp3",
+      cover: "Imagens/Album_gorillaz.webp",
     },
     {
-      title: "We Are One",
-      artist: "PitBull",
-      src: "Música/We Are One (Ole Ola) [The Official 2014 FIFA World Cup Song] (Olodum Mix) - PitbullVEVO (youtube).mp3",
-      cover: "Imagens/Capa_we_are_one.png",
+      title: "Music Sounds Better With You",
+      artist: "Stardust",
+      src: "Música/Stardust - Music Sounds Better With You (Official Music Video).mp4",
+      cover: "Imagens/capa_stardust.jpg",
     },
     {
       title: "Lady (Hear Me Tonight)",
@@ -341,10 +336,10 @@ document.addEventListener("DOMContentLoaded", function () {
       cover: "Imagens/lady_modjo.jpg",
     },
     {
-      title: "Eva",
-      artist: "Banda Eva",
-      src: "Música/Eva (Ao Vivo) - Banda Eva (youtube).mp3",
-      cover: "Imagens/Capa_eva.png",
+      title: "What I've Done ",
+      artist: "Linkin Park",
+      src: "Música/What I've Done (Official Music Video) [4K Upgrade] - Linkin Park - Linkin Park (youtube).mp3",
+      cover: "Imagens/Album_NF.webp",
     },
   ];
 
