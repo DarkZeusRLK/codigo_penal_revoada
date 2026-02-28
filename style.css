@@ -318,13 +318,31 @@ textarea {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.85);
-  z-index: 1000;
+  z-index: 99999;
   display: flex;
   justify-content: center;
   align-items: center;
   backdrop-filter: blur(5px);
 }
+#modal-confirmacao,
+#modal-patch-notes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+}
 .modal-content {
+  background: #1e1e2e;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  border-radius: 12px;
+  border: 1px solid #444;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+.modal-box {
   background: #1e1e2e;
   width: 90%;
   max-width: 600px;
@@ -362,8 +380,21 @@ textarea {
   display: flex;
   gap: 10px;
 }
+.conf-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
 .confirm-section.half {
   flex: 1;
+}
+.conf-group {
+  margin-bottom: 10px;
+}
+.conf-group label {
+  font-size: 0.85em;
+  color: var(--color-revoada);
+  font-weight: 700;
 }
 .info-text {
   background: #151520;
@@ -384,6 +415,40 @@ textarea {
   padding: 4px 0;
   border-bottom: 1px solid #333;
   font-size: 0.85rem;
+}
+
+.crimes-detail {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px;
+  background: #151520;
+}
+.conf-value {
+  font-size: 1em;
+  color: #fff;
+  padding: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+.conf-list {
+  list-style: none;
+  padding: 0;
+}
+.conf-list li {
+  border-bottom: 1px dashed #444;
+  padding: 5px 0;
+}
+.img-wrapper img {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+.conf-img-box {
+  text-align: center;
+}
+.itens-apreendidos {
+  margin-top: 10px;
 }
 .confirm-imgs {
   display: flex;
@@ -447,6 +512,10 @@ textarea {
   position: relative;
   width: 100%;
 }
+.search-wrapper {
+  position: relative;
+  width: 100%;
+}
 
 .form-search {
   width: 40%;
@@ -492,6 +561,10 @@ textarea {
   font-size: 0.8em;
   color: rgba(255, 255, 255, 0.5);
 }
+.empty-message {
+  color: var(--text-secondary);
+  font-style: italic;
+}
 /* --- PATCH NOTES --- */
 .patch-notes-container {
   margin-top: 25px;
@@ -522,6 +595,20 @@ textarea {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+.header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.placeholder-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.logo-revoada {
+  max-height: 74px;
+  width: auto;
 }
 
 .patch-scroll-area {
@@ -635,6 +722,22 @@ textarea {
   font-weight: bold;
   color: var(--text-primary);
   font-size: 0.9em;
+}
+
+.btn-escolher-arquivo {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-header-category);
+  color: var(--text-primary);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-escolher-arquivo:hover {
+  border-color: var(--color-revoada);
+  background: rgba(0, 86, 179, 0.15);
 }
 
 .paste-hint {
@@ -830,6 +933,11 @@ input[type="file"] {
   cursor: pointer;
   font-size: 0.9em;
   transition: all 0.2s;
+  position: relative;
+}
+
+.crime-name {
+  flex: 1;
 }
 
 .crime-item:hover {
@@ -845,6 +953,118 @@ input[type="file"] {
   background-color: rgba(0, 86, 179, 0.15);
   border-left: 3px solid var(--color-revoada);
   color: #fff;
+}
+
+.crime-item[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 14px;
+  top: 100%;
+  margin-top: 10px;
+  width: clamp(220px, 32vw, 360px);
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(13, 22, 32, 0.98);
+  color: var(--text-primary);
+  border: 1px solid rgba(0, 86, 179, 0.45);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  font-size: 0.85em;
+  line-height: 1.4;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  z-index: 20;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.crime-item[data-tip]:hover::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Caixa de dicas */
+.dica-box {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  width: min(320px, 88vw);
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 86, 179, 0.22),
+    rgba(10, 14, 20, 0.94)
+  );
+  border: 1px solid rgba(0, 86, 179, 0.4);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
+  color: var(--text-primary);
+  z-index: 9998;
+}
+
+.dica-close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 86, 179, 0.45);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--text-primary);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.dica-close:hover {
+  transform: scale(1.05);
+  background: rgba(0, 86, 179, 0.22);
+}
+
+.dica-reopen {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 86, 179, 0.45);
+  background: rgba(13, 22, 32, 0.95);
+  color: var(--text-primary);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  z-index: 9998;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.dica-reopen:hover {
+  transform: translateY(-1px);
+  background: rgba(0, 86, 179, 0.2);
+}
+
+.dica-title {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-revoada-light);
+  margin-bottom: 6px;
+  font-size: 0.75em;
+}
+
+.dica-text {
+  font-size: 0.9em;
+  line-height: 1.4;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.dica-text.is-fading {
+  opacity: 0;
+  transform: translateY(4px);
 }
 
 /* Etiquetas */
@@ -883,6 +1103,10 @@ input[type="file"] {
 .resumo-section {
   margin-bottom: 20px;
   padding: 0 5px;
+}
+
+.crimes-selecionados {
+  margin-bottom: 12px;
 }
 
 .section-title {
@@ -985,6 +1209,24 @@ hr {
   animation: pulse 2s infinite;
 }
 
+.alert-inafiancavel {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 760px;
+  background: rgba(10, 14, 20, 0.96);
+  border: 1px solid var(--color-danger);
+  color: #ffd7d7;
+  padding: 14px 18px;
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  text-align: center;
+  font-weight: 700;
+  z-index: 20000;
+}
+
 /* Atenuantes */
 .atenuante-item {
   margin-bottom: 10px;
@@ -993,6 +1235,17 @@ hr {
   background: rgba(255, 255, 255, 0.02);
   padding: 8px;
   border-radius: 4px;
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+.atenuante-item:hover {
+  border-color: var(--color-revoada);
+}
+.atenuantes {
+  margin-top: 8px;
+}
+.atenuantes-title {
+  margin-bottom: 12px;
 }
 .atenuante-item label {
   margin-left: 10px;
@@ -1059,6 +1312,9 @@ input[type="radio"] {
   margin-top: 20px;
   border-left: 4px solid var(--color-success);
 }
+.dinheiro-sujo {
+  margin-top: 12px;
+}
 .breakdown-row {
   display: flex;
   justify-content: space-between;
@@ -1110,6 +1366,29 @@ input[type="radio"] {
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.btn-primary {
+  background-color: var(--color-revoada);
+  color: #fff;
+  border: 1px solid var(--color-revoada-light);
+}
+.btn-primary:hover {
+  background-color: var(--color-revoada-light);
+}
+
+.btn-add {
+  background-color: var(--bg-header-category);
+  color: var(--color-revoada);
+  border: 1px solid var(--color-revoada);
+  padding: 0 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-add:hover {
+  background-color: var(--color-revoada);
+  color: #fff;
 }
 
 #btn-enviar {
@@ -1235,10 +1514,22 @@ input[type="radio"] {
   }
 }
 
+@media (max-width: 600px) {
+  .dica-box {
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
+  .dica-reopen {
+    left: 12px;
+  }
+}
+
 /* UTILS */
 .hidden {
   display: none !important;
 }
+
 #input-dinheiro-sujo {
   font-weight: bold;
   color: var(--color-success);
@@ -1375,6 +1666,67 @@ input[type="radio"] {
   backdrop-filter: blur(10px);
   max-width: 350px;
   transition: all 0.3s ease;
+  user-select: none;
+}
+
+.spotify-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.btn-minimize {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--color-revoada);
+  color: var(--color-revoada);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.8em;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.btn-minimize:hover {
+  background: var(--color-revoada);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.btn-restore {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(19, 27, 38, 0.95);
+  border: 1px solid var(--color-revoada);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-revoada);
+  font-size: 1.5em;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  transition: all 0.3s ease;
+}
+
+.btn-restore:hover {
+  background: var(--color-revoada);
+  color: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 0 25px rgba(0, 86, 179, 0.5);
 }
 
 .spotify-player-container:hover {
@@ -1431,8 +1783,9 @@ input[type="radio"] {
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
-  flex-grow: 1;
-  min-width: 120px;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 180px;
 }
 
 .track-title {
@@ -1502,4 +1855,24 @@ input[type="radio"] {
   transform: scale(1.1);
   background-color: var(--color-revoada-light);
   color: #fff;
+}
+
+@media screen and (max-width: 1450px), screen and (max-height: 800px) {
+  .spotify-player-container {
+    max-width: 280px;
+    padding: 10px;
+  }
+
+  .spotify-img-wrapper {
+    width: 50px;
+    height: 50px;
+  }
+
+  .track-title {
+    font-size: 0.8rem;
+  }
+
+  .track-artist {
+    font-size: 0.7rem;
+  }
 }
