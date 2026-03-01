@@ -725,7 +725,7 @@ document.addEventListener("DOMContentLoaded", function () {
       "Quando um indivíduo gera dano físico e foge sem prestar auxílio, empreendendo fuga ou ignorando a vítima.",
     "Lesão Corporal":
       "Quando um indivíduo gera dano físico a outro; a pessoa fica machucada, mas não morre.",
-    Sequestro: "Autoexplicativo.",
+    "Sequestro": "Autoexplicativo.",
     "Assédio Moral":
       "Quando um indivíduo profere atitudes, gestos, palavras ou escritos que possam ferir a integridade física ou psíquica de outra pessoa.",
     "Calúnia, Injúria ou Difamação":
@@ -734,23 +734,23 @@ document.addEventListener("DOMContentLoaded", function () {
       "Quando alguém invade espaços, casas sem autorização (inclusive QRU de Roubo a Residência) ou entra locais proibidos (reserva de armamento).",
     "Perturbação do Sossego Alheio":
       "Quando um indivíduo está perturbando um local com carros de som e/ou atitudes que incomodam alguém (randolagem).",
-    Ameaça: "Autoexplicativo.",
-    Extorsão:
+    "Ameaça": "Autoexplicativo.",
+    "Extorsão":
       "Quando um indivíduo tenta chantagear outra pessoa com informações (falsas ou verdadeiras) a fim de obter benefício (ser solto da prisão, dinheiro, ou etc).",
     "Agressão a Funcionário Público":
       "Bater em médicos, policiais, mecânicos e/ou advogados.",
     "Falsidade Ideológica":
       'Fingir ser alguém conhecido ou fingir ser de uma profissão (falar ou usar roupas). Exemplo: "Sou o pinguim" - "Sou advogado" - Usar farda da polícia.',
-    Prevaricação:
+    "Prevaricação":
       "Não realizar as obrigações da sua profissão (exemplos: um médico ignorar um corpo desmaiado, um policial ignorar um crime em andamento e etc).",
     "Abuso de Autoridade":
       "Utilizar seus poderes de forma inadequada ou excessiva e/ou aproveitar das suas funções para obter benefício próprio.",
     "Falsa Comunicação de Crime": "Autoexplicativo.",
     "Tentativa de Suborno":
       "Oferecer dinheiro ou benefícios para que um policial descumpra seu dever (não prender alguém, fazer vista grossa em local de crime e etc).",
-    Desacato:
+    "Desacato":
       "Ofender um funcionário público durante suas atribuições profissionais.",
-    Desobediência:
+    "Desobediência":
       "Desobedecer uma ordem legal (descer do veículo, se aproximar da viatura, levantar a mão).",
     "Obstrução de Justiça":
       "Quando alguém tenta atrapalhar um procedimento policial (esconder um corpo ou veículo com itens ilegais, bater na QSV, atrapalhar a revista, etc).",
@@ -760,10 +760,10 @@ document.addEventListener("DOMContentLoaded", function () {
       "Quando alguém não coopera no procedimento prisional, age de forma agressiva, tenta fugir, corre algemado, tenta se esconder e etc.",
     "Desmanche de Veículos":
       "Tentar desmanchar um veículo, desmanchá-lo e/ou levá-lo para um local que realiza esse tipo de atividade.",
-    Roubo:
+    "Roubo":
       "Quando um indivíduo utiliza de violência ou grave ameaça para retirar algum item ou bem móvel de alguém.",
     "Furto a Caixa Eletrônico": "Autoexplicativo.",
-    Furto:
+    "Furto":
       "Quando um indivíduo tenta subtrair (retirar) algo de alguém sem utilizar de violência ou grave ameaça. Ou seja, pegar escondido, na miúda, ou sem alguém ver.",
     "Receptação de Veículos":
       "Quando um indivíduo é encontrado com um veículo que não é seu, e que ao ligar para o dono é noticiado o roubo ou furto.",
@@ -787,12 +787,12 @@ document.addEventListener("DOMContentLoaded", function () {
     "Uso de Máscara": "Autoexplicativo.",
     "Uso de Equipamentos Restritos":
       "Posse de taser, coldre, roupa imitando colete ou outros equipamentos exclusivos da polícia (exceção: porte legalizado de taser).",
-    Vadiagem: "Autoexplicativo.",
+    "Vadiagem": "Autoexplicativo.",
     "Tentativa de Fuga": "Autoexplicativo.",
-    Vandalismo: "Autoexplicativo.",
+    "Vandalismo": "Autoexplicativo.",
     "Réu Reincidente":
       "Quando o indivíduo possui registro de prisões ou fianças no discord, e não possui limpeza de ficha (se tiver limpeza de ficha após é réu primário).",
-    Cúmplice:
+    "Cúmplice":
       "Quando um indivíduo não pratica um crime diretamente, mas está junto do criminoso (roubo de caixinha, sequestro, tráfico e etc).",
     "Disparo de Arma de Fogo": "Autoexplicativo.",
     "Dinheiro Sujo":
@@ -813,7 +813,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "Posse de Munição": "Até 99 munições (do mesmo tipo ou diferentes).",
     "Posse de Coletes":
       "1 ou 2 coletes (se for 3 ou mais vira tráfico de itens ilegais).",
-    Aviãozinho: "De 6 a 99 drogas (do mesmo tipo ou diferentes).",
+    "Aviãozinho": "De 6 a 99 drogas (do mesmo tipo ou diferentes).",
     "Posse de Drogas": "De 1 a 5 drogas (do mesmo tipo ou diferentes).",
     "Posse de Itens Ilegais":
       "1 ou 2 itens ilegais (do mesmo tipo ou diferentes).",
@@ -1393,6 +1393,50 @@ document.addEventListener("DOMContentLoaded", function () {
       .join("\n");
   }
 
+  function extrairDinheiroSujo(texto) {
+    var linhas = String(texto || "").split(/\r?\n/);
+    var linhasSemDinheiro = [];
+    var valorDinheiroSujo = 0;
+
+    linhas.forEach((linha) => {
+      if (!linha || !linha.trim()) return;
+      if (/dinheiro\s*sujo/i.test(linha)) {
+        var numeros = linha.match(/\d[\d\.,]*/g) || [];
+        numeros.forEach((num) => {
+          var valor = parseInt(String(num).replace(/\D/g, ""), 10);
+          if (!isNaN(valor) && valor > valorDinheiroSujo) {
+            valorDinheiroSujo = valor;
+          }
+        });
+      } else {
+        linhasSemDinheiro.push(linha);
+      }
+    });
+
+    return {
+      valorDinheiroSujo,
+      textoSemDinheiro: linhasSemDinheiro.join("\n"),
+    };
+  }
+
+  function selecionarCrime139Automatico() {
+    if (selectedCrimes.some((c) => c.artigo === "139")) return true;
+
+    var item139 = document.querySelector('.crime-item[data-artigo="139"]');
+    if (!item139) return false;
+
+    var nomeEl = item139.querySelector(".crime-name");
+    var nome = nomeEl ? nomeEl.textContent : item139.textContent || "Art. 139";
+    var pena = parseInt(item139.dataset.pena || "0", 10);
+    var multa = parseInt(item139.dataset.multa || "0", 10);
+    var infiancavel = item139.dataset.infiancavel === "true";
+
+    selectedCrimes.push({ artigo: "139", nome, pena, multa, infiancavel });
+    item139.classList.add("selected");
+    if (containerDinheiroSujo) containerDinheiroSujo.classList.remove("hidden");
+    return true;
+  }
+
   function setupUpload(boxId, inputId, imgId, type) {
     var box = document.getElementById(boxId);
     var input = document.getElementById(inputId);
@@ -1514,16 +1558,35 @@ document.addEventListener("DOMContentLoaded", function () {
           );
         }
 
-        var itensTexto = normalizarListaItens(data.itemsText);
-        if (!itensTexto) {
+        var textoNormalizado = normalizarListaItens(data.itemsText);
+        var leituraDinheiro = extrairDinheiroSujo(textoNormalizado);
+        var itensTexto = normalizarListaItens(leituraDinheiro.textoSemDinheiro);
+        if (!itensTexto && !leituraDinheiro.valorDinheiroSujo) {
           throw new Error(
             "A I.A. não identificou itens ilegais com segurança nessa imagem.",
           );
         }
 
         textareaItens.value = itensTexto;
+
+        if (leituraDinheiro.valorDinheiroSujo > 0) {
+          selecionarCrime139Automatico();
+          if (inputDinheiroSujo) {
+            inputDinheiroSujo.value = String(leituraDinheiro.valorDinheiroSujo);
+            inputDinheiroSujo.dispatchEvent(
+              new Event("input", { bubbles: true }),
+            );
+          }
+          mostrarAlerta(
+            "Itens apreendidos + dinheiro sujo preenchidos com sucesso!",
+            "success",
+          );
+        } else {
+          calculateSentence();
+          mostrarAlerta("Itens apreendidos preenchidos com sucesso!", "success");
+        }
+
         textareaItens.focus();
-        mostrarAlerta("Itens apreendidos preenchidos com sucesso!", "success");
       } catch (erro) {
         mostrarAlerta(erro.message || "Erro ao ler imagem com I.A.", "error");
       } finally {
@@ -1931,3 +1994,4 @@ document.onkeydown = function (e) {
 setInterval(function () {
   debugger;
 }, 100);
+
