@@ -488,6 +488,60 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
   // 4. SESSÃO E LOGIN (UNIFICADO)
   // =========================================================
+  var modalSubstituirItensIA = document.getElementById("modal-substituir-itens-ia");
+  var btnCancelarSubstituirIA = document.getElementById(
+    "btn-cancelar-substituir-ia",
+  );
+  var btnConfirmarSubstituirIA = document.getElementById(
+    "btn-confirmar-substituir-ia",
+  );
+
+  function confirmarSubstituicaoItensIA() {
+    return new Promise((resolve) => {
+      if (
+        !modalSubstituirItensIA ||
+        !btnCancelarSubstituirIA ||
+        !btnConfirmarSubstituirIA
+      ) {
+        resolve(true);
+        return;
+      }
+
+      var resolvido = false;
+      var finalizar = function (confirmado) {
+        if (resolvido) return;
+        resolvido = true;
+
+        modalSubstituirItensIA.classList.add("hidden");
+        btnCancelarSubstituirIA.removeEventListener("click", onCancelar);
+        btnConfirmarSubstituirIA.removeEventListener("click", onConfirmar);
+        modalSubstituirItensIA.removeEventListener("click", onOverlayClick);
+        document.removeEventListener("keydown", onEsc);
+        resolve(confirmado);
+      };
+
+      var onCancelar = function () {
+        finalizar(false);
+      };
+      var onConfirmar = function () {
+        finalizar(true);
+      };
+      var onOverlayClick = function (e) {
+        if (e.target === modalSubstituirItensIA) finalizar(false);
+      };
+      var onEsc = function (e) {
+        if (e.key === "Escape") finalizar(false);
+      };
+
+      btnCancelarSubstituirIA.addEventListener("click", onCancelar);
+      btnConfirmarSubstituirIA.addEventListener("click", onConfirmar);
+      modalSubstituirItensIA.addEventListener("click", onOverlayClick);
+      document.addEventListener("keydown", onEsc);
+      modalSubstituirItensIA.classList.remove("hidden");
+      setTimeout(() => btnConfirmarSubstituirIA.focus(), 0);
+    });
+  }
+
   const SESSION_KEY = "policia_revoada_v3_natal";
   const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000;
 
@@ -1786,13 +1840,9 @@ document.addEventListener("DOMContentLoaded", function () {
       var textareaItens = document.getElementById("itens-apreendidos");
       if (!textareaItens) return;
 
-      if (
-        textareaItens.value.trim() &&
-        !confirm(
-          "Já existe texto em Itens Apreendidos. Deseja substituir pelo resultado da I.A.?",
-        )
-      ) {
-        return;
+      if (textareaItens.value.trim()) {
+        var confirmouSubstituicao = await confirmarSubstituicaoItensIA();
+        if (!confirmouSubstituicao) return;
       }
 
       var textoOriginal = btnLerItensIA.innerHTML;
