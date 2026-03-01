@@ -68,24 +68,24 @@ export default async function handler(req, res) {
   }
 
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método incorreto. Use POST." });
+    return res.status(405).json({ error: "Metodo incorreto. Use POST." });
   }
 
   const apiKey = process.env.API_GEMINI_KEY;
   if (!apiKey) {
     return res.status(500).json({
       error:
-        "Configuração ausente no servidor: defina API_GEMINI_KEY nas variáveis da Vercel.",
+        "Configuracao ausente no servidor: defina API_GEMINI_KEY nas variaveis da Vercel.",
     });
   }
 
   try {
-    const { imageBase64, mimeType } = req.body || {};
+    const { imageBase64, mimeType, cropRightPanel } = req.body || {};
 
     if (!imageBase64) {
       return res
         .status(400)
-        .json({ error: "Imagem inválida: envie imageBase64 no corpo da requisição." });
+        .json({ error: "Imagem invalida: envie imageBase64 no corpo da requisicao." });
     }
 
     const base64Limpo = String(imageBase64)
@@ -96,17 +96,27 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Imagem base64 vazia." });
     }
 
-    const prompt = [
-      "Analise somente a imagem da mochila/inventário.",
-      "Liste somente itens ilegais que estejam visíveis (armas, munições, drogas e itens ilícitos).",
-      "Retorne sem explicações e sem markdown.",
-      "Formato obrigatório: uma linha por item, exatamente como '<quantidade>x <item>'.",
+    const promptLines = [
+      "Analise somente o inventario do preso (painel revistado/bau do lado direito).",
+      "IMPORTANTE: ignore totalmente itens do jogador, painel esquerdo, barra inferior, armas equipadas e qualquer HUD/overlay.",
+      "Liste somente itens ilegais que estejam visiveis no painel da direita (armas, municoes, drogas e itens ilicitos).",
+      "Nao inclua itens legais como roupas, celular, radio, bebida, comida e similares.",
+      "Retorne sem explicacoes e sem markdown.",
+      "Formato obrigatorio: uma linha por item, exatamente como '<quantidade>x <item>'.",
       "Exemplo:",
       "1x G36",
-      "10x Munição G36",
+      "10x Municao G36",
       "150x Erva",
-      "Se não identificar item ilegal com segurança, retorne exatamente: NENHUM_ITEM_ILEGAL_IDENTIFICADO",
-    ].join("\n");
+      "Se nao identificar item ilegal com seguranca, retorne exatamente: NENHUM_ITEM_ILEGAL_IDENTIFICADO",
+    ];
+
+    if (cropRightPanel) {
+      promptLines.unshift(
+        "A imagem recebida ja esta recortada para o painel da direita; use somente esse recorte.",
+      );
+    }
+
+    const prompt = promptLines.join("\n");
 
     const requestBody = {
       contents: [
@@ -154,7 +164,7 @@ export default async function handler(req, res) {
       if (geminiResponse.ok) {
         textoBruto = extrairTextoGemini(geminiPayload);
         if (textoBruto) break;
-        ultimoErro = `Modelo ${model} respondeu sem texto útil.`;
+        ultimoErro = `Modelo ${model} respondeu sem texto util.`;
         continue;
       }
 
@@ -179,7 +189,7 @@ export default async function handler(req, res) {
     if (!textoBruto) {
       return res.status(502).json({
         error: "Falha ao consultar o Gemini.",
-        detalhe: ultimoErro || "Nenhum modelo retornou resposta válida.",
+        detalhe: ultimoErro || "Nenhum modelo retornou resposta valida.",
       });
     }
 
@@ -187,7 +197,7 @@ export default async function handler(req, res) {
 
     if (!itemsText) {
       return res.status(422).json({
-        error: "A I.A. não identificou itens ilegais com segurança nessa imagem.",
+        error: "A I.A. nao identificou itens ilegais com seguranca nessa imagem.",
       });
     }
 

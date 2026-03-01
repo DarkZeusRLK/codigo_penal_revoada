@@ -1332,6 +1332,55 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  function carregarImagem(dataUrl) {
+    return new Promise((resolve, reject) => {
+      var img = new Image();
+      img.onload = function () {
+        resolve(img);
+      };
+      img.onerror = function () {
+        reject(new Error("Não foi possível processar a imagem."));
+      };
+      img.src = dataUrl;
+    });
+  }
+
+  async function fileToBase64RightPanel(file) {
+    var base = await fileToBase64(file);
+    var dataUrl = "data:" + base.mimeType + ";base64," + base.imageBase64;
+    var img = await carregarImagem(dataUrl);
+
+    var largura = img.naturalWidth || img.width;
+    var altura = img.naturalHeight || img.height;
+
+    // Recorte focado no inventário revistado (lado direito da interface).
+    var cropX = Math.max(0, Math.floor(largura * 0.57));
+    var cropY = Math.max(0, Math.floor(altura * 0.14));
+    var cropW = Math.min(largura - cropX, Math.floor(largura * 0.4));
+    var cropH = Math.min(altura - cropY, Math.floor(altura * 0.62));
+
+    if (cropW < 80 || cropH < 80) {
+      return base;
+    }
+
+    var canvas = document.createElement("canvas");
+    canvas.width = cropW;
+    canvas.height = cropH;
+    var ctx = canvas.getContext("2d");
+    if (!ctx) return base;
+
+    ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+    var recorteDataUrl = canvas.toDataURL("image/jpeg", 0.95);
+    var match = String(recorteDataUrl).match(/^data:(.*?);base64,(.*)$/);
+    if (!match || !match[2]) return base;
+
+    return {
+      mimeType: match[1] || "image/jpeg",
+      imageBase64: match[2],
+      cropRightPanel: true,
+    };
+  }
+
   function normalizarListaItens(texto) {
     return String(texto || "")
       .replace(/```[a-z]*|```/gi, "")
@@ -1448,7 +1497,7 @@ document.addEventListener("DOMContentLoaded", function () {
         '<i class="fa-solid fa-spinner fa-spin"></i> LENDO IMAGEM...';
 
       try {
-        var payloadImagem = await fileToBase64(arquivoMochila);
+        var payloadImagem = await fileToBase64RightPanel(arquivoMochila);
 
         var resposta = await fetch("/api/ler-itens-mochila", {
           method: "POST",
