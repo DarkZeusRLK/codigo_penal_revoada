@@ -1393,6 +1393,185 @@ document.addEventListener("DOMContentLoaded", function () {
       .join("\n");
   }
 
+  function parseNumeroComSufixo(valorTexto) {
+    var bruto = String(valorTexto || "")
+      .trim()
+      .toLowerCase();
+    if (!bruto) return 0;
+
+    var sufixoMatch = bruto.match(/([km])\s*$/i);
+    var sufixo = sufixoMatch ? sufixoMatch[1].toLowerCase() : "";
+    var numeroBruto = bruto.replace(/[^\d.,]/g, "");
+    if (!numeroBruto) return 0;
+
+    var numero = 0;
+    if (sufixo) {
+      var textoNumero = numeroBruto;
+      if (textoNumero.includes(",") && textoNumero.includes(".")) {
+        textoNumero = textoNumero.replace(/\./g, "").replace(",", ".");
+      } else if (textoNumero.includes(",")) {
+        textoNumero = textoNumero.replace(",", ".");
+      }
+      numero = parseFloat(textoNumero);
+      if (isNaN(numero)) {
+        numero = parseInt(numeroBruto.replace(/\D/g, ""), 10) || 0;
+      }
+    } else {
+      numero = parseInt(numeroBruto.replace(/\D/g, ""), 10) || 0;
+    }
+
+    if (sufixo === "k") numero *= 1000;
+    if (sufixo === "m") numero *= 1000000;
+    return Math.round(numero);
+  }
+
+  function normalizarTextoBusca(texto) {
+    return String(texto || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase()
+      .trim();
+  }
+
+  function extrairQuantidadeLinhaItem(linha) {
+    var texto = String(linha || "");
+    var inicio = texto.match(/^\s*(\d{1,6})\s*[xX]\b/);
+    if (inicio) return parseInt(inicio[1], 10);
+    var fim = texto.match(/\b(\d{1,6})\s*[xX]\s*$/);
+    if (fim) return parseInt(fim[1], 10);
+    return 1;
+  }
+
+  function limparNomeLinhaItem(linha) {
+    return String(linha || "")
+      .replace(/^[-*\u2022]+\s*/, "")
+      .replace(/^\d+\s*[xX]\s*/, "")
+      .replace(/^\d+\s*[\.\)\-:]\s*/, "")
+      .trim();
+  }
+
+  var ARMAS_PESADAS_KEYWORDS = [
+    "G36",
+    "M4A4",
+    "AK47",
+    "AK-47",
+    "MTAR",
+    "UZI",
+    "MP5",
+    "SMG",
+    "SCAR",
+    "M4A1",
+    "NAVY CARBINE",
+    "CARBINE",
+    "FUZIL",
+    "RIFLE",
+    "METRALHADORA",
+    "SUBMETRALHADORA",
+    "SHOTGUN",
+    "DOZE",
+    "PUMP",
+    "G3",
+  ].map(normalizarTextoBusca);
+
+  var ARMAS_LEVES_KEYWORDS = [
+    "TEC9",
+    "TEC-9",
+    "FIVE SEVEN",
+    "FIVE-SEVEN",
+    "HK P7",
+    "GLOCK",
+    "M9",
+    "PISTOL",
+    "PISTOLA",
+    "REVOLVER",
+    "DEAGLE",
+  ].map(normalizarTextoBusca);
+
+  function classificarTipoArma(nomeNormalizado) {
+    if (!nomeNormalizado) return "";
+    if (
+      /MUNICAO|MUNICAO|AMMO|BALA|CARTUCHO|PENTE|SUPRIMENTO|COMPONENTE/.test(
+        nomeNormalizado,
+      )
+    ) {
+      return "";
+    }
+    if (ARMAS_PESADAS_KEYWORDS.some((k) => nomeNormalizado.includes(k))) {
+      return "pesada";
+    }
+    if (ARMAS_LEVES_KEYWORDS.some((k) => nomeNormalizado.includes(k))) {
+      return "leve";
+    }
+    return "";
+  }
+
+  function adicionarCrimeSemTrava(artigo) {
+    if (selectedCrimes.some((c) => c.artigo === artigo)) return false;
+    var item = document.querySelector(`.crime-item[data-artigo="${artigo}"]`);
+    if (!item) return false;
+
+    var nomeEl = item.querySelector(".crime-name");
+    var nome = nomeEl ? nomeEl.textContent : item.textContent || `Art. ${artigo}`;
+    var pena = parseInt(item.dataset.pena || "0", 10);
+    var multa = parseInt(item.dataset.multa || "0", 10);
+    var infiancavel = item.dataset.infiancavel === "true";
+
+    selectedCrimes.push({ artigo, nome, pena, multa, infiancavel });
+    item.classList.add("selected");
+    if (artigo === "139" && containerDinheiroSujo) {
+      containerDinheiroSujo.classList.remove("hidden");
+    }
+    return true;
+  }
+
+  function removerCrimeSemTrava(artigo) {
+    var idx = selectedCrimes.findIndex((c) => c.artigo === artigo);
+    if (idx < 0) return false;
+    selectedCrimes.splice(idx, 1);
+
+    var item = document.querySelector(`.crime-item[data-artigo="${artigo}"]`);
+    if (item) item.classList.remove("selected");
+    if (artigo === "139" && containerDinheiroSujo) {
+      containerDinheiroSujo.classList.add("hidden");
+      if (inputDinheiroSujo) inputDinheiroSujo.value = "";
+    }
+    return true;
+  }
+
+  function aplicarCrimesArmasAutomatico(textoItens) {
+    var linhas = String(textoItens || "").split(/\r?\n/);
+    var totalPesadas = 0;
+    var totalLeves = 0;
+
+    linhas.forEach((linha) => {
+      if (!linha || !linha.trim()) return;
+      var nomeLimpo = limparNomeLinhaItem(linha);
+      var nomeNormalizado = normalizarTextoBusca(nomeLimpo);
+      var tipo = classificarTipoArma(nomeNormalizado);
+      if (!tipo) return;
+
+      var quantidade = extrairQuantidadeLinhaItem(linha);
+      if (!Number.isFinite(quantidade) || quantidade <= 0) return;
+
+      if (tipo === "pesada") totalPesadas += quantidade;
+      if (tipo === "leve") totalLeves += quantidade;
+    });
+
+    var totalArmas = totalPesadas + totalLeves;
+    var traficoAutomatico = totalArmas >= 3;
+    if (traficoAutomatico) {
+      adicionarCrimeSemTrava("125");
+      removerCrimeSemTrava("127");
+      removerCrimeSemTrava("128");
+    } else {
+      removerCrimeSemTrava("125");
+      if (totalPesadas > 0) adicionarCrimeSemTrava("127");
+      if (totalLeves > 0) adicionarCrimeSemTrava("128");
+    }
+
+    return { totalPesadas, totalLeves, totalArmas, traficoAutomatico };
+  }
+
   function extrairDinheiroSujo(texto) {
     var linhas = String(texto || "").split(/\r?\n/);
     var linhasSemDinheiro = [];
@@ -1401,9 +1580,9 @@ document.addEventListener("DOMContentLoaded", function () {
     linhas.forEach((linha) => {
       if (!linha || !linha.trim()) return;
       if (/dinheiro\s*sujo/i.test(linha)) {
-        var numeros = linha.match(/\d[\d\.,]*/g) || [];
+        var numeros = linha.match(/\d[\d\.,]*\s*[kKmM]?/g) || [];
         numeros.forEach((num) => {
-          var valor = parseInt(String(num).replace(/\D/g, ""), 10);
+          var valor = parseNumeroComSufixo(num);
           if (!isNaN(valor) && valor > valorDinheiroSujo) {
             valorDinheiroSujo = valor;
           }
@@ -1420,21 +1599,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function selecionarCrime139Automatico() {
-    if (selectedCrimes.some((c) => c.artigo === "139")) return true;
-
-    var item139 = document.querySelector('.crime-item[data-artigo="139"]');
-    if (!item139) return false;
-
-    var nomeEl = item139.querySelector(".crime-name");
-    var nome = nomeEl ? nomeEl.textContent : item139.textContent || "Art. 139";
-    var pena = parseInt(item139.dataset.pena || "0", 10);
-    var multa = parseInt(item139.dataset.multa || "0", 10);
-    var infiancavel = item139.dataset.infiancavel === "true";
-
-    selectedCrimes.push({ artigo: "139", nome, pena, multa, infiancavel });
-    item139.classList.add("selected");
-    if (containerDinheiroSujo) containerDinheiroSujo.classList.remove("hidden");
-    return true;
+    return adicionarCrimeSemTrava("139");
   }
 
   function setupUpload(boxId, inputId, imgId, type) {
@@ -1568,6 +1733,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         textareaItens.value = itensTexto;
+        var resumoArmas = aplicarCrimesArmasAutomatico(itensTexto);
+        var crimesAutomaticos = [];
+        if (resumoArmas.traficoAutomatico) {
+          crimesAutomaticos.push("Art. 125");
+        } else {
+          if (resumoArmas.totalPesadas > 0) crimesAutomaticos.push("Art. 127");
+          if (resumoArmas.totalLeves > 0) crimesAutomaticos.push("Art. 128");
+        }
 
         if (leituraDinheiro.valorDinheiroSujo > 0) {
           selecionarCrime139Automatico();
@@ -1577,13 +1750,23 @@ document.addEventListener("DOMContentLoaded", function () {
               new Event("input", { bubbles: true }),
             );
           }
+          calculateSentence();
           mostrarAlerta(
-            "Itens apreendidos + dinheiro sujo preenchidos com sucesso!",
+            "Itens apreendidos + dinheiro sujo preenchidos com sucesso!" +
+              (crimesAutomaticos.length
+                ? " Crimes automaticos: " + crimesAutomaticos.join(", ") + "."
+                : ""),
             "success",
           );
         } else {
           calculateSentence();
-          mostrarAlerta("Itens apreendidos preenchidos com sucesso!", "success");
+          mostrarAlerta(
+            "Itens apreendidos preenchidos com sucesso!" +
+              (crimesAutomaticos.length
+                ? " Crimes automaticos: " + crimesAutomaticos.join(", ") + "."
+                : ""),
+            "success",
+          );
         }
 
         textareaItens.focus();
