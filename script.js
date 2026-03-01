@@ -1310,6 +1310,40 @@ document.addEventListener("DOMContentLoaded", function () {
     arquivoDeposito = null,
     arquivoExtra = null;
 
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      if (!file) return reject(new Error("Arquivo de imagem não encontrado."));
+      var reader = new FileReader();
+      reader.onload = function (event) {
+        var result = event.target.result || "";
+        var match = String(result).match(/^data:(.*?);base64,(.*)$/);
+        if (!match || !match[2]) {
+          return reject(new Error("Não foi possível converter a imagem."));
+        }
+        resolve({
+          mimeType: match[1] || "image/jpeg",
+          imageBase64: match[2],
+        });
+      };
+      reader.onerror = function () {
+        reject(new Error("Erro ao ler a imagem."));
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function normalizarListaItens(texto) {
+    return String(texto || "")
+      .replace(/```[a-z]*|```/gi, "")
+      .split(/\r?\n/)
+      .map((linha) => linha.trim())
+      .filter(Boolean)
+      .map((linha) => linha.replace(/^[-*\u2022]+\s*/, "").trim())
+      .map((linha) => linha.replace(/^\d+\s*[\.\)\-:]\s*/, "").trim())
+      .filter(Boolean)
+      .join("\n");
+  }
+
   function setupUpload(boxId, inputId, imgId, type) {
     var box = document.getElementById(boxId);
     var input = document.getElementById(inputId);
@@ -1384,6 +1418,70 @@ document.addEventListener("DOMContentLoaded", function () {
     "deposito",
   );
   setupUpload("box-upload-extra", "upload-extra", "img-preview-extra", "extra");
+
+  var btnLerItensIA = document.getElementById("btn-ler-itens-ia");
+  if (btnLerItensIA) {
+    btnLerItensIA.addEventListener("click", async function () {
+      if (!arquivoMochila) {
+        return mostrarAlerta(
+          "Anexe primeiro a foto da mochila para usar a leitura com I.A.",
+          "error",
+        );
+      }
+
+      var textareaItens = document.getElementById("itens-apreendidos");
+      if (!textareaItens) return;
+
+      if (
+        textareaItens.value.trim() &&
+        !confirm(
+          "Já existe texto em Itens Apreendidos. Deseja substituir pelo resultado da I.A.?",
+        )
+      ) {
+        return;
+      }
+
+      var textoOriginal = btnLerItensIA.innerHTML;
+      btnLerItensIA.disabled = true;
+      btnLerItensIA.classList.add("is-loading");
+      btnLerItensIA.innerHTML =
+        '<i class="fa-solid fa-spinner fa-spin"></i> LENDO IMAGEM...';
+
+      try {
+        var payloadImagem = await fileToBase64(arquivoMochila);
+
+        var resposta = await fetch("/api/ler-itens-mochila", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payloadImagem),
+        });
+
+        var data = await resposta.json().catch(() => ({}));
+        if (!resposta.ok) {
+          throw new Error(
+            data.error || "Falha ao analisar a imagem com a I.A. Tente novamente.",
+          );
+        }
+
+        var itensTexto = normalizarListaItens(data.itemsText);
+        if (!itensTexto) {
+          throw new Error(
+            "A I.A. não identificou itens ilegais com segurança nessa imagem.",
+          );
+        }
+
+        textareaItens.value = itensTexto;
+        textareaItens.focus();
+        mostrarAlerta("Itens apreendidos preenchidos com sucesso!", "success");
+      } catch (erro) {
+        mostrarAlerta(erro.message || "Erro ao ler imagem com I.A.", "error");
+      } finally {
+        btnLerItensIA.disabled = false;
+        btnLerItensIA.classList.remove("is-loading");
+        btnLerItensIA.innerHTML = textoOriginal;
+      }
+    });
+  }
 
   var btnShowExtra = document.getElementById("btn-show-extra");
   if (btnShowExtra) {
