@@ -6,6 +6,18 @@ export const config = {
   },
 };
 
+function modelsParaTeste() {
+  const base = [
+    process.env.GEMINI_MODEL || "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-3-flash-preview",
+  ];
+  const normalizados = base
+    .map((m) => String(m || "").trim())
+    .filter(Boolean);
+  return [...new Set(normalizados)];
+}
+
 function extrairTextoGemini(payload) {
   const candidates = payload?.candidates || [];
   for (const candidate of candidates) {
@@ -34,6 +46,15 @@ function limparLista(texto) {
     .map((linha) => linha.replace(/^\d+\s*[\.\)\-:]\s*/, "").trim())
     .filter(Boolean)
     .join("\n");
+}
+
+function obterDetalheErro(payload, raw, status) {
+  const msg =
+    payload?.error?.message ||
+    payload?.message ||
+    (typeof raw === "string" ? raw : "") ||
+    "Erro desconhecido";
+  return `HTTP ${status}: ${String(msg).slice(0, 500)}`;
 }
 
 export default async function handler(req, res) {
@@ -87,50 +108,81 @@ export default async function handler(req, res) {
       "Se não identificar item ilegal com segurança, retorne exatamente: NENHUM_ITEM_ILEGAL_IDENTIFICADO",
     ].join("\n");
 
-    const model = "gemini-1.5-flash";
-    const geminiUrl =
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent` +
-      `?key=${encodeURIComponent(apiKey)}`;
-
-    const geminiResponse = await fetch(geminiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { text: prompt },
-              {
-                inline_data: {
-                  mime_type: mimeType || "image/jpeg",
-                  data: base64Limpo,
-                },
+    const requestBody = {
+      contents: [
+        {
+          parts: [
+            { text: prompt },
+            {
+              inline_data: {
+                mime_type: mimeType || "image/jpeg",
+                data: base64Limpo,
               },
-            ],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.1,
+            },
+          ],
         },
-      }),
-    });
+      ],
+      generationConfig: {
+        temperature: 0.1,
+      },
+    };
 
-    const raw = await geminiResponse.text();
-    let geminiPayload = {};
-    try {
-      geminiPayload = JSON.parse(raw);
-    } catch {
-      geminiPayload = {};
+    const modelos = modelsParaTeste();
+    let textoBruto = "";
+    let ultimoErro = "";
+
+    for (const model of modelos) {
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+
+      const geminiResponse = await fetch(geminiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const raw = await geminiResponse.text();
+      let geminiPayload = {};
+      try {
+        geminiPayload = JSON.parse(raw);
+      } catch {
+        geminiPayload = {};
+      }
+
+      if (geminiResponse.ok) {
+        textoBruto = extrairTextoGemini(geminiPayload);
+        if (textoBruto) break;
+        ultimoErro = `Modelo ${model} respondeu sem texto útil.`;
+        continue;
+      }
+
+      const detalhe = obterDetalheErro(geminiPayload, raw, geminiResponse.status);
+      ultimoErro = `Modelo ${model} -> ${detalhe}`;
+
+      const erroMsg = String(geminiPayload?.error?.message || "").toLowerCase();
+      const naoEncontradoOuIndisponivel =
+        geminiResponse.status === 404 ||
+        erroMsg.includes("not found") ||
+        erroMsg.includes("is not found") ||
+        erroMsg.includes("unsupported");
+
+      if (!naoEncontradoOuIndisponivel) {
+        return res.status(502).json({
+          error: "Falha ao consultar o Gemini.",
+          detalhe: ultimoErro,
+        });
+      }
     }
 
-    if (!geminiResponse.ok) {
+    if (!textoBruto) {
       return res.status(502).json({
         error: "Falha ao consultar o Gemini.",
-        detalhe: raw?.slice(0, 400) || "Resposta vazia",
+        detalhe: ultimoErro || "Nenhum modelo retornou resposta válida.",
       });
     }
 
-    const textoBruto = extrairTextoGemini(geminiPayload);
     const itemsText = limparLista(textoBruto);
 
     if (!itemsText) {

@@ -1458,8 +1458,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         var data = await resposta.json().catch(() => ({}));
         if (!resposta.ok) {
+          var detalhe = data.detalhe ? " Detalhe: " + data.detalhe : "";
           throw new Error(
-            data.error || "Falha ao analisar a imagem com a I.A. Tente novamente.",
+            (data.error || "Falha ao analisar a imagem com a I.A. Tente novamente.") +
+              detalhe,
           );
         }
 
