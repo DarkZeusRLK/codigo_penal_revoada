@@ -101,12 +101,16 @@ export default async function handler(req, res) {
       "IMPORTANTE: ignore totalmente itens do jogador, painel esquerdo, barra inferior, armas equipadas e qualquer HUD/overlay.",
       "Liste somente itens ilegais que estejam visiveis no painel da direita (armas, municoes, drogas e itens ilicitos).",
       "Nao inclua itens legais como roupas, celular, radio, bebida, comida e similares.",
+      "Itens com prefixo 'M-' (ex.: M-G3, M-MICROSMG) sao municoes, nao armas.",
+      "Pacote Pistola conta como 1 arma leve. Pacote Special/Carbine conta como 1 arma pesada.",
+      "Para dinheiro sujo, preserve o sufixo K/M quando visivel (ex.: 20k Dinheiro Sujo).",
       "Retorne sem explicacoes e sem markdown.",
       "Formato obrigatorio: uma linha por item, exatamente como '<quantidade>x <item>'.",
       "Exemplo:",
       "1x G36",
       "10x Municao G36",
       "150x Erva",
+      "20k Dinheiro Sujo",
       "Se nao identificar item ilegal com seguranca, retorne exatamente: NENHUM_ITEM_ILEGAL_IDENTIFICADO",
     ];
 

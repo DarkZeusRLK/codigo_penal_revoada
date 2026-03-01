@@ -1487,15 +1487,59 @@ document.addEventListener("DOMContentLoaded", function () {
     "DEAGLE",
   ].map(normalizarTextoBusca);
 
-  function classificarTipoArma(nomeNormalizado) {
-    if (!nomeNormalizado) return "";
+  var PACOTE_PESADA_KEYWORDS = [
+    "SPECIAL",
+    "SPECI",
+    "CARBINE",
+    "SCAR",
+    "FUZIL",
+    "RIFLE",
+    "SMG",
+    "SUBMETRALHADORA",
+    "METRALHADORA",
+    "G3",
+    "M4",
+    "AK",
+  ].map(normalizarTextoBusca);
+
+  var PACOTE_LEVE_KEYWORDS = [
+    "PISTOL",
+    "PISTOLA",
+    "GLOCK",
+    "TEC9",
+    "TEC-9",
+    "FIVE",
+    "HK",
+    "P50",
+    "M9",
+  ].map(normalizarTextoBusca);
+
+  function ehLinhaMunicao(nomeNormalizado) {
+    if (!nomeNormalizado) return false;
+    if (/^M[\-\s]/.test(nomeNormalizado)) return true;
     if (
-      /MUNICAO|MUNICAO|AMMO|BALA|CARTUCHO|PENTE|SUPRIMENTO|COMPONENTE/.test(
+      /\bMUNICAO\b|AMMO|BALA|CARTUCHO|PENTE|SUPRIMENTO DE MUNICAO|M-MICROSMG|M-G3/.test(
         nomeNormalizado,
       )
     ) {
-      return "";
+      return true;
     }
+    return false;
+  }
+
+  function classificarTipoArma(nomeNormalizado) {
+    if (!nomeNormalizado) return "";
+    if (ehLinhaMunicao(nomeNormalizado)) return "";
+
+    if (nomeNormalizado.includes("PACOTE")) {
+      if (PACOTE_PESADA_KEYWORDS.some((k) => nomeNormalizado.includes(k))) {
+        return "pesada";
+      }
+      if (PACOTE_LEVE_KEYWORDS.some((k) => nomeNormalizado.includes(k))) {
+        return "leve";
+      }
+    }
+
     if (ARMAS_PESADAS_KEYWORDS.some((k) => nomeNormalizado.includes(k))) {
       return "pesada";
     }
@@ -1572,6 +1616,38 @@ document.addEventListener("DOMContentLoaded", function () {
     return { totalPesadas, totalLeves, totalArmas, traficoAutomatico };
   }
 
+  function aplicarCrimesMunicaoAutomatico(textoItens) {
+    var linhas = String(textoItens || "").split(/\r?\n/);
+    var totalMunicao = 0;
+
+    linhas.forEach((linha) => {
+      if (!linha || !linha.trim()) return;
+      var nomeLimpo = limparNomeLinhaItem(linha);
+      var nomeNormalizado = normalizarTextoBusca(nomeLimpo);
+      if (!ehLinhaMunicao(nomeNormalizado)) return;
+
+      var quantidade = extrairQuantidadeLinhaItem(linha);
+      if (!Number.isFinite(quantidade) || quantidade <= 0) return;
+      totalMunicao += quantidade;
+    });
+
+    var artigoAutomatico = "";
+    if (totalMunicao >= 100) {
+      adicionarCrimeSemTrava("130");
+      removerCrimeSemTrava("131");
+      artigoAutomatico = "130";
+    } else if (totalMunicao > 0) {
+      adicionarCrimeSemTrava("131");
+      removerCrimeSemTrava("130");
+      artigoAutomatico = "131";
+    } else {
+      removerCrimeSemTrava("130");
+      removerCrimeSemTrava("131");
+    }
+
+    return { totalMunicao, artigoAutomatico };
+  }
+
   function extrairDinheiroSujo(texto) {
     var linhas = String(texto || "").split(/\r?\n/);
     var linhasSemDinheiro = [];
@@ -1580,9 +1656,29 @@ document.addEventListener("DOMContentLoaded", function () {
     linhas.forEach((linha) => {
       if (!linha || !linha.trim()) return;
       if (/dinheiro\s*sujo/i.test(linha)) {
-        var numeros = linha.match(/\d[\d\.,]*\s*[kKmM]?/g) || [];
+        var numeros = linha.match(/\d[\d\.,]*\s*[kKmMxX]?/g) || [];
         numeros.forEach((num) => {
+          var token = String(num || "").trim();
+          if (
+            token &&
+            /[.,]/.test(token) &&
+            !/[kKmM]/.test(token)
+          ) {
+            var tokenFloat = parseFloat(token.replace(",", "."));
+            if (Number.isFinite(tokenFloat) && tokenFloat > 0 && tokenFloat < 1) {
+              return;
+            }
+          }
+
           var valor = parseNumeroComSufixo(num);
+          if (
+            valor > 0 &&
+            valor < 1000 &&
+            !/[kKmM]/.test(token) &&
+            (/[xX]/.test(token) || /\bdinheiro\s*sujo\b/i.test(linha))
+          ) {
+            valor *= 1000;
+          }
           if (!isNaN(valor) && valor > valorDinheiroSujo) {
             valorDinheiroSujo = valor;
           }
@@ -1734,12 +1830,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
         textareaItens.value = itensTexto;
         var resumoArmas = aplicarCrimesArmasAutomatico(itensTexto);
+        var resumoMunicao = aplicarCrimesMunicaoAutomatico(itensTexto);
         var crimesAutomaticos = [];
         if (resumoArmas.traficoAutomatico) {
           crimesAutomaticos.push("Art. 125");
         } else {
           if (resumoArmas.totalPesadas > 0) crimesAutomaticos.push("Art. 127");
           if (resumoArmas.totalLeves > 0) crimesAutomaticos.push("Art. 128");
+        }
+        if (resumoMunicao.artigoAutomatico) {
+          crimesAutomaticos.push("Art. " + resumoMunicao.artigoAutomatico);
         }
 
         if (leituraDinheiro.valorDinheiroSujo > 0) {
