@@ -107,7 +107,214 @@ document.addEventListener("DOMContentLoaded", function () {
   const bunnyEl = document.getElementById("easter-bunny");
   const bunnyThoughtText = document.getElementById("bunny-thought-text");
   const fallingEggs = document.getElementById("falling-eggs");
+  const bunnySvg = document.getElementById("bunny-svg");
+  const bunnyHeadGroup = document.getElementById("bunny-head-group");
+  const bunnyHead = document.getElementById("bunny-head");
+  const bunnyEarLeft = document.getElementById("bunny-ear-left");
+  const bunnyEarRight = document.getElementById("bunny-ear-right");
+  const bunnyArmLeft = document.getElementById("bunny-arm-left");
+  const bunnyArmRight = document.getElementById("bunny-arm-right");
+  const bunnyBody = document.getElementById("bunny-body");
+  const bunnyLegLeft = document.getElementById("bunny-leg-left");
+  const bunnyLegRight = document.getElementById("bunny-leg-right");
+  const bunnyTail = document.getElementById("bunny-tail");
+  const bunnyEyeLeft = document.getElementById("bunny-eye-left");
+  const bunnyEyeRight = document.getElementById("bunny-eye-right");
+  const hasGsap = typeof window.gsap !== "undefined";
   let bunnyIdleTimer = null;
+  let bunnyWaveTimeout = null;
+
+  function prepararSvgCoelho() {
+    if (!bunnySvg || !hasGsap) return;
+    [
+      bunnyHeadGroup,
+      bunnyHead,
+      bunnyEarLeft,
+      bunnyEarRight,
+      bunnyArmLeft,
+      bunnyArmRight,
+      bunnyBody,
+      bunnyTail,
+      bunnyEyeLeft,
+      bunnyEyeRight,
+    ].forEach((part) => {
+      if (!part) return;
+      part.style.transformBox = "fill-box";
+      part.style.transformOrigin = "center";
+    });
+
+    if (bunnyArmLeft) bunnyArmLeft.style.transformOrigin = "70% 18%";
+    if (bunnyArmRight) bunnyArmRight.style.transformOrigin = "28% 18%";
+    if (bunnyEarLeft) bunnyEarLeft.style.transformOrigin = "50% 100%";
+    if (bunnyEarRight) bunnyEarRight.style.transformOrigin = "50% 100%";
+    if (bunnyHeadGroup) bunnyHeadGroup.style.transformOrigin = "50% 72%";
+    if (bunnyTail) bunnyTail.style.transformOrigin = "30% 50%";
+  }
+
+  function iniciarAnimacaoBaseCoelho() {
+    if (!hasGsap || !bunnyEl) return;
+
+    gsap.to(bunnyEl, {
+      y: -8,
+      duration: 2.3,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut",
+    });
+
+    if (bunnyEarLeft) {
+      gsap.to(bunnyEarLeft, {
+        rotation: -8,
+        duration: 1.8,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+    }
+
+    if (bunnyEarRight) {
+      gsap.to(bunnyEarRight, {
+        rotation: 8,
+        duration: 2,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+    }
+
+    [bunnyEyeLeft, bunnyEyeRight].forEach((eye) => {
+      if (!eye) return;
+      gsap.to(eye, {
+        scaleY: 0.1,
+        transformOrigin: "center center",
+        duration: 0.08,
+        repeat: -1,
+        repeatDelay: 3.2,
+        yoyo: true,
+        ease: "power1.inOut",
+      });
+    });
+
+    if (bunnyTail) {
+      gsap.to(bunnyTail, {
+        rotation: 12,
+        duration: 0.9,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+    }
+  }
+
+  function acenarCoelho() {
+    if (!hasGsap || !bunnyArmRight) return;
+    gsap.killTweensOf(bunnyArmRight);
+    const tl = gsap.timeline();
+    tl.to(bunnyArmRight, {
+      rotation: -40,
+      x: -4,
+      y: -6,
+      duration: 0.2,
+      ease: "power2.out",
+    });
+    tl.to(
+      bunnyArmRight,
+      {
+        rotation: -12,
+        x: 0,
+        y: 0,
+        duration: 0.18,
+        repeat: 3,
+        yoyo: true,
+        ease: "sine.inOut",
+      },
+      ">",
+    );
+    tl.to(bunnyArmRight, {
+      rotation: 0,
+      duration: 0.2,
+      ease: "power2.out",
+    });
+  }
+
+  function coelhoDizNao() {
+    if (!hasGsap || !bunnyHeadGroup) return;
+    gsap.killTweensOf([bunnyHeadGroup, bunnyEarLeft, bunnyEarRight]);
+    const tl = gsap.timeline();
+    tl.to(bunnyHeadGroup, {
+      rotation: -10,
+      duration: 0.12,
+      ease: "power1.inOut",
+    });
+    tl.to(bunnyHeadGroup, {
+      rotation: 10,
+      duration: 0.12,
+      repeat: 3,
+      yoyo: true,
+      ease: "power1.inOut",
+    });
+    tl.to(bunnyHeadGroup, {
+      rotation: 0,
+      duration: 0.12,
+      ease: "power1.out",
+    });
+    tl.to(
+      [bunnyEarLeft, bunnyEarRight],
+      {
+        rotation: (index) => (index === 0 ? -18 : 18),
+        duration: 0.12,
+        repeat: 1,
+        yoyo: true,
+        ease: "power1.inOut",
+      },
+      0,
+    );
+  }
+
+  function coelhoObserva() {
+    if (!hasGsap || !bunnyHeadGroup) return;
+    gsap.fromTo(
+      bunnyHeadGroup,
+      { rotation: -4, x: -2 },
+      {
+        rotation: 4,
+        x: 2,
+        duration: 0.32,
+        repeat: 1,
+        yoyo: true,
+        ease: "sine.inOut",
+        clearProps: "transform",
+      },
+    );
+  }
+
+  function coelhoComemora() {
+    if (!hasGsap || !bunnyBody) return;
+    const tl = gsap.timeline();
+    tl.to([bunnyArmLeft, bunnyArmRight], {
+      rotation: (index) => (index === 0 ? -30 : 30),
+      y: -8,
+      duration: 0.18,
+      ease: "power2.out",
+    });
+    tl.to(
+      [bunnyBody, bunnyHeadGroup],
+      {
+        y: -12,
+        duration: 0.2,
+        repeat: 1,
+        yoyo: true,
+        ease: "power2.inOut",
+      },
+      0,
+    );
+    tl.to([bunnyArmLeft, bunnyArmRight], {
+      rotation: 0,
+      y: 0,
+      duration: 0.2,
+      ease: "power2.out",
+    });
+  }
 
   function criarOvoCaindo() {
     if (!fallingEggs) return;
@@ -158,7 +365,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (mood !== "is-idle") {
       bunnyIdleTimer = window.setTimeout(() => {
         if (selectedCrimes.length === 0) {
-          setBunnyMood("is-idle", "Estou de olho nos crimes selecionados.");
+          setBunnyMood("is-idle", "Oi! Estou de olho nos crimes selecionados.");
         } else {
           setBunnyMood(
             "is-thinking",
@@ -174,7 +381,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const total = selectedCrimes.length;
     if (total === 0) {
-      setBunnyMood("is-idle", "Estou de olho nos crimes selecionados.");
+      setBunnyMood("is-idle", "Oi! Estou de olho nos crimes selecionados.");
+      if (bunnyWaveTimeout) clearTimeout(bunnyWaveTimeout);
+      bunnyWaveTimeout = window.setTimeout(acenarCoelho, 500);
       return;
     }
 
@@ -183,19 +392,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (ultimoCrime.infiancavel) {
       setBunnyMood("is-alert", `Opa... ${nomeCrime} exige muita atencao.`);
+      coelhoDizNao();
       return;
     }
 
     if (total >= 4) {
       setBunnyMood("is-happy", `Cesta cheia: ${total} crimes analisados.`);
+      coelhoComemora();
       return;
     }
 
     setBunnyMood("is-thinking", `Hum... conferindo ${nomeCrime}.`);
+    coelhoObserva();
   }
 
+  prepararSvgCoelho();
+  iniciarAnimacaoBaseCoelho();
   iniciarOvosCaindo();
-  setBunnyMood("is-idle", "Estou de olho nos crimes selecionados.");
+  setBunnyMood("is-idle", "Oi! Estou de olho nos crimes selecionados.");
+  window.setTimeout(acenarCoelho, 700);
 
   // =========================================================
   // 1.5. FOGOS DE ARTIFICIO (CANVAS)
@@ -599,6 +814,13 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
   function mostrarAlerta(mensagem, tipo) {
     if (!tipo) tipo = "error";
+    if (tipo === "error") {
+      coelhoDizNao();
+      setBunnyMood("is-alert", "Hmm... isso nao parece certo.");
+    } else if (tipo === "success") {
+      setBunnyMood("is-happy", "Boa! Ficou certinho por aqui.");
+      acenarCoelho();
+    }
     var div = document.createElement("div");
     div.className = "custom-alert " + tipo;
     var icone =
