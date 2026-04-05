@@ -102,6 +102,102 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // =========================================================
+  // 1.7. CENARIO DE PASCOA INTERATIVO
+  // =========================================================
+  const bunnyEl = document.getElementById("easter-bunny");
+  const bunnyThoughtText = document.getElementById("bunny-thought-text");
+  const fallingEggs = document.getElementById("falling-eggs");
+  let bunnyIdleTimer = null;
+
+  function criarOvoCaindo() {
+    if (!fallingEggs) return;
+    const egg = document.createElement("span");
+    const variants = ["pink", "yellow", "mint", "lilac", "peach", "blue"];
+    const variant = variants[Math.floor(Math.random() * variants.length)];
+    const duration = 9 + Math.random() * 6;
+    const delay = Math.random() * 2;
+    const left = Math.random() * 100;
+    const size = 14 + Math.random() * 18;
+
+    egg.className = `falling-egg ${variant}`;
+    egg.style.left = `${left}%`;
+    egg.style.width = `${size}px`;
+    egg.style.height = `${size * 1.28}px`;
+    egg.style.animationDuration = `${duration}s`;
+    egg.style.animationDelay = `${delay}s`;
+    egg.style.setProperty("--egg-drift", `${Math.random() * 80 - 40}px`);
+    egg.style.setProperty("--egg-rotate", `${Math.random() * 120 - 60}deg`);
+
+    fallingEggs.appendChild(egg);
+
+    window.setTimeout(() => {
+      egg.remove();
+    }, (duration + delay + 1) * 1000);
+  }
+
+  function iniciarOvosCaindo() {
+    if (!fallingEggs) return;
+    for (let i = 0; i < 12; i++) {
+      window.setTimeout(criarOvoCaindo, i * 450);
+    }
+    window.setInterval(criarOvoCaindo, 1400);
+  }
+
+  function setBunnyMood(mood, message) {
+    if (!bunnyEl) return;
+    bunnyEl.classList.remove("is-idle", "is-alert", "is-happy", "is-thinking");
+    bunnyEl.classList.add(mood);
+    if (bunnyThoughtText && message) {
+      bunnyThoughtText.textContent = message;
+    }
+
+    if (bunnyIdleTimer) {
+      clearTimeout(bunnyIdleTimer);
+    }
+
+    if (mood !== "is-idle") {
+      bunnyIdleTimer = window.setTimeout(() => {
+        if (selectedCrimes.length === 0) {
+          setBunnyMood("is-idle", "Estou de olho nos crimes selecionados.");
+        } else {
+          setBunnyMood(
+            "is-thinking",
+            `Analisando ${selectedCrimes.length} crime(s) no codigo.`,
+          );
+        }
+      }, 2600);
+    }
+  }
+
+  function atualizarCoelhinho() {
+    if (!bunnyEl || !bunnyThoughtText) return;
+
+    const total = selectedCrimes.length;
+    if (total === 0) {
+      setBunnyMood("is-idle", "Estou de olho nos crimes selecionados.");
+      return;
+    }
+
+    const ultimoCrime = selectedCrimes[total - 1];
+    const nomeCrime = ultimoCrime.nome.replace(/\*\*/g, "").replace(/^Art\.\s*\d+\s*-\s*/i, "").trim();
+
+    if (ultimoCrime.infiancavel) {
+      setBunnyMood("is-alert", `Opa... ${nomeCrime} exige muita atencao.`);
+      return;
+    }
+
+    if (total >= 4) {
+      setBunnyMood("is-happy", `Cesta cheia: ${total} crimes analisados.`);
+      return;
+    }
+
+    setBunnyMood("is-thinking", `Hum... conferindo ${nomeCrime}.`);
+  }
+
+  iniciarOvosCaindo();
+  setBunnyMood("is-idle", "Estou de olho nos crimes selecionados.");
+
+  // =========================================================
   // 1.5. FOGOS DE ARTIFICIO (CANVAS)
   // =========================================================
   function setupCarnavalFireworks() {
@@ -1153,6 +1249,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     renderListaCrimes();
+    atualizarCoelhinho();
   }
 
   function renderListaCrimes() {
