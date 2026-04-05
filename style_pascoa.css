@@ -828,13 +828,42 @@ body.easter-dark-mode ::-webkit-scrollbar-thumb {
 
 .easter-bunny {
   position: fixed;
-  right: 34px;
-  bottom: 118px;
-  width: 180px;
-  height: 228px;
+  right: 16px;
+  bottom: 88px;
+  width: 360px;
+  height: 500px;
   z-index: 5;
   transform-origin: bottom center;
-  animation: bunnyFloat 4.6s ease-in-out infinite;
+  isolation: isolate;
+}
+
+.easter-bunny::before {
+  content: "";
+  position: absolute;
+  inset: 56px 12px 24px 102px;
+  border-radius: 42px;
+  background:
+    radial-gradient(circle at 24% 22%, rgba(255, 255, 255, 0.38), transparent 24%),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.3), rgba(215, 188, 171, 0.08)),
+    rgba(255, 247, 241, 0.44);
+  border: 1px solid rgba(173, 111, 134, 0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.48),
+    0 26px 60px rgba(116, 74, 52, 0.12);
+  backdrop-filter: blur(10px);
+  z-index: -1;
+}
+
+.easter-bunny::after {
+  content: "";
+  position: absolute;
+  right: 32px;
+  bottom: 34px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 236, 201, 0.26) 0%, transparent 72%);
+  z-index: -2;
 }
 
 .bunny-svg {
@@ -842,11 +871,13 @@ body.easter-dark-mode ::-webkit-scrollbar-thumb {
   width: 100%;
   height: 100%;
   overflow: visible;
-  filter: drop-shadow(0 14px 24px rgba(140, 91, 63, 0.18));
+  filter:
+    drop-shadow(0 28px 38px rgba(98, 59, 39, 0.18))
+    drop-shadow(0 6px 14px rgba(255, 255, 255, 0.16));
 }
 
 .svg-bunny-shadow {
-  fill: rgba(109, 71, 43, 0.16);
+  fill: rgba(109, 71, 43, 0.18);
 }
 
 #bunny-head,
@@ -867,47 +898,53 @@ body.easter-dark-mode ::-webkit-scrollbar-thumb {
 
 .bunny-thought {
   position: absolute;
-  left: -126px;
-  top: 44px;
-  width: 156px;
-  padding: 10px 12px;
-  border-radius: 18px 18px 18px 6px;
-  background: rgba(255, 251, 246, 0.94);
-  border: 1px solid rgba(161, 90, 126, 0.22);
-  box-shadow: 0 10px 20px rgba(140, 91, 63, 0.12);
+  left: 0;
+  top: 138px;
+  width: 168px;
+  padding: 16px 16px 15px;
+  border-radius: 24px 24px 24px 10px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(253, 241, 232, 0.92));
+  border: 1px solid rgba(161, 90, 126, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 16px 34px rgba(116, 74, 52, 0.14);
   color: var(--text-primary);
-  font-size: 0.78em;
-  line-height: 1.35;
+  font-size: 0.84em;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
 }
 
 .bunny-thought::after {
   content: "";
   position: absolute;
-  right: -12px;
-  bottom: 18px;
-  width: 20px;
-  height: 20px;
-  background: rgba(255, 251, 246, 0.94);
-  border-right: 1px solid rgba(161, 90, 126, 0.22);
-  border-bottom: 1px solid rgba(161, 90, 126, 0.22);
-  transform: rotate(-45deg);
+  right: -9px;
+  top: 40px;
+  width: 22px;
+  height: 22px;
+  background: rgba(255, 248, 243, 0.95);
+  border-right: 1px solid rgba(161, 90, 126, 0.18);
+  border-top: 1px solid rgba(161, 90, 126, 0.18);
+  transform: rotate(45deg);
 }
 
 .thought-label {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 7px;
   color: var(--color-revoada);
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.12em;
+  font-size: 0.8em;
+  opacity: 0.9;
 }
 
 .easter-bunny.is-thinking .bunny-thought {
-  animation: thoughtPulse 1.8s ease-in-out infinite;
+  animation: thoughtPulse 2.4s ease-in-out infinite;
 }
 
 .easter-bunny.is-happy {
-  animation: bunnyCelebrate 1s ease-in-out infinite;
+  transform: translateY(-2px);
 }
 
 body.easter-dark-mode .easter-basket {
@@ -919,17 +956,32 @@ body.easter-dark-mode .falling-egg {
 }
 
 body.easter-dark-mode .bunny-svg {
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.26));
+  filter:
+    drop-shadow(0 28px 42px rgba(0, 0, 0, 0.34))
+    drop-shadow(0 4px 12px rgba(255, 255, 255, 0.04));
+}
+
+body.easter-dark-mode .easter-bunny::before {
+  background:
+    radial-gradient(circle at 24% 22%, rgba(255, 255, 255, 0.06), transparent 26%),
+    linear-gradient(160deg, rgba(88, 60, 84, 0.78), rgba(44, 31, 45, 0.86));
+  border-color: rgba(255, 179, 212, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 26px 60px rgba(0, 0, 0, 0.22);
 }
 
 body.easter-dark-mode .bunny-thought {
-  background: rgba(58, 40, 58, 0.95);
+  background: linear-gradient(180deg, rgba(66, 45, 64, 0.95), rgba(48, 34, 49, 0.94));
   border-color: rgba(255, 179, 212, 0.22);
   color: var(--text-primary);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 16px 34px rgba(0, 0, 0, 0.24);
 }
 
 body.easter-dark-mode .bunny-thought::after {
-  background: rgba(58, 40, 58, 0.95);
+  background: rgba(60, 42, 59, 0.95);
   border-color: rgba(255, 179, 212, 0.22);
 }
 
@@ -953,90 +1005,7 @@ body.easter-dark-mode .bunny-thought::after {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-8px);
-  }
-}
-
-@keyframes bunnyShadow {
-  0%,
-  100% {
-    transform: translateX(-50%) scale(1);
-    opacity: 0.22;
-  }
-  50% {
-    transform: translateX(-50%) scale(0.9);
-    opacity: 0.16;
-  }
-}
-
-@keyframes bunnyEarLeft {
-  0%,
-  100% {
-    transform: rotate(-12deg);
-  }
-  50% {
-    transform: rotate(-18deg);
-  }
-}
-
-@keyframes bunnyEarRight {
-  0%,
-  100% {
-    transform: rotate(12deg);
-  }
-  50% {
-    transform: rotate(18deg);
-  }
-}
-
-@keyframes bunnyBlink {
-  0%,
-  46%,
-  50%,
-  100% {
-    transform: scaleY(1);
-  }
-  48% {
-    transform: scaleY(0.12);
-  }
-}
-
-@keyframes bunnyLookAround {
-  0%,
-  100% {
-    transform: translateX(-50%) rotate(0deg);
-  }
-  30% {
-    transform: translateX(calc(-50% - 4px)) rotate(-3deg);
-  }
-  68% {
-    transform: translateX(calc(-50% + 5px)) rotate(4deg);
-  }
-}
-
-@keyframes bunnyInspect {
-  0%,
-  100% {
-    transform: translateX(-50%) translateY(0) rotate(0deg);
-  }
-  35% {
-    transform: translateX(calc(-50% - 3px)) translateY(1px) rotate(-5deg);
-  }
-  70% {
-    transform: translateX(calc(-50% + 2px)) translateY(-1px) rotate(4deg);
-  }
-}
-
-@keyframes bunnyAlert {
-  0%,
-  100% {
-    transform: translateX(-50%) rotate(0deg);
-  }
-  25% {
-    transform: translateX(calc(-50% - 2px)) rotate(-4deg);
-  }
-  75% {
-    transform: translateX(calc(-50% + 2px)) rotate(4deg);
+    transform: translateY(-4px);
   }
 }
 
@@ -1046,19 +1015,10 @@ body.easter-dark-mode .bunny-thought::after {
     transform: translateY(0) rotate(0deg);
   }
   25% {
-    transform: translateY(-10px) rotate(-3deg);
+    transform: translateY(-4px) rotate(-1deg);
   }
   75% {
-    transform: translateY(-4px) rotate(3deg);
-  }
-}
-
-@keyframes bunnyWave {
-  0% {
-    transform: translateY(0) rotate(0deg);
-  }
-  100% {
-    transform: translateY(-8px) rotate(12deg);
+    transform: translateY(-2px) rotate(1deg);
   }
 }
 
@@ -1087,9 +1047,10 @@ body.easter-dark-mode .bunny-thought::after {
   }
 
   .easter-bunny {
-    right: 18px;
-    bottom: 110px;
-    transform: scale(0.9);
+    right: 6px;
+    bottom: 86px;
+    width: 300px;
+    height: 420px;
     transform-origin: bottom right;
   }
 
@@ -1161,14 +1122,17 @@ body.easter-dark-mode .bunny-thought::after {
   }
 
   .easter-bunny {
-    right: 8px;
-    bottom: 86px;
-    transform: scale(0.72);
+    right: -12px;
+    bottom: 72px;
+    width: 230px;
+    height: 320px;
   }
 
   .bunny-thought {
-    left: -84px;
+    left: -12px;
+    top: 88px;
     width: 118px;
+    padding: 10px 10px 11px;
     font-size: 0.72em;
   }
 

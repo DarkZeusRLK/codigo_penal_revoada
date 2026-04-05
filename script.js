@@ -143,29 +143,42 @@ document.addEventListener("DOMContentLoaded", function () {
       part.style.transformOrigin = "center";
     });
 
-    if (bunnyArmLeft) bunnyArmLeft.style.transformOrigin = "70% 18%";
-    if (bunnyArmRight) bunnyArmRight.style.transformOrigin = "28% 18%";
+    if (bunnyArmLeft) bunnyArmLeft.style.transformOrigin = "78% 16%";
+    if (bunnyArmRight) bunnyArmRight.style.transformOrigin = "20% 16%";
     if (bunnyEarLeft) bunnyEarLeft.style.transformOrigin = "50% 100%";
     if (bunnyEarRight) bunnyEarRight.style.transformOrigin = "50% 100%";
-    if (bunnyHeadGroup) bunnyHeadGroup.style.transformOrigin = "50% 72%";
+    if (bunnyHeadGroup) bunnyHeadGroup.style.transformOrigin = "50% 74%";
+    if (bunnyBody) bunnyBody.style.transformOrigin = "50% 42%";
+    if (bunnyLegLeft) bunnyLegLeft.style.transformOrigin = "50% 10%";
+    if (bunnyLegRight) bunnyLegRight.style.transformOrigin = "50% 10%";
     if (bunnyTail) bunnyTail.style.transformOrigin = "30% 50%";
   }
 
   function iniciarAnimacaoBaseCoelho() {
     if (!hasGsap || !bunnyEl) return;
 
-    gsap.to(bunnyEl, {
-      y: -8,
-      duration: 2.3,
+    gsap.to([bunnyBody, bunnyHeadGroup], {
+      y: -2.5,
+      duration: 2.8,
       repeat: -1,
       yoyo: true,
       ease: "sine.inOut",
     });
 
+    gsap.to(bunnyBody, {
+      scaleY: 1.012,
+      scaleX: 0.996,
+      duration: 2.8,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut",
+      transformOrigin: "center center",
+    });
+
     if (bunnyEarLeft) {
       gsap.to(bunnyEarLeft, {
-        rotation: -8,
-        duration: 1.8,
+        rotation: -3,
+        duration: 2.6,
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
@@ -174,8 +187,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (bunnyEarRight) {
       gsap.to(bunnyEarRight, {
-        rotation: 8,
-        duration: 2,
+        rotation: 3,
+        duration: 3,
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
@@ -187,9 +200,9 @@ document.addEventListener("DOMContentLoaded", function () {
       gsap.to(eye, {
         scaleY: 0.1,
         transformOrigin: "center center",
-        duration: 0.08,
+        duration: 0.09,
         repeat: -1,
-        repeatDelay: 3.2,
+        repeatDelay: 4.6,
         yoyo: true,
         ease: "power1.inOut",
       });
@@ -197,8 +210,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (bunnyTail) {
       gsap.to(bunnyTail, {
-        rotation: 12,
-        duration: 0.9,
+        rotation: 5,
+        duration: 1.6,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+    }
+
+    if (bunnyHeadGroup) {
+      gsap.to(bunnyHeadGroup, {
+        rotation: 1.2,
+        duration: 3.8,
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
@@ -211,20 +234,20 @@ document.addEventListener("DOMContentLoaded", function () {
     gsap.killTweensOf(bunnyArmRight);
     const tl = gsap.timeline();
     tl.to(bunnyArmRight, {
-      rotation: -40,
-      x: -4,
-      y: -6,
-      duration: 0.2,
+      rotation: -22,
+      x: 2,
+      y: -18,
+      duration: 0.24,
       ease: "power2.out",
     });
     tl.to(
       bunnyArmRight,
       {
-        rotation: -12,
-        x: 0,
-        y: 0,
-        duration: 0.18,
-        repeat: 3,
+        rotation: -10,
+        x: 6,
+        y: -16,
+        duration: 0.22,
+        repeat: 2,
         yoyo: true,
         ease: "sine.inOut",
       },
@@ -232,7 +255,9 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     tl.to(bunnyArmRight, {
       rotation: 0,
-      duration: 0.2,
+      x: 0,
+      y: 0,
+      duration: 0.26,
       ease: "power2.out",
     });
   }
@@ -242,27 +267,27 @@ document.addEventListener("DOMContentLoaded", function () {
     gsap.killTweensOf([bunnyHeadGroup, bunnyEarLeft, bunnyEarRight]);
     const tl = gsap.timeline();
     tl.to(bunnyHeadGroup, {
-      rotation: -10,
-      duration: 0.12,
+      rotation: -7,
+      duration: 0.14,
       ease: "power1.inOut",
     });
     tl.to(bunnyHeadGroup, {
-      rotation: 10,
-      duration: 0.12,
-      repeat: 3,
+      rotation: 7,
+      duration: 0.14,
+      repeat: 2,
       yoyo: true,
       ease: "power1.inOut",
     });
     tl.to(bunnyHeadGroup, {
       rotation: 0,
-      duration: 0.12,
+      duration: 0.16,
       ease: "power1.out",
     });
     tl.to(
       [bunnyEarLeft, bunnyEarRight],
       {
-        rotation: (index) => (index === 0 ? -18 : 18),
-        duration: 0.12,
+        rotation: (index) => (index === 0 ? -6 : 6),
+        duration: 0.14,
         repeat: 1,
         yoyo: true,
         ease: "power1.inOut",
@@ -275,11 +300,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!hasGsap || !bunnyHeadGroup) return;
     gsap.fromTo(
       bunnyHeadGroup,
-      { rotation: -4, x: -2 },
+      { rotation: -2.5, x: -3 },
       {
-        rotation: 4,
-        x: 2,
-        duration: 0.32,
+        rotation: 2.5,
+        x: 3,
+        duration: 0.44,
         repeat: 1,
         yoyo: true,
         ease: "sine.inOut",
@@ -292,16 +317,16 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!hasGsap || !bunnyBody) return;
     const tl = gsap.timeline();
     tl.to([bunnyArmLeft, bunnyArmRight], {
-      rotation: (index) => (index === 0 ? -30 : 30),
-      y: -8,
-      duration: 0.18,
+      rotation: (index) => (index === 0 ? -10 : 10),
+      y: -6,
+      duration: 0.2,
       ease: "power2.out",
     });
     tl.to(
       [bunnyBody, bunnyHeadGroup],
       {
-        y: -12,
-        duration: 0.2,
+        y: -6,
+        duration: 0.24,
         repeat: 1,
         yoyo: true,
         ease: "power2.inOut",
@@ -365,11 +390,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (mood !== "is-idle") {
       bunnyIdleTimer = window.setTimeout(() => {
         if (selectedCrimes.length === 0) {
-          setBunnyMood("is-idle", "Oi! Estou de olho nos crimes selecionados.");
+          setBunnyMood("is-idle", "Painel em observacao. Nenhuma infracao selecionada.");
         } else {
           setBunnyMood(
             "is-thinking",
-            `Analisando ${selectedCrimes.length} crime(s) no codigo.`,
+            `Analisando ${selectedCrimes.length} infracao(oes) em tempo real.`,
           );
         }
       }, 2600);
@@ -381,7 +406,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const total = selectedCrimes.length;
     if (total === 0) {
-      setBunnyMood("is-idle", "Oi! Estou de olho nos crimes selecionados.");
+      setBunnyMood("is-idle", "Painel em observacao. Nenhuma infracao selecionada.");
       if (bunnyWaveTimeout) clearTimeout(bunnyWaveTimeout);
       bunnyWaveTimeout = window.setTimeout(acenarCoelho, 500);
       return;
@@ -391,25 +416,25 @@ document.addEventListener("DOMContentLoaded", function () {
     const nomeCrime = ultimoCrime.nome.replace(/\*\*/g, "").replace(/^Art\.\s*\d+\s*-\s*/i, "").trim();
 
     if (ultimoCrime.infiancavel) {
-      setBunnyMood("is-alert", `Opa... ${nomeCrime} exige muita atencao.`);
+      setBunnyMood("is-alert", `${nomeCrime} exige atencao imediata.`);
       coelhoDizNao();
       return;
     }
 
     if (total >= 4) {
-      setBunnyMood("is-happy", `Cesta cheia: ${total} crimes analisados.`);
+      setBunnyMood("is-happy", `${total} infracoes sob vigilancia ativa.`);
       coelhoComemora();
       return;
     }
 
-    setBunnyMood("is-thinking", `Hum... conferindo ${nomeCrime}.`);
+    setBunnyMood("is-thinking", `Conferindo ${nomeCrime}.`);
     coelhoObserva();
   }
 
   prepararSvgCoelho();
   iniciarAnimacaoBaseCoelho();
   iniciarOvosCaindo();
-  setBunnyMood("is-idle", "Oi! Estou de olho nos crimes selecionados.");
+  setBunnyMood("is-idle", "Painel em observacao. Nenhuma infracao selecionada.");
   window.setTimeout(acenarCoelho, 700);
 
   // =========================================================
@@ -816,9 +841,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!tipo) tipo = "error";
     if (tipo === "error") {
       coelhoDizNao();
-      setBunnyMood("is-alert", "Hmm... isso nao parece certo.");
+      setBunnyMood("is-alert", "Inconsistencia detectada no painel.");
     } else if (tipo === "success") {
-      setBunnyMood("is-happy", "Boa! Ficou certinho por aqui.");
+      setBunnyMood("is-happy", "Registro validado com sucesso.");
       acenarCoelho();
     }
     var div = document.createElement("div");
