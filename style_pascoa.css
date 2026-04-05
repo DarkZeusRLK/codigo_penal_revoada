@@ -835,6 +835,7 @@ body.easter-dark-mode ::-webkit-scrollbar-thumb {
   z-index: 5;
   transform-origin: bottom center;
   isolation: isolate;
+  transition: filter 0.3s ease, transform 0.3s ease;
 }
 
 .easter-bunny::before {
@@ -913,6 +914,11 @@ body.easter-dark-mode ::-webkit-scrollbar-thumb {
   font-size: 0.84em;
   line-height: 1.45;
   letter-spacing: 0.01em;
+  transition:
+    background 0.28s ease,
+    border-color 0.28s ease,
+    box-shadow 0.28s ease,
+    transform 0.28s ease;
 }
 
 .bunny-thought::after {
@@ -943,8 +949,33 @@ body.easter-dark-mode ::-webkit-scrollbar-thumb {
   animation: thoughtPulse 2.4s ease-in-out infinite;
 }
 
-.easter-bunny.is-happy {
-  transform: translateY(-2px);
+.easter-bunny.is-alert::before {
+  border-color: rgba(174, 88, 104, 0.24);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.48),
+    0 28px 64px rgba(116, 74, 52, 0.16);
+}
+
+.easter-bunny.is-alert .bunny-thought {
+  border-color: rgba(183, 75, 107, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 18px 38px rgba(183, 75, 107, 0.16);
+}
+
+.easter-bunny.is-happy::before {
+  border-color: rgba(79, 149, 100, 0.22);
+}
+
+.easter-bunny.is-happy .bunny-thought {
+  border-color: rgba(79, 149, 100, 0.24);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 18px 38px rgba(79, 149, 100, 0.14);
+}
+
+.easter-bunny.is-idle .bunny-thought {
+  transform: translateY(0);
 }
 
 body.easter-dark-mode .easter-basket {
@@ -983,6 +1014,14 @@ body.easter-dark-mode .bunny-thought {
 body.easter-dark-mode .bunny-thought::after {
   background: rgba(60, 42, 59, 0.95);
   border-color: rgba(255, 179, 212, 0.22);
+}
+
+body.easter-dark-mode .easter-bunny.is-alert::before {
+  border-color: rgba(255, 127, 155, 0.22);
+}
+
+body.easter-dark-mode .easter-bunny.is-happy::before {
+  border-color: rgba(142, 218, 176, 0.2);
 }
 
 @keyframes fallingEgg {
