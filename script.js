@@ -71,6 +71,37 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // =========================================================
+  // 1.6. TEMA DE PASCOA (CLARO/ESCURO)
+  // =========================================================
+  const themeToggle = document.getElementById("theme-toggle");
+  const THEME_STORAGE_KEY = "pascoa-theme-mode";
+
+  function aplicarTemaPascoa(theme) {
+    const isDark = theme === "dark";
+    document.body.classList.toggle("easter-dark-mode", isDark);
+
+    if (themeToggle) {
+      themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
+      themeToggle.innerHTML = isDark
+        ? '<i class="fa-solid fa-sun"></i><span>Modo Claro</span>'
+        : '<i class="fa-solid fa-moon"></i><span>Modo Escuro</span>';
+    }
+  }
+
+  const themeSalvo = localStorage.getItem(THEME_STORAGE_KEY) || "light";
+  aplicarTemaPascoa(themeSalvo);
+
+  if (themeToggle) {
+    themeToggle.addEventListener("click", function () {
+      const nextTheme = document.body.classList.contains("easter-dark-mode")
+        ? "light"
+        : "dark";
+      localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+      aplicarTemaPascoa(nextTheme);
+    });
+  }
+
+  // =========================================================
   // 1.5. FOGOS DE ARTIFICIO (CANVAS)
   // =========================================================
   function setupCarnavalFireworks() {
