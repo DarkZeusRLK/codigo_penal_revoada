@@ -162,6 +162,10 @@ body {
   color: #ff7a7a;
 }
 
+.easter-scene {
+  display: none !important;
+}
+
 @media (max-width: 600px) {
   .settings-menu {
     top: 14px;

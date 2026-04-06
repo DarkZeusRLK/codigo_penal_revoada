@@ -106,6 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     document.body.classList.toggle("theme-original", tema === "original");
     document.body.classList.toggle("theme-pascoa", tema !== "original");
+    document.body.classList.toggle("easter-dark-mode", false);
 
     if (popupThemeOriginal) {
       popupThemeOriginal.innerHTML =
