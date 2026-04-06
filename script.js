@@ -81,6 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const popupLogout = document.getElementById("popup-logout");
   const settingsAvatar = document.getElementById("settings-avatar");
   const settingsUsername = document.getElementById("settings-username");
+  const easterScene = document.querySelector(".easter-scene");
   const THEME_STORAGE_KEY = "pascoa-theme-mode";
   const VISUAL_THEME_STORAGE_KEY = "policia_revoada_visual_theme";
 
@@ -107,11 +108,14 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.classList.toggle("theme-original", tema === "original");
     document.body.classList.toggle("theme-pascoa", tema !== "original");
     document.body.classList.toggle("easter-dark-mode", false);
+    if (easterScene) {
+      easterScene.classList.toggle("hidden", tema === "original");
+    }
 
     if (popupThemeOriginal) {
       popupThemeOriginal.innerHTML =
         tema === "original"
-          ? '<i class="fa-solid fa-wand-magic-sparkles"></i><span>Usando Tema Original</span>'
+          ? '<i class="fa-solid fa-egg"></i><span>Usar Tema de Páscoa</span>'
           : '<i class="fa-solid fa-palette"></i><span>Voltar Tema Original</span>';
     }
   }
@@ -171,6 +175,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const nextTheme = visualTheme === "original" ? "pascoa" : "original";
       localStorage.setItem(VISUAL_THEME_STORAGE_KEY, nextTheme);
       aplicarTemaVisual(nextTheme);
+      iniciarOvosCaindo();
       if (nextTheme === "original") {
         document.body.classList.remove("easter-dark-mode");
       } else {
@@ -221,6 +226,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const hasGsap = typeof window.gsap !== "undefined";
   let bunnyIdleTimer = null;
   let bunnyPointerResetTimer = null;
+  let ovosIntervalId = null;
   let bunnyMoveX = null;
   let bunnyMoveY = null;
   let bunnyHeadX = null;
@@ -462,6 +468,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function criarOvoCaindo() {
     if (!fallingEggs) return;
+    if (!document.body.classList.contains("theme-pascoa")) return;
     const egg = document.createElement("span");
     const variants = ["pink", "yellow", "mint", "lilac", "peach", "blue"];
     const variant = variants[Math.floor(Math.random() * variants.length)];
@@ -488,10 +495,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function iniciarOvosCaindo() {
     if (!fallingEggs) return;
+    if (ovosIntervalId) {
+      clearInterval(ovosIntervalId);
+      ovosIntervalId = null;
+    }
+    if (!document.body.classList.contains("theme-pascoa")) {
+      fallingEggs.innerHTML = "";
+      return;
+    }
     for (let i = 0; i < 12; i++) {
       window.setTimeout(criarOvoCaindo, i * 450);
     }
-    window.setInterval(criarOvoCaindo, 1400);
+    ovosIntervalId = window.setInterval(criarOvoCaindo, 1400);
   }
 
   function setBunnyMood(mood, message) {
