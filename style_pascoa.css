@@ -442,7 +442,8 @@ select:focus,
   background: rgba(255, 230, 141, 0.35);
 }
 
-.theme-toggle {
+.theme-toggle,
+.settings-toggle {
   position: fixed;
   top: 20px;
   right: 20px;
@@ -461,13 +462,117 @@ select:focus,
   font-weight: 800;
 }
 
-.theme-toggle:hover {
+.theme-toggle:hover,
+.settings-toggle:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 24px rgba(140, 91, 63, 0.18);
 }
 
-.theme-toggle i {
+.theme-toggle i,
+.settings-toggle i {
   color: var(--color-revoada);
+}
+
+.settings-popup {
+  position: absolute;
+  top: 58px;
+  right: 0;
+  width: 292px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(161, 90, 126, 0.24);
+  background: linear-gradient(180deg, rgba(255, 250, 245, 0.97), rgba(249, 234, 222, 0.95));
+  box-shadow: 0 16px 34px rgba(140, 91, 63, 0.16);
+  backdrop-filter: blur(14px);
+}
+
+.settings-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid rgba(161, 90, 126, 0.16);
+}
+
+.settings-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(198, 91, 148, 0.45);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.settings-profile-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.settings-profile-label {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.settings-username {
+  color: var(--text-primary);
+  font-weight: 800;
+  font-size: 0.94rem;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.settings-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: 1px solid rgba(161, 90, 126, 0.2);
+  background: rgba(255, 255, 255, 0.54);
+  color: var(--text-primary);
+  border-radius: 12px;
+  padding: 11px 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.settings-action-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--color-revoada);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.settings-action-btn i {
+  color: var(--color-revoada);
+  width: 16px;
+  text-align: center;
+}
+
+.settings-action-btn.is-disabled,
+.settings-action-btn:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+.settings-action-btn.settings-action-danger {
+  color: #fff;
+  background: linear-gradient(135deg, rgba(183, 75, 107, 0.9), rgba(153, 58, 88, 0.9));
+  border-color: rgba(183, 75, 107, 0.45);
+}
+
+.settings-action-btn.settings-action-danger i {
+  color: #fff4f6;
 }
 
 .spotify-player-container {
@@ -613,6 +718,7 @@ body.easter-dark-mode .info-text.highlight {
 }
 
 body.easter-dark-mode .theme-toggle i,
+body.easter-dark-mode .settings-toggle i,
 body.easter-dark-mode .track-title,
 body.easter-dark-mode .user-value,
 body.easter-dark-mode .dica-title,
@@ -623,6 +729,26 @@ body.easter-dark-mode .card-header i {
 
 body.easter-dark-mode .theme-toggle:hover {
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+}
+
+body.easter-dark-mode .settings-popup {
+  background: linear-gradient(180deg, rgba(63, 41, 63, 0.96), rgba(40, 30, 45, 0.95));
+  border-color: rgba(255, 179, 212, 0.2);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
+}
+
+body.easter-dark-mode .settings-profile {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+body.easter-dark-mode .settings-action-btn {
+  background: rgba(52, 35, 51, 0.88);
+  color: var(--text-primary);
+  border-color: rgba(255, 179, 212, 0.16);
+}
+
+body.easter-dark-mode .settings-action-btn:hover {
+  background: rgba(73, 48, 72, 0.94);
 }
 
 body.easter-dark-mode .spotify-player-container:hover {
@@ -1117,8 +1243,18 @@ body.easter-dark-mode .easter-bunny.is-happy::before {
     font-size: 0.85em;
   }
 
-  .theme-toggle span {
+  .theme-toggle span,
+  .settings-toggle span {
     display: none;
+  }
+
+  .settings-menu {
+    top: 14px;
+    right: 14px;
+  }
+
+  .settings-popup {
+    width: min(280px, calc(100vw - 28px));
   }
 
   .easter-basket {

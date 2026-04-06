@@ -73,26 +73,88 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
   // 1.6. TEMA DE PASCOA (CLARO/ESCURO)
   // =========================================================
-  const themeToggle = document.getElementById("theme-toggle");
+  const themeStylesheet = document.getElementById("theme-stylesheet");
+  const settingsToggle = document.getElementById("settings-toggle");
+  const settingsPopup = document.getElementById("settings-popup");
+  const popupDarkToggle = document.getElementById("popup-dark-toggle");
+  const popupThemeOriginal = document.getElementById("popup-theme-original");
+  const popupLogout = document.getElementById("popup-logout");
+  const settingsAvatar = document.getElementById("settings-avatar");
+  const settingsUsername = document.getElementById("settings-username");
   const THEME_STORAGE_KEY = "pascoa-theme-mode";
+  const VISUAL_THEME_STORAGE_KEY = "policia_revoada_visual_theme";
 
   function aplicarTemaPascoa(theme) {
     const isDark = theme === "dark";
     document.body.classList.toggle("easter-dark-mode", isDark);
 
-    if (themeToggle) {
-      themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
-      themeToggle.innerHTML = isDark
+    if (popupDarkToggle) {
+      popupDarkToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
+      popupDarkToggle.innerHTML = isDark
         ? '<i class="fa-solid fa-sun"></i><span>Modo Claro</span>'
         : '<i class="fa-solid fa-moon"></i><span>Modo Escuro</span>';
     }
   }
 
-  const themeSalvo = localStorage.getItem(THEME_STORAGE_KEY) || "light";
-  aplicarTemaPascoa(themeSalvo);
+  function aplicarTemaVisual(themeName) {
+    const tema = themeName === "original" ? "original" : "pascoa";
+    if (themeStylesheet) {
+      themeStylesheet.setAttribute(
+        "href",
+        tema === "original" ? "style.css" : "style_pascoa.css",
+      );
+    }
+    document.body.classList.toggle("theme-original", tema === "original");
+    document.body.classList.toggle("theme-pascoa", tema !== "original");
 
-  if (themeToggle) {
-    themeToggle.addEventListener("click", function () {
+    if (popupThemeOriginal) {
+      popupThemeOriginal.innerHTML =
+        tema === "original"
+          ? '<i class="fa-solid fa-wand-magic-sparkles"></i><span>Usando Tema Original</span>'
+          : '<i class="fa-solid fa-palette"></i><span>Voltar Tema Original</span>';
+    }
+  }
+
+  function atualizarEstadoBotoesTema() {
+    const visualTheme =
+      localStorage.getItem(VISUAL_THEME_STORAGE_KEY) || "pascoa";
+    const usandoOriginal = visualTheme === "original";
+    if (popupDarkToggle) {
+      popupDarkToggle.disabled = usandoOriginal;
+      popupDarkToggle.classList.toggle("is-disabled", usandoOriginal);
+      if (usandoOriginal) {
+        popupDarkToggle.innerHTML =
+          '<i class="fa-solid fa-moon"></i><span>Modo Escuro indisponível</span>';
+      } else {
+        aplicarTemaPascoa(localStorage.getItem(THEME_STORAGE_KEY) || "light");
+      }
+    }
+  }
+
+  function abrirPopupConfiguracoes() {
+    if (!settingsPopup || !settingsToggle) return;
+    settingsPopup.classList.remove("hidden");
+    settingsToggle.setAttribute("aria-expanded", "true");
+  }
+
+  function fecharPopupConfiguracoes() {
+    if (!settingsPopup || !settingsToggle) return;
+    settingsPopup.classList.add("hidden");
+    settingsToggle.setAttribute("aria-expanded", "false");
+  }
+
+  const themeSalvo = localStorage.getItem(THEME_STORAGE_KEY) || "light";
+  const visualThemeSalvo =
+    localStorage.getItem(VISUAL_THEME_STORAGE_KEY) || "pascoa";
+  aplicarTemaVisual(visualThemeSalvo);
+  aplicarTemaPascoa(themeSalvo);
+  atualizarEstadoBotoesTema();
+
+  if (popupDarkToggle) {
+    popupDarkToggle.addEventListener("click", function () {
+      const visualTheme =
+        localStorage.getItem(VISUAL_THEME_STORAGE_KEY) || "pascoa";
+      if (visualTheme === "original") return;
       const nextTheme = document.body.classList.contains("easter-dark-mode")
         ? "light"
         : "dark";
@@ -100,6 +162,41 @@ document.addEventListener("DOMContentLoaded", function () {
       aplicarTemaPascoa(nextTheme);
     });
   }
+
+  if (popupThemeOriginal) {
+    popupThemeOriginal.addEventListener("click", function () {
+      const visualTheme =
+        localStorage.getItem(VISUAL_THEME_STORAGE_KEY) || "pascoa";
+      const nextTheme = visualTheme === "original" ? "pascoa" : "original";
+      localStorage.setItem(VISUAL_THEME_STORAGE_KEY, nextTheme);
+      aplicarTemaVisual(nextTheme);
+      if (nextTheme === "original") {
+        document.body.classList.remove("easter-dark-mode");
+      } else {
+        aplicarTemaPascoa(localStorage.getItem(THEME_STORAGE_KEY) || "light");
+      }
+      atualizarEstadoBotoesTema();
+    });
+  }
+
+  if (settingsToggle) {
+    settingsToggle.addEventListener("click", function (event) {
+      event.stopPropagation();
+      if (settingsPopup && settingsPopup.classList.contains("hidden")) {
+        abrirPopupConfiguracoes();
+      } else {
+        fecharPopupConfiguracoes();
+      }
+    });
+  }
+
+  document.addEventListener("click", function (event) {
+    if (!settingsPopup || !settingsToggle) return;
+    if (settingsPopup.classList.contains("hidden")) return;
+    if (settingsPopup.contains(event.target) || settingsToggle.contains(event.target))
+      return;
+    fecharPopupConfiguracoes();
+  });
 
   // =========================================================
   // 1.7. CENARIO DE PASCOA INTERATIVO
@@ -948,6 +1045,13 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem(SESSION_KEY, JSON.stringify(dados));
   }
 
+  function atualizarResumoUsuario(nome, avatar) {
+    if (settingsUsername) settingsUsername.textContent = nome || "Desconhecido";
+    if (settingsAvatar) {
+      settingsAvatar.src = avatar || "Imagens/image.png";
+    }
+  }
+
   function aplicarDadosUsuario(nome, avatar, id) {
     if (userNameSpan) userNameSpan.textContent = nome;
     if (userIdHidden) userIdHidden.value = id;
@@ -955,6 +1059,34 @@ document.addEventListener("DOMContentLoaded", function () {
       userAvatarImg.src = avatar;
       userAvatarImg.classList.remove("hidden");
     }
+    atualizarResumoUsuario(nome, avatar);
+  }
+
+  function limparDadosUsuario() {
+    if (userNameSpan) userNameSpan.textContent = "Desconhecido";
+    if (userIdHidden) userIdHidden.value = "";
+    if (userAvatarImg) {
+      userAvatarImg.src = "";
+      userAvatarImg.classList.add("hidden");
+    }
+    atualizarResumoUsuario("Desconhecido", "Imagens/image.png");
+  }
+
+  function sairDaCalculadora() {
+    localStorage.removeItem(SESSION_KEY);
+    limparDadosUsuario();
+    fecharPopupConfiguracoes();
+    if (audioEl) {
+      audioEl.pause();
+      audioEl.currentTime = 0;
+    }
+    window.location.replace(window.location.pathname);
+  }
+
+  if (popupLogout) {
+    popupLogout.addEventListener("click", function () {
+      sairDaCalculadora();
+    });
   }
 
   function verificarSessao() {

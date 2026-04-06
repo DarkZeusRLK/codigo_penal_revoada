@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculadora Penal - REVOADA RJ</title>
-  <link rel="stylesheet" href="style_pascoa.css">
+  <link id="theme-stylesheet" rel="stylesheet" href="style_pascoa.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="shortcut icon" href="Imagens/image.png" type="image/x-icon">
 </head>
@@ -66,10 +66,38 @@
     <i class="fa-brands fa-spotify"></i>
   </button>
 
-  <button id="theme-toggle" class="theme-toggle" type="button" title="Alternar modo escuro" aria-pressed="false">
-    <i class="fa-solid fa-moon"></i>
-    <span>Modo Escuro</span>
-  </button>
+  <div class="settings-menu">
+    <button id="settings-toggle" class="settings-toggle" type="button" title="Abrir configurações" aria-expanded="false" aria-controls="settings-popup">
+      <i class="fa-solid fa-gear"></i>
+    </button>
+
+    <div id="settings-popup" class="settings-popup hidden">
+      <div class="settings-profile">
+        <img id="settings-avatar" class="settings-avatar" src="Imagens/image.png" alt="Avatar do usuário">
+        <div class="settings-profile-text">
+          <span class="settings-profile-label">Sessão ativa</span>
+          <span id="settings-username" class="settings-username">Desconhecido</span>
+        </div>
+      </div>
+
+      <div class="settings-actions">
+        <button id="popup-dark-toggle" class="settings-action-btn" type="button">
+          <i class="fa-solid fa-moon"></i>
+          <span>Modo Escuro</span>
+        </button>
+
+        <button id="popup-theme-original" class="settings-action-btn" type="button">
+          <i class="fa-solid fa-palette"></i>
+          <span>Voltar Tema Original</span>
+        </button>
+
+        <button id="popup-logout" class="settings-action-btn settings-action-danger" type="button">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Sair</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <div class="easter-scene" aria-hidden="true">
     <div class="easter-basket easter-basket-left">
