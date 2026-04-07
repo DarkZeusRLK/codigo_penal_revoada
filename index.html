@@ -91,6 +91,11 @@
           <span>Voltar Tema Original</span>
         </button>
 
+        <button id="popup-bunny-toggle" class="settings-action-btn" type="button">
+          <i class="fa-solid fa-rabbit-running"></i>
+          <span>Desativar Coelho</span>
+        </button>
+
         <button id="popup-logout" class="settings-action-btn settings-action-danger" type="button">
           <i class="fa-solid fa-right-from-bracket"></i>
           <span>Sair</span>
@@ -117,101 +122,10 @@
     <div id="falling-eggs" class="falling-eggs"></div>
 
     <div id="easter-bunny" class="easter-bunny is-idle">
-      <svg id="bunny-svg" class="bunny-svg" viewBox="0 0 340 500" aria-hidden="true">
-        <defs>
-          <linearGradient id="furMain" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#fff8f1" />
-            <stop offset="100%" stop-color="#d9d0cf" />
-          </linearGradient>
-          <linearGradient id="furCool" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#d8deef" />
-            <stop offset="100%" stop-color="#8d95b4" />
-          </linearGradient>
-          <linearGradient id="furDark" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#4d526d" />
-            <stop offset="100%" stop-color="#282c3e" />
-          </linearGradient>
-          <linearGradient id="leatherStrap" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#8f6746" />
-            <stop offset="100%" stop-color="#5f3e26" />
-          </linearGradient>
-          <radialGradient id="glowChest" cx="50%" cy="30%" r="70%">
-            <stop offset="0%" stop-color="rgba(255,255,255,0.55)" />
-            <stop offset="100%" stop-color="rgba(255,255,255,0)" />
-          </radialGradient>
-        </defs>
-
-        <ellipse class="svg-bunny-shadow" cx="176" cy="468" rx="86" ry="18" />
-
-        <g id="bunny-tail">
-          <circle cx="262" cy="292" r="18" fill="#f8f0ea" />
-          <circle cx="255" cy="287" r="7" fill="#ffffff" opacity="0.7" />
-        </g>
-
-        <g id="bunny-legs">
-          <path id="bunny-leg-left" d="M122 325 C110 372 104 410 110 456 L146 456 C152 412 154 370 162 334 Z" fill="url(#furCool)" />
-          <path id="bunny-leg-right" d="M188 334 C196 370 198 412 194 456 L230 456 C238 406 232 366 218 326 Z" fill="url(#furDark)" />
-          <ellipse cx="130" cy="462" rx="26" ry="10" fill="#f1d6dd" />
-          <ellipse cx="214" cy="462" rx="26" ry="10" fill="#d1b6d3" />
-        </g>
-
-        <g id="bunny-body">
-          <path d="M110 140 C88 174 78 220 84 286 C88 340 112 366 170 368 C228 366 252 342 258 286 C264 222 252 172 232 140 C210 110 130 110 110 140 Z" fill="url(#furCool)" />
-          <path d="M124 138 C111 165 108 213 112 280 C116 324 134 350 170 352 C206 350 224 324 228 280 C232 214 228 166 216 138 C199 122 141 122 124 138 Z" fill="url(#furMain)" />
-          <path d="M144 160 C152 176 156 196 156 244 C156 272 152 302 146 324" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="7" stroke-linecap="round" />
-          <path d="M114 138 L226 138 L208 106 L136 106 Z" fill="#b6916f" opacity="0.24" />
-          <path d="M96 154 C106 136 124 120 152 112 L220 116 C238 126 248 138 258 156 C242 140 230 136 214 134 C202 132 130 132 116 136 C108 138 100 144 96 154 Z" fill="#2f3346" opacity="0.82" />
-          <path d="M122 146 C110 164 108 198 110 250 C112 308 132 344 170 348 C208 344 228 306 230 250 C232 198 230 164 218 146" fill="url(#glowChest)" opacity="0.6" />
-          <path d="M122 136 L144 120 L200 120 L226 204 L210 214 L192 156 Z" fill="url(#leatherStrap)" opacity="0.95" />
-          <circle cx="166" cy="150" r="11" fill="#9fdac5" />
-          <circle cx="166" cy="150" r="5" fill="#ffffff" opacity="0.65" />
-          <circle cx="184" cy="190" r="10" fill="#8dc5f0" />
-          <circle cx="184" cy="190" r="4" fill="#ffffff" opacity="0.65" />
-          <circle cx="202" cy="230" r="11" fill="#f4d176" />
-          <circle cx="202" cy="230" r="5" fill="#ffffff" opacity="0.65" />
-        </g>
-
-        <g id="bunny-arm-left">
-          <path d="M102 190 C70 214 56 244 62 282 C66 306 88 314 108 302 C126 292 144 276 174 256 L164 232 C136 244 120 248 104 248 C96 248 90 242 92 234 C94 222 100 206 112 194 Z" fill="url(#furCool)" />
-          <path d="M154 234 C138 246 122 252 108 254 C128 264 152 270 190 270 C206 270 214 260 210 248 C206 238 190 232 168 226 Z" fill="url(#furDark)" />
-        </g>
-
-        <g id="bunny-arm-right">
-          <path d="M236 192 C266 214 280 242 278 278 C276 304 254 314 234 304 C214 294 196 280 162 262 L172 236 C204 248 220 252 236 252 C244 252 250 246 248 236 C246 222 244 208 236 192 Z" fill="url(#furMain)" />
-          <path d="M188 240 C210 250 224 256 236 258 C220 270 198 278 160 280 C142 280 134 270 138 258 C142 246 158 240 180 236 Z" fill="#3c4056" />
-        </g>
-
-        <g id="bunny-head-group">
-          <g id="bunny-ear-left">
-            <path d="M116 24 C100 34 92 60 94 104 C96 146 110 172 130 170 C148 168 154 142 152 102 C150 58 138 28 116 24 Z" fill="url(#furDark)" />
-            <path d="M118 40 C108 46 104 68 106 102 C108 132 116 154 128 152 C138 150 142 130 140 100 C138 68 132 44 118 40 Z" fill="#d7a0bf" />
-          </g>
-          <g id="bunny-ear-right">
-            <path d="M212 24 C230 30 242 56 244 102 C246 146 238 170 220 172 C198 174 188 148 190 102 C192 58 198 30 212 24 Z" fill="url(#furDark)" />
-            <path d="M214 40 C226 44 234 68 234 102 C234 132 228 154 216 154 C206 154 202 130 202 100 C202 68 204 46 214 40 Z" fill="#d7a0bf" />
-          </g>
-
-          <g id="bunny-head">
-            <path d="M112 104 C94 126 88 154 98 190 C108 226 132 246 172 246 C214 246 238 224 246 186 C254 152 248 124 228 104 C210 88 130 88 112 104 Z" fill="url(#furMain)" />
-            <path d="M128 126 C118 144 118 170 126 192 C134 214 148 228 172 230 C198 226 214 210 220 186 C226 164 224 140 214 124 C196 112 146 112 128 126 Z" fill="url(#furCool)" opacity="0.28" />
-            <path d="M112 160 C96 170 88 186 94 202 C104 226 130 236 154 232 L144 206 C130 206 120 198 120 188 C120 178 126 168 136 160 Z" fill="#f2e1d6" />
-            <path d="M228 160 C246 170 254 186 248 202 C238 226 212 236 188 232 L198 206 C212 206 222 198 222 188 C222 178 216 168 206 160 Z" fill="#f2e1d6" />
-            <path d="M136 128 C146 118 156 114 170 114 C184 114 196 118 206 128" fill="none" stroke="#2f3346" stroke-width="8" stroke-linecap="round" />
-            <path d="M140 138 C148 134 154 132 160 132" fill="none" stroke="#1f2231" stroke-width="6" stroke-linecap="round" />
-            <path d="M200 138 C192 134 186 132 180 132" fill="none" stroke="#1f2231" stroke-width="6" stroke-linecap="round" />
-            <ellipse id="bunny-eye-left" cx="148" cy="156" rx="8" ry="13" fill="#272b3a" />
-            <ellipse id="bunny-eye-right" cx="192" cy="156" rx="8" ry="13" fill="#272b3a" />
-            <circle cx="150" cy="152" r="2.5" fill="#ffffff" opacity="0.8" />
-            <circle cx="194" cy="152" r="2.5" fill="#ffffff" opacity="0.8" />
-            <path d="M164 170 C168 166 176 166 180 170 C178 176 172 180 172 180 C172 180 166 176 164 170 Z" fill="#8c8da9" />
-            <ellipse id="bunny-nose" cx="172" cy="184" rx="10" ry="7" fill="#7f6676" />
-            <path d="M172 188 L172 198" fill="none" stroke="#5f4b54" stroke-width="3" stroke-linecap="round" />
-            <path d="M156 204 C162 210 166 212 172 212 C178 212 182 210 188 204" fill="none" stroke="#5f4b54" stroke-width="4" stroke-linecap="round" />
-            <path d="M136 182 C116 178 100 180 84 188" fill="none" stroke="#c5b4bb" stroke-width="3" stroke-linecap="round" opacity="0.8" />
-            <path d="M208 182 C228 178 244 180 260 188" fill="none" stroke="#c5b4bb" stroke-width="3" stroke-linecap="round" opacity="0.8" />
-          </g>
-        </g>
-      </svg>
+      <video id="bunny-video" class="bunny-video" autoplay loop muted playsinline>
+        <source src="Imagens/Vídeo_com_Novas_Expressões.mp4" type="video/mp4">
+        Seu navegador não suporta vídeos.
+      </video>
       <div class="bunny-thought">
         <span class="thought-label">Coelhinho Fiscal</span>
         <span id="bunny-thought-text">Monitorando o painel de infracoes em tempo real.</span>
