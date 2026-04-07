@@ -59,6 +59,10 @@ document.addEventListener("DOMContentLoaded", function () {
       appContent.classList.remove("hidden");
       appContent.style.display = "block";
     }
+    if (document.body.classList.contains("theme-pascoa")) {
+      aplicarVisibilidadeCoelho();
+      iniciarOvosCaindo();
+    }
     setTimeout(verificarAtualizacao, 1000);
   }
 
@@ -112,6 +116,9 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.classList.toggle("easter-dark-mode", false);
     if (easterScene) {
       easterScene.classList.toggle("hidden", tema === "original");
+      if (tema !== "original" && bunnyEstaAtivo()) {
+        easterScene.classList.remove("bunny-disabled");
+      }
     }
 
     if (popupThemeOriginal) {
