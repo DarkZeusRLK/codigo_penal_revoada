@@ -973,6 +973,8 @@ body.easter-dark-mode ::-webkit-scrollbar-thumb {
   pointer-events: none;
   opacity: 1;
   visibility: visible;
+  border: 3px solid red;
+  background: rgba(255, 0, 0, 0.08);
   transform-origin: bottom center;
   isolation: isolate;
   transition: filter 0.3s ease, transform 0.3s ease;
@@ -1015,6 +1017,7 @@ body.easter-dark-mode ::-webkit-scrollbar-thumb {
   pointer-events: none;
   opacity: 1;
   visibility: visible;
+  background: rgba(0, 255, 0, 0.18);
   filter:
     drop-shadow(0 28px 38px rgba(98, 59, 39, 0.18))
     drop-shadow(0 6px 14px rgba(255, 255, 255, 0.16));
