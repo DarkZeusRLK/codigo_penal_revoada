@@ -787,7 +787,11 @@ body.easter-dark-mode ::-webkit-scrollbar-thumb {
 }
 
 .easter-scene {
+  position: fixed;
+  inset: 0;
+  display: block;
   pointer-events: none;
+  z-index: 30;
 }
 
 .easter-scene.bunny-disabled .easter-bunny {
@@ -962,7 +966,13 @@ body.easter-dark-mode ::-webkit-scrollbar-thumb {
   bottom: 88px;
   width: 360px;
   height: 500px;
-  z-index: 5;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 1;
+  visibility: visible;
   transform-origin: bottom center;
   isolation: isolate;
   transition: filter 0.3s ease, transform 0.3s ease;
@@ -1003,6 +1013,8 @@ body.easter-dark-mode ::-webkit-scrollbar-thumb {
   height: 100%;
   object-fit: contain;
   pointer-events: none;
+  opacity: 1;
+  visibility: visible;
   filter:
     drop-shadow(0 28px 38px rgba(98, 59, 39, 0.18))
     drop-shadow(0 6px 14px rgba(255, 255, 255, 0.16));

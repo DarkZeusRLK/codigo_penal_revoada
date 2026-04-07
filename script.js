@@ -116,6 +116,8 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.classList.toggle("easter-dark-mode", false);
     if (easterScene) {
       easterScene.classList.toggle("hidden", tema === "original");
+      easterScene.style.display = tema === "original" ? "none" : "block";
+      easterScene.setAttribute("aria-hidden", tema === "original" ? "true" : "false");
       if (tema !== "original" && bunnyEstaAtivo()) {
         easterScene.classList.remove("bunny-disabled");
       }
@@ -265,6 +267,23 @@ document.addEventListener("DOMContentLoaded", function () {
   if (bunnyVideo) {
     bunnyVideo.addEventListener("loadedmetadata", function () {
       bunnyReady = true;
+      console.log("[Coelho] Metadados carregados.", {
+        src: bunnyVideo.currentSrc,
+        duration: bunnyVideo.duration,
+        width: bunnyVideo.videoWidth,
+        height: bunnyVideo.videoHeight,
+      });
+    });
+    bunnyVideo.addEventListener("canplay", function () {
+      console.log("[Coelho] Video pronto para reproducao.", bunnyVideo.currentSrc);
+    });
+    bunnyVideo.addEventListener("error", function () {
+      const mediaError = bunnyVideo.error;
+      console.error("[Coelho] Falha ao carregar video.", {
+        currentSrc: bunnyVideo.currentSrc,
+        code: mediaError ? mediaError.code : null,
+        message: mediaError ? mediaError.message : null,
+      });
     });
   }
 
@@ -532,6 +551,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const ativo = bunnyEstaAtivo();
     if (easterScene) {
       easterScene.classList.toggle("bunny-disabled", !ativo);
+    }
+    if (bunnyEl) {
+      bunnyEl.style.display =
+        ativo && document.body.classList.contains("theme-pascoa") ? "flex" : "none";
     }
     if (!ativo) {
       pararAnimacoesCoelho();
