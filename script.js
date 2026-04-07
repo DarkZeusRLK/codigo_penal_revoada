@@ -168,7 +168,6 @@ document.addEventListener("DOMContentLoaded", function () {
   aplicarTemaVisual(visualThemeSalvo);
   aplicarTemaPascoa(themeSalvo);
   atualizarEstadoBotoesTema();
-  aplicarVisibilidadeCoelho();
 
   if (popupDarkToggle) {
     popupDarkToggle.addEventListener("click", function () {
