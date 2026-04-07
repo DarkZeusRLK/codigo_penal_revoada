@@ -20,6 +20,20 @@
   --border-color: #1f2d40; /* Bordas sutis */
 }
 
+body.light-mode {
+  --bg-main: #eef3f9;
+  --bg-card: #ffffff;
+  --bg-header-category: #dce7f3;
+  --text-primary: #182433;
+  --text-secondary: #5f738a;
+  --color-revoada: #0056b3;
+  --color-revoada-light: #3378c9;
+  --color-danger: #c0392b;
+  --color-success: #2e7d32;
+  --color-info: #0277bd;
+  --border-color: #c8d6e6;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -33,6 +47,12 @@ body {
   padding: 20px;
   font-size: 14px;
   line-height: 1.5;
+}
+
+body.light-mode {
+  background:
+    radial-gradient(circle at top left, rgba(0, 86, 179, 0.06), transparent 24%),
+    linear-gradient(180deg, #f4f8fc 0%, #eaf1f8 100%);
 }
 
 .settings-menu {
@@ -160,6 +180,25 @@ body {
 
 .settings-action-btn.settings-action-danger i {
   color: #ff7a7a;
+}
+
+body.light-mode .settings-toggle {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: var(--border-color);
+  box-shadow: 0 10px 24px rgba(24, 36, 51, 0.16);
+}
+
+body.light-mode .settings-popup {
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 16px 38px rgba(24, 36, 51, 0.14);
+}
+
+body.light-mode .settings-profile {
+  border-bottom-color: rgba(24, 36, 51, 0.1);
+}
+
+body.light-mode .settings-action-btn {
+  background: rgba(0, 86, 179, 0.04);
 }
 
 .easter-scene {

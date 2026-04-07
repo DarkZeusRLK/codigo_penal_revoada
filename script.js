@@ -59,10 +59,6 @@ document.addEventListener("DOMContentLoaded", function () {
       appContent.classList.remove("hidden");
       appContent.style.display = "block";
     }
-    if (document.body.classList.contains("theme-pascoa")) {
-      aplicarVisibilidadeCoelho();
-      iniciarOvosCaindo();
-    }
     setTimeout(verificarAtualizacao, 1000);
   }
 
@@ -87,40 +83,41 @@ document.addEventListener("DOMContentLoaded", function () {
   const settingsAvatar = document.getElementById("settings-avatar");
   const settingsUsername = document.getElementById("settings-username");
   const easterScene = document.querySelector(".easter-scene");
-  const THEME_STORAGE_KEY = "pascoa-theme-mode";
+  const THEME_STORAGE_KEY = "policia_revoada_theme_mode";
   const VISUAL_THEME_STORAGE_KEY = "policia_revoada_visual_theme";
   const BUNNY_ENABLED_STORAGE_KEY = "policia_revoada_bunny_enabled";
 
   function aplicarTemaPascoa(theme) {
-    const isDark = theme === "dark";
-    document.body.classList.toggle("easter-dark-mode", isDark);
+    const isLight = theme === "light";
+    if (themeStylesheet) {
+      themeStylesheet.setAttribute("href", "style.css");
+    }
+    document.body.classList.toggle("light-mode", isLight);
+    document.body.classList.toggle("dark-mode", !isLight);
+    document.body.classList.remove("easter-dark-mode");
+    document.body.classList.add("theme-original");
+    document.body.classList.remove("theme-pascoa");
 
     if (popupDarkToggle) {
-      popupDarkToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
-      popupDarkToggle.innerHTML = isDark
-        ? '<i class="fa-solid fa-sun"></i><span>Modo Claro</span>'
-        : '<i class="fa-solid fa-moon"></i><span>Modo Escuro</span>';
+      popupDarkToggle.setAttribute("aria-pressed", isLight ? "false" : "true");
+      popupDarkToggle.innerHTML = isLight
+        ? '<i class="fa-solid fa-moon"></i><span>Modo Escuro</span>'
+        : '<i class="fa-solid fa-sun"></i><span>Modo Claro</span>';
     }
   }
 
   function aplicarTemaVisual(themeName) {
-    const tema = themeName === "original" ? "original" : "pascoa";
+    const tema = "original";
     if (themeStylesheet) {
-      themeStylesheet.setAttribute(
-        "href",
-        tema === "original" ? "style.css" : "style_pascoa.css",
-      );
+      themeStylesheet.setAttribute("href", "style.css");
     }
-    document.body.classList.toggle("theme-original", tema === "original");
-    document.body.classList.toggle("theme-pascoa", tema !== "original");
+    document.body.classList.add("theme-original");
+    document.body.classList.remove("theme-pascoa");
     document.body.classList.toggle("easter-dark-mode", false);
     if (easterScene) {
-      easterScene.classList.toggle("hidden", tema === "original");
-      easterScene.style.display = tema === "original" ? "none" : "block";
-      easterScene.setAttribute("aria-hidden", tema === "original" ? "true" : "false");
-      if (tema !== "original" && bunnyEstaAtivo()) {
-        easterScene.classList.remove("bunny-disabled");
-      }
+      easterScene.classList.add("hidden");
+      easterScene.style.display = "none";
+      easterScene.setAttribute("aria-hidden", "true");
     }
 
     if (popupThemeOriginal) {
@@ -171,9 +168,50 @@ document.addEventListener("DOMContentLoaded", function () {
     settingsToggle.setAttribute("aria-expanded", "false");
   }
 
-  const themeSalvo = localStorage.getItem(THEME_STORAGE_KEY) || "light";
+  function aplicarTemaPascoa(theme) {
+    const isLight = theme === "light";
+    if (themeStylesheet) {
+      themeStylesheet.setAttribute("href", "style.css");
+    }
+    document.body.classList.toggle("light-mode", isLight);
+    document.body.classList.toggle("dark-mode", !isLight);
+    document.body.classList.remove("easter-dark-mode");
+    document.body.classList.add("theme-original");
+    document.body.classList.remove("theme-pascoa");
+
+    if (popupDarkToggle) {
+      popupDarkToggle.setAttribute("aria-pressed", isLight ? "false" : "true");
+      popupDarkToggle.innerHTML = isLight
+        ? '<i class="fa-solid fa-moon"></i><span>Modo Escuro</span>'
+        : '<i class="fa-solid fa-sun"></i><span>Modo Claro</span>';
+    }
+  }
+
+  function aplicarTemaVisual() {
+    if (themeStylesheet) {
+      themeStylesheet.setAttribute("href", "style.css");
+    }
+    document.body.classList.add("theme-original");
+    document.body.classList.remove("theme-pascoa");
+    if (easterScene) {
+      easterScene.classList.add("hidden");
+      easterScene.style.display = "none";
+      easterScene.setAttribute("aria-hidden", "true");
+    }
+  }
+
+  function atualizarEstadoBotoesTema() {
+    if (popupDarkToggle) {
+      popupDarkToggle.disabled = false;
+      popupDarkToggle.classList.remove("is-disabled");
+    }
+    aplicarTemaPascoa(localStorage.getItem(THEME_STORAGE_KEY) || "dark");
+  }
+
+  const themeSalvo = localStorage.getItem(THEME_STORAGE_KEY) || "dark";
   const visualThemeSalvo =
-    localStorage.getItem(VISUAL_THEME_STORAGE_KEY) || "pascoa";
+    localStorage.getItem(VISUAL_THEME_STORAGE_KEY) || "original";
+  localStorage.setItem(VISUAL_THEME_STORAGE_KEY, "original");
   aplicarTemaVisual(visualThemeSalvo);
   aplicarTemaPascoa(themeSalvo);
   atualizarEstadoBotoesTema();
@@ -186,6 +224,16 @@ document.addEventListener("DOMContentLoaded", function () {
       const nextTheme = document.body.classList.contains("easter-dark-mode")
         ? "light"
         : "dark";
+      localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+      aplicarTemaPascoa(nextTheme);
+    });
+  }
+
+  if (popupDarkToggle) {
+    popupDarkToggle.addEventListener("click", function () {
+      const nextTheme = document.body.classList.contains("light-mode")
+        ? "dark"
+        : "light";
       localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
       aplicarTemaPascoa(nextTheme);
     });
@@ -873,7 +921,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (artistEl) artistEl.textContent = track.artist;
 
     if (coverEl) {
-      coverEl.src = track.cover ? track.cover : "Imagens/placeholder_cover.jpg";
+      coverEl.src = track.cover ? track.cover : "Imagens/image.png";
     }
 
     // Se já estava tocando ou avançou, tenta tocar
