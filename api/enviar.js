@@ -55,7 +55,11 @@ export default async function handler(req, res) {
     }
 
     // ENVIO PARA O DISCORD (Com a correção do duplex)
-    const discordResponse = await fetch(webhookUrl, {
+    const discordUrl = new URL(webhookUrl);
+    discordUrl.searchParams.set("wait", "true");
+    discordUrl.searchParams.set("with_components", "true");
+
+    const discordResponse = await fetch(discordUrl.toString(), {
       method: "POST",
       headers: headersDiscord,
       body: req,
@@ -77,6 +81,7 @@ export default async function handler(req, res) {
     return res.status(500).json({
       error: "Erro Interno do Servidor",
       message: error.message,
+      stack: error.stack,
     });
   }
 }
