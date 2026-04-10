@@ -2893,21 +2893,21 @@ document.addEventListener("DOMContentLoaded", function () {
         var dataHoraEnvioV2 = new Date().toLocaleString();
         var crimesFormatadosV2 = selectedCrimes.length
           ? selectedCrimes
-              .map((crime) => `- ${crime.nome.replace(/\*\*/g, "")}`)
+              .map((crime) => `• ${crime.nome.replace(/\*\*/g, "")}`)
               .join("\n")
-          : "- Nenhum";
+          : "• Nenhum";
         var detalhesFormatadosV2 =
           atenuantesTexto && atenuantesTexto !== "Nenhum"
             ? atenuantesTexto
                 .split("\n")
                 .filter(Boolean)
-                .map((linha) => `- ${linha}`)
+                .map((linha) => `• ${linha}`)
                 .join("\n")
-            : "- Nenhum";
-        var qraListaV2 = [`- <@${oficialId}>`];
-        participantesSelecionados.forEach((p) => {
-          qraListaV2.push(`- <@${p.id}>`);
-        });
+            : "• Nenhum";
+        var qraMentions = [oficialId].concat(
+          participantesSelecionados.map((p) => p.id),
+        );
+        var qraListaV2 = qraMentions.map((id) => `• <@${id}>`);
 
         var anexosV2 = [
           {
@@ -2933,73 +2933,138 @@ document.addEventListener("DOMContentLoaded", function () {
           });
         }
 
-        function criarBlocoRelatorio(titulo, linhas) {
+        // Helpers do layout Components V2.
+        // Ajustes futuros de card, separadores e blocos devem ser feitos aqui primeiro
+        // para manter o mesmo padrao visual da Central Policial.
+        function textDisplay(content) {
+          return { type: 10, content };
+        }
+
+        function separator() {
+          return { type: 14, divider: true, spacing: 1 };
+        }
+
+        function section(title, lines) {
+          return textDisplay([`### ${title}`, ...lines].join("\n"));
+        }
+
+        function mediaGallery(items) {
+          return { type: 12, items };
+        }
+
+        function card(components) {
           return {
             type: 17,
             accent_color: corEmbed,
-            components: [
-              {
-                type: 10,
-                content: [`### ${titulo}`, ...linhas].join("\n"),
-              },
-            ],
+            components,
           };
         }
 
+        var corpoRelatorioV2 = [
+          `## ${pagouFianca ? "💰" : "🚔"} ${tituloEmbedV2}`,
+          `• **Oficial Responsavel:** ${oficialNome}`,
+          `• **Participantes:** ${participantesTextoV2}`,
+          `• **Enviado em:** ${dataHoraEnvioV2}`,
+          "",
+          "---",
+          "",
+          `### 👮 QRA`,
+          qraListaV2.join("\n"),
+          "",
+          "---",
+          "",
+          `### 👤 Dados do Preso`,
+          `• **Nome:** ${nomePresoV2}`,
+          `• **RG:** ${rgPresoV2}`,
+          `• **Advogado:** ${advogadoTextoV2}`,
+          "",
+          "---",
+          "",
+          `### ⚖️ Sentenca`,
+          `• **Oficial:** ${oficialNome}`,
+          `• **Participantes:** ${participantesTextoV2}`,
+          `• **Pena:** ${penaTotalEl.textContent}`,
+          `• **Multa:** ${multaTotalEl.textContent}`,
+          "",
+          "---",
+          "",
+          `### 📜 Crimes/Artigos`,
+          crimesFormatadosV2,
+          "",
+          "---",
+          "",
+          `### 📦 Itens apreendidos`,
+          itensApreendidosTextoV2,
+          "",
+          "---",
+          "",
+          `### 💸 Dinheiro Sujo`,
+          `• ${dinheiroSujoTextoV2}`,
+          "",
+          "---",
+          "",
+          `### 📝 Detalhes/Atenuantes`,
+          detalhesFormatadosV2,
+          "",
+          "---",
+          "",
+          `### 🏥 Reanimacao no HP`,
+          `• ${reanimacaoTextoV2}`,
+          "",
+          "---",
+          "",
+          `### 🖼️ Imagens`,
+          "As imagens do relatorio foram enviadas em anexo nesta mensagem.",
+        ].join("\n");
+
         payload = {
           flags: 32768,
+          allowed_mentions: {
+            parse: [],
+            users: qraMentions,
+          },
           components: [
-            criarBlocoRelatorio(`${pagouFianca ? "💰" : "🚔"} ${tituloEmbedV2}`, [
-              `- **Oficial Responsavel:** ${oficialNome}`,
-              `- **Participantes:** ${participantesTextoV2}`,
-              `- **Enviado em:** ${dataHoraEnvioV2}`,
+            card([
+              textDisplay(`## ${pagouFianca ? "💰" : "🚔"} ${tituloEmbedV2}`),
+              separator(),
+              section("👮 QRA", qraListaV2),
+              separator(),
+              section("👤 Dados do Preso", [
+                `• **Nome:** ${nomePresoV2}`,
+                `• **RG:** ${rgPresoV2}`,
+                `• **Advogado:** ${advogadoTextoV2}`,
+              ]),
+              separator(),
+              section("⚖️ Sentenca", [
+                `• **Oficial Responsavel:** ${oficialNome}`,
+                `• **Participantes:** ${participantesTextoV2}`,
+                `• **Pena:** ${penaTotalEl.textContent}`,
+                `• **Multa:** ${multaTotalEl.textContent}`,
+              ]),
+              separator(),
+              section("📜 Crimes/Artigos", [crimesFormatadosV2]),
+              separator(),
+              section("📦 Itens apreendidos", [
+                itensApreendidosTextoV2 === "Nenhum"
+                  ? "• Nenhum"
+                  : itensApreendidosTextoV2,
+              ]),
+              separator(),
+              section("💸 Dinheiro Sujo", [`• ${dinheiroSujoTextoV2}`]),
+              separator(),
+              section("📝 Detalhes/Atenuantes", [detalhesFormatadosV2]),
+              separator(),
+              section("🏥 Reanimacao no HP", [`• ${reanimacaoTextoV2}`]),
+              separator(),
+              section("🖼️ Imagens", [
+                "As imagens do relatorio foram enviadas em anexo nesta mensagem.",
+              ]),
+              mediaGallery(anexosV2),
+              separator(),
+              textDisplay(
+                `-# Relatorio enviado por: <@${oficialId}> - ${dataHoraEnvioV2}`,
+              ),
             ]),
-            criarBlocoRelatorio("👮 QRA", qraListaV2),
-            criarBlocoRelatorio("👤 Dados do Preso", [
-              `- **Nome:** ${nomePresoV2}`,
-              `- **RG:** ${rgPresoV2}`,
-              `- **Advogado:** ${advogadoTextoV2}`,
-            ]),
-            criarBlocoRelatorio("⚖️ Sentenca", [
-              `- **Pena:** ${penaTotalEl.textContent}`,
-              `- **Multa:** ${multaTotalEl.textContent}`,
-            ]),
-            criarBlocoRelatorio("📜 Crimes/Artigos", [crimesFormatadosV2]),
-            criarBlocoRelatorio("📦 Itens apreendidos", [itensApreendidosTextoV2]),
-            criarBlocoRelatorio("💸 Dinheiro Sujo", [`- ${dinheiroSujoTextoV2}`]),
-            criarBlocoRelatorio("📝 Detalhes/Atenuantes", [detalhesFormatadosV2]),
-            criarBlocoRelatorio("🏥 Reanimacao no HP", [`- ${reanimacaoTextoV2}`]),
-            {
-              type: 17,
-              accent_color: corEmbed,
-              components: [
-                {
-                  type: 10,
-                  content: [
-                    `### 🖼️ Imagens`,
-                    "As imagens do relatorio foram enviadas em anexo nesta mensagem.",
-                  ].join("\n"),
-                },
-                {
-                  type: 14,
-                  divider: true,
-                  spacing: 1,
-                },
-                {
-                  type: 12,
-                  items: anexosV2,
-                },
-                {
-                  type: 14,
-                  divider: true,
-                  spacing: 1,
-                },
-                {
-                  type: 10,
-                  content: `-# Relatorio enviado por: <@${oficialId}> - ${dataHoraEnvioV2}`,
-                },
-              ],
-            },
           ],
         };
 
