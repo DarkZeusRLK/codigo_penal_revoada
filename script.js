@@ -3037,7 +3037,6 @@ document.addEventListener("DOMContentLoaded", function () {
               separator(),
               section("⚖️ Sentenca", [
                 `• **Oficial Responsavel:** ${oficialNome}`,
-                `• **Participantes:** ${participantesTextoV2}`,
                 `• **Pena:** ${penaTotalEl.textContent}`,
                 `• **Multa:** ${multaTotalEl.textContent}`,
               ]),
