@@ -2866,6 +2866,139 @@ document.addEventListener("DOMContentLoaded", function () {
             image: { url: "attachment://extra.jpg" },
           });
 
+        var participantesTextoV2 =
+          participantesSelecionados.length > 0
+            ? participantesSelecionados.map((p) => p.nome).join(", ")
+            : "Nenhum";
+        var advogadoTextoV2 =
+          document.getElementById("advogado").value || "Nenhum";
+        var nomePresoV2 =
+          document.getElementById("nome").value || "Nao informado";
+        var rgPresoV2 = document.getElementById("rg").value || "Nao informado";
+        var itensApreendidosTextoV2 =
+          document.getElementById("itens-apreendidos").value || "Nenhum";
+        var dinheiroSujoTextoV2 = inputDinheiroSujo.value
+          ? "R$ " + inputDinheiroSujo.value
+          : "Nao houve";
+        var reanimacaoTextoV2 =
+          hpSimBtn &&
+          hpSimBtn.checked &&
+          inputHpMinutos &&
+          inputHpMinutos.value
+            ? `Sim - Desconto de ${inputHpMinutos.value} minutos`
+            : "Nao";
+        var tituloEmbedV2 = pagouFianca
+          ? "RELATORIO DE FIANCA"
+          : "RELATORIO DE PRISAO";
+        var dataHoraEnvioV2 = new Date().toLocaleString();
+        var crimesFormatadosV2 = selectedCrimes.length
+          ? selectedCrimes
+              .map((crime) => `- ${crime.nome.replace(/\*\*/g, "")}`)
+              .join("\n")
+          : "- Nenhum";
+        var detalhesFormatadosV2 =
+          atenuantesTexto && atenuantesTexto !== "Nenhum"
+            ? atenuantesTexto
+                .split("\n")
+                .filter(Boolean)
+                .map((linha) => `- ${linha}`)
+                .join("\n")
+            : "- Nenhum";
+        var qraListaV2 = [`- <@${oficialId}>`];
+        participantesSelecionados.forEach((p) => {
+          qraListaV2.push(`- <@${p.id}>`);
+        });
+
+        var anexosV2 = [
+          {
+            media: { url: "attachment://preso.jpg" },
+            description: "Imagem principal do preso.",
+          },
+          {
+            media: { url: "attachment://mochila.jpg" },
+            description: "Imagem do inventario ou mochila apreendida.",
+          },
+        ];
+
+        if (blobDeposito) {
+          anexosV2.push({
+            media: { url: "attachment://deposito.jpg" },
+            description: "Comprovante de pagamento de fianca.",
+          });
+        }
+        if (blobExtra) {
+          anexosV2.push({
+            media: { url: "attachment://extra.jpg" },
+            description: "Evidencia extra anexada ao relatorio.",
+          });
+        }
+
+        payload = {
+          flags: 32768,
+          components: [
+            {
+              type: 17,
+              accent_color: corEmbed,
+              components: [
+                {
+                  type: 10,
+                  content: [
+                    `## ${tituloEmbedV2}`,
+                    "",
+                    `### QRA`,
+                    qraListaV2.join("\n"),
+                    "",
+                    `### Detalhes do Relatorio`,
+                    `- **Oficial:** ${oficialNome}`,
+                    `- **Participantes:** ${participantesTextoV2}`,
+                    `- **Nome:** ${nomePresoV2}`,
+                    `- **RG:** ${rgPresoV2}`,
+                    `- **Advogado:** ${advogadoTextoV2}`,
+                    `- **Pena:** ${penaTotalEl.textContent}`,
+                    `- **Multa:** ${multaTotalEl.textContent}`,
+                    `- **Dinheiro sujo:** ${dinheiroSujoTextoV2}`,
+                    `- **Reanimacao no HP:** ${reanimacaoTextoV2}`,
+                    "",
+                    `### Crimes`,
+                    crimesFormatadosV2,
+                    "",
+                    `### Itens apreendidos`,
+                    itensApreendidosTextoV2,
+                    "",
+                    `### Observacoes`,
+                    detalhesFormatadosV2,
+                  ].join("\n"),
+                },
+                {
+                  type: 14,
+                  divider: true,
+                  spacing: 1,
+                },
+                {
+                  type: 10,
+                  content: [
+                    `### Anexos`,
+                    "As imagens do relatorio foram enviadas em anexo nesta mensagem.",
+                  ].join("\n"),
+                },
+                {
+                  type: 12,
+                  items: anexosV2,
+                },
+                {
+                  type: 14,
+                  divider: true,
+                  spacing: 1,
+                },
+                {
+                  type: 10,
+                  content: `-# Relatorio enviado por: <@${oficialId}> • ${dataHoraEnvioV2}`,
+                },
+              ],
+            },
+          ],
+        };
+
         formData.append("payload_json", JSON.stringify(payload));
 
         // SUBSTITUA PELA URL DO SEU WEBHOOK REAL SE NÃO ESTIVER USANDO BACKEND LOCAL
