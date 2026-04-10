@@ -2933,9 +2933,42 @@ document.addEventListener("DOMContentLoaded", function () {
           });
         }
 
+        function criarBlocoRelatorio(titulo, linhas) {
+          return {
+            type: 17,
+            accent_color: corEmbed,
+            components: [
+              {
+                type: 10,
+                content: [`### ${titulo}`, ...linhas].join("\n"),
+              },
+            ],
+          };
+        }
+
         payload = {
           flags: 32768,
           components: [
+            criarBlocoRelatorio(`${pagouFianca ? "💰" : "🚔"} ${tituloEmbedV2}`, [
+              `- **Oficial Responsavel:** ${oficialNome}`,
+              `- **Participantes:** ${participantesTextoV2}`,
+              `- **Enviado em:** ${dataHoraEnvioV2}`,
+            ]),
+            criarBlocoRelatorio("👮 QRA", qraListaV2),
+            criarBlocoRelatorio("👤 Dados do Preso", [
+              `- **Nome:** ${nomePresoV2}`,
+              `- **RG:** ${rgPresoV2}`,
+              `- **Advogado:** ${advogadoTextoV2}`,
+            ]),
+            criarBlocoRelatorio("⚖️ Sentenca", [
+              `- **Pena:** ${penaTotalEl.textContent}`,
+              `- **Multa:** ${multaTotalEl.textContent}`,
+            ]),
+            criarBlocoRelatorio("📜 Crimes/Artigos", [crimesFormatadosV2]),
+            criarBlocoRelatorio("📦 Itens apreendidos", [itensApreendidosTextoV2]),
+            criarBlocoRelatorio("💸 Dinheiro Sujo", [`- ${dinheiroSujoTextoV2}`]),
+            criarBlocoRelatorio("📝 Detalhes/Atenuantes", [detalhesFormatadosV2]),
+            criarBlocoRelatorio("🏥 Reanimacao no HP", [`- ${reanimacaoTextoV2}`]),
             {
               type: 17,
               accent_color: corEmbed,
@@ -2943,49 +2976,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 {
                   type: 10,
                   content: [
-                    `## ${pagouFianca ? "💰" : "🚔"} ${tituloEmbedV2}`,
-                    "",
-                    `### 👮 QRA`,
-                    qraListaV2.join("\n"),
-                    "",
-                    `### 👤 Dados do Preso`,
-                    `- **Nome:** ${nomePresoV2}`,
-                    `- **RG:** ${rgPresoV2}`,
-                    `- **Advogado:** ${advogadoTextoV2}`,
-                    "",
-                    `### ⚖️ Sentenca`,
-                    `- **Oficial:** ${oficialNome}`,
-                    `- **Participantes:** ${participantesTextoV2}`,
-                    `- **Pena:** ${penaTotalEl.textContent}`,
-                    `- **Multa:** ${multaTotalEl.textContent}`,
-                    "",
-                    `### 📜 Crimes/Artigos`,
-                    crimesFormatadosV2,
-                    "",
-                    `### 📦 Itens apreendidos`,
-                    itensApreendidosTextoV2,
-                    "",
-                    `### 💸 Dinheiro Sujo`,
-                    `- ${dinheiroSujoTextoV2}`,
-                    "",
-                    `### 📝 Detalhes/Atenuantes`,
-                    detalhesFormatadosV2,
-                    "",
-                    `### 🏥 Reanimacao no HP`,
-                    `- ${reanimacaoTextoV2}`,
+                    `### 🖼️ Imagens`,
+                    "As imagens do relatorio foram enviadas em anexo nesta mensagem.",
                   ].join("\n"),
                 },
                 {
                   type: 14,
                   divider: true,
                   spacing: 1,
-                },
-                {
-                  type: 10,
-                  content: [
-                    `### 🖼️ Imagens`,
-                    "As imagens do relatorio foram enviadas em anexo nesta mensagem.",
-                  ].join("\n"),
                 },
                 {
                   type: 12,
@@ -2998,7 +2996,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 {
                   type: 10,
-                  content: `-# Relatorio enviado por: <@${oficialId}> • ${dataHoraEnvioV2}`,
+                  content: `-# Relatorio enviado por: <@${oficialId}> - ${dataHoraEnvioV2}`,
                 },
               ],
             },
