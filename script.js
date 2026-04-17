@@ -1579,7 +1579,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (chkPrimario) {
     chkPrimario.addEventListener("change", function () {
       if (this.checked) {
-        var isReincidente = selectedCrimes.some((c) => c.artigo === "163");
+        var isReincidente = selectedCrimes.some((c) => c.artigo === "164");
         if (isReincidente) {
           mostrarAlerta(
             "Conflito: Remova o crime de Reincidente antes.",
@@ -1738,7 +1738,7 @@ document.addEventListener("DOMContentLoaded", function () {
     selectedCrimes.splice(idx, 1);
     var item = document.querySelector(`.crime-item[data-artigo="${c.artigo}"]`);
     if (item) item.classList.remove("selected");
-    if (c.artigo === "139") {
+    if (c.artigo === "140") {
       containerDinheiroSujo.classList.add("hidden");
       inputDinheiroSujo.value = "";
     }
@@ -1763,18 +1763,18 @@ document.addEventListener("DOMContentLoaded", function () {
           return mostrarAlerta("Apenas um tipo de Homicídio por vez.", "error");
 
         if (
-          artigo === "125" &&
-          selectedCrimes.some((c) => ["127", "128"].includes(c.artigo))
+          artigo === "126" &&
+          selectedCrimes.some((c) => ["128", "129"].includes(c.artigo))
         )
           return mostrarAlerta("Conflito: Tráfico vs Porte de Armas.", "error");
         if (
-          ["127", "128"].includes(artigo) &&
-          selectedCrimes.some((c) => c.artigo === "125")
+          ["128", "129"].includes(artigo) &&
+          selectedCrimes.some((c) => c.artigo === "126")
         )
           return mostrarAlerta("Conflito: Porte vs Tráfico de Armas.", "error");
 
         if (
-          artigo === "163" &&
+          artigo === "164" &&
           document.getElementById("atenuante-primario").checked
         )
           return mostrarAlerta(
@@ -1801,7 +1801,8 @@ document.addEventListener("DOMContentLoaded", function () {
           "136",
           "137",
           "138",
-          "143",
+          "139",
+          "144",
         ];
 
         var exigeItem = selectedCrimes.some((c) =>
@@ -1819,7 +1820,7 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById("itens-apreendidos").focus();
           return;
         }
-        const MUNICOES = ["130", "131"];
+        const MUNICOES = ["131", "132"];
         if (
           MUNICOES.includes(artigo) &&
           selectedCrimes.some((c) => MUNICOES.includes(c.artigo))
@@ -1829,14 +1830,14 @@ document.addEventListener("DOMContentLoaded", function () {
             "error",
           );
         if (
-          artigo === "126" &&
-          selectedCrimes.some((c) => ["138"].includes(c.artigo))
+          artigo === "127" &&
+          selectedCrimes.some((c) => ["139"].includes(c.artigo))
         )
           return mostrarAlerta(
             "Conflito: Tráfico vs Posse de Itens Ilegais.",
             "error",
           );
-        const ITENS_ILEGAIS = ["126 ", "138"];
+        const ITENS_ILEGAIS = ["127", "139"];
         if (
           ITENS_ILEGAIS.includes(artigo) &&
           selectedCrimes.some((c) => ITENS_ILEGAIS.includes(c.artigo))
@@ -1846,7 +1847,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "error",
           );
 
-        const DROGAS = ["134", "135", "137"];
+        const DROGAS = ["135", "136", "138"];
         if (
           DROGAS.includes(artigo) &&
           selectedCrimes.some((c) => DROGAS.includes(c.artigo))
@@ -1864,7 +1865,7 @@ document.addEventListener("DOMContentLoaded", function () {
         selectedCrimes.push({ artigo, nome, pena, multa, infiancavel });
         this.classList.add("selected");
 
-        if (artigo === "139") {
+        if (artigo === "140") {
           containerDinheiroSujo.classList.remove("hidden");
           inputDinheiroSujo.focus();
         }
@@ -2207,7 +2208,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     selectedCrimes.push({ artigo, nome, pena, multa, infiancavel });
     item.classList.add("selected");
-    if (artigo === "139" && containerDinheiroSujo) {
+    if (artigo === "140" && containerDinheiroSujo) {
       containerDinheiroSujo.classList.remove("hidden");
     }
     return true;
@@ -2220,7 +2221,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var item = document.querySelector(`.crime-item[data-artigo="${artigo}"]`);
     if (item) item.classList.remove("selected");
-    if (artigo === "139" && containerDinheiroSujo) {
+    if (artigo === "140" && containerDinheiroSujo) {
       containerDinheiroSujo.classList.add("hidden");
       if (inputDinheiroSujo) inputDinheiroSujo.value = "";
     }
@@ -2249,13 +2250,13 @@ document.addEventListener("DOMContentLoaded", function () {
     var totalArmas = totalPesadas + totalLeves;
     var traficoAutomatico = totalArmas >= 3;
     if (traficoAutomatico) {
-      adicionarCrimeSemTrava("125");
-      removerCrimeSemTrava("127");
+      adicionarCrimeSemTrava("126");
       removerCrimeSemTrava("128");
+      removerCrimeSemTrava("129");
     } else {
-      removerCrimeSemTrava("125");
-      if (totalPesadas > 0) adicionarCrimeSemTrava("127");
-      if (totalLeves > 0) adicionarCrimeSemTrava("128");
+      removerCrimeSemTrava("126");
+      if (totalPesadas > 0) adicionarCrimeSemTrava("128");
+      if (totalLeves > 0) adicionarCrimeSemTrava("129");
     }
 
     return { totalPesadas, totalLeves, totalArmas, traficoAutomatico };
@@ -2278,16 +2279,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var artigoAutomatico = "";
     if (totalMunicao >= 100) {
-      adicionarCrimeSemTrava("130");
-      removerCrimeSemTrava("131");
-      artigoAutomatico = "130";
-    } else if (totalMunicao > 0) {
       adicionarCrimeSemTrava("131");
-      removerCrimeSemTrava("130");
+      removerCrimeSemTrava("132");
       artigoAutomatico = "131";
-    } else {
-      removerCrimeSemTrava("130");
+    } else if (totalMunicao > 0) {
+      adicionarCrimeSemTrava("132");
       removerCrimeSemTrava("131");
+      artigoAutomatico = "132";
+    } else {
+      removerCrimeSemTrava("131");
+      removerCrimeSemTrava("132");
     }
 
     return { totalMunicao, artigoAutomatico };
@@ -2340,7 +2341,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function selecionarCrime139Automatico() {
-    return adicionarCrimeSemTrava("139");
+    return adicionarCrimeSemTrava("140");
   }
 
   function setupUpload(boxId, inputId, imgId, type) {
@@ -2474,10 +2475,10 @@ document.addEventListener("DOMContentLoaded", function () {
         var resumoMunicao = aplicarCrimesMunicaoAutomatico(itensTexto);
         var crimesAutomaticos = [];
         if (resumoArmas.traficoAutomatico) {
-          crimesAutomaticos.push("Art. 125");
+          crimesAutomaticos.push("Art. 126");
         } else {
-          if (resumoArmas.totalPesadas > 0) crimesAutomaticos.push("Art. 127");
-          if (resumoArmas.totalLeves > 0) crimesAutomaticos.push("Art. 128");
+          if (resumoArmas.totalPesadas > 0) crimesAutomaticos.push("Art. 128");
+          if (resumoArmas.totalLeves > 0) crimesAutomaticos.push("Art. 129");
         }
         if (resumoMunicao.artigoAutomatico) {
           crimesAutomaticos.push("Art. " + resumoMunicao.artigoAutomatico);
@@ -2568,7 +2569,7 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       }
 
-      var temDinheiroSujo = selectedCrimes.some((c) => c.artigo === "139");
+      var temDinheiroSujo = selectedCrimes.some((c) => c.artigo === "140");
       if (
         temDinheiroSujo &&
         (!inputDinheiroSujo.value || inputDinheiroSujo.value.trim() === "")
@@ -2578,7 +2579,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       var isPrimario = document.getElementById("atenuante-primario").checked;
-      var isReincidente = selectedCrimes.some((c) => c.artigo === "163");
+      var isReincidente = selectedCrimes.some((c) => c.artigo === "164");
       if (!isPrimario && !isReincidente)
         return mostrarAlerta(
           "Defina se o Réu é Primário ou Reincidente!",
