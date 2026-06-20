@@ -980,7 +980,7 @@ document.addEventListener("DOMContentLoaded", function () {
     {
       title: "Dai Dai",
       artist: "Shakira",
-      src: "Música/Shakira - Dai Dai (Official Music Video) - Shakira (youtube).m4a",
+      src: "Música/Shakira2026.m4a",
       cover: "Imagens/Capa_daidai.png",
     },
     {
