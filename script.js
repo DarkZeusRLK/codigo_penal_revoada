@@ -87,6 +87,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const THEME_STORAGE_KEY = "policia_revoada_theme_mode";
   const VISUAL_THEME_STORAGE_KEY = "policia_revoada_visual_theme";
   const COPA_THEME_STORAGE_KEY = "policia_revoada_copa_theme";
+  const BUNNY_ENABLED_STORAGE_KEY = "policia_revoada_bunny_enabled";
 
   // =========================================================
   // 1.7. TEMA COPA DO MUNDO (BRASIL)

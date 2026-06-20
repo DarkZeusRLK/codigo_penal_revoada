@@ -57,9 +57,21 @@
   // =============================================
   // INTRO
   // =============================================
+  function estaLogado() {
+    try {
+      var s = localStorage.getItem("policia_revoada_v3_natal");
+      if (!s) return false;
+      var d = JSON.parse(s);
+      return d && d.nome && d.id && d.timestamp;
+    } catch (_) { return false; }
+  }
+
   function criarIntro() {
     if (document.getElementById("copa2026-intro")) return;
-    if (localStorage.getItem("copa2026_intro_pulou") === "sim") return;
+    if (!estaLogado()) return;
+    var hoje = new Date().toDateString();
+    if (localStorage.getItem("copa2026_intro_visto") === hoje) return;
+    localStorage.setItem("copa2026_intro_visto", hoje);
     var ov = document.createElement("div");
     ov.id = "copa2026-intro";
     ov.className = "copa2026-intro-overlay";
@@ -73,7 +85,6 @@
     document.body.appendChild(ov);
     ov.querySelector(".copa2026-intro-skip").addEventListener("click", function (e) {
       e.preventDefault();
-      localStorage.setItem("copa2026_intro_pulou", "sim");
       fadeIntro(ov);
     });
     setTimeout(function () { fadeIntro(ov); }, 4500);
