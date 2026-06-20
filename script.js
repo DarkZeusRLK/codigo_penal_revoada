@@ -197,8 +197,9 @@ document.addEventListener("DOMContentLoaded", function () {
           '<i class="fa-solid fa-palette"></i><span>Desativar Tema Copa</span>';
       }
       localStorage.setItem(COPA_THEME_STORAGE_KEY, "ativo");
+      var badgeCBF = document.getElementById("badge-cbf");
+      if (badgeCBF) badgeCBF.style.display = "inline-block";
       criarEstrelasFundo();
-      criarCBFcaindo();
       criarConfetesCopa();
     } else {
       themeStylesheet.setAttribute("href", "style.css");
@@ -216,8 +217,9 @@ document.addEventListener("DOMContentLoaded", function () {
           '<i class="fa-solid fa-futbol"></i><span>Ativar Tema Copa do Mundo</span>';
       }
       localStorage.setItem(COPA_THEME_STORAGE_KEY, "inativo");
+      var badgeCBF = document.getElementById("badge-cbf");
+      if (badgeCBF) badgeCBF.style.display = "none";
       removerEstrelasFundo();
-      removerCBFcaindo();
       pararConfetesCopa();
       aplicarTemaPascoa(localStorage.getItem(THEME_STORAGE_KEY) || "dark");
     }

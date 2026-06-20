@@ -1,73 +1,65 @@
 /* =========================================
    🏆 CSS EDIÇÃO ESPECIAL COPA DO MUNDO ⚽
-   (Tema Brasil - Copa do Mundo)
+   (Tema Brasil - Copa do Mundo - Baseado no Original)
    ========================================= */
 
-/* Fontes */
 @import url("https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700;900&family=Roboto:wght@400;500;700;900&display=swap");
-
 /* =========================================
-   1. VARIÁVEIS E CONFIGURAÇÕES GERAIS
+   1. VARIÁVEIS E RESET GERAL
    ========================================= */
 :root {
-  /* --- PALETA BRASIL EXCLUSIVA --- */
-  --bra-green: #009c3b;
-  --bra-green-dark: #006b28;
-  --bra-green-light: #00c44a;
-  --bra-yellow: #ffdf00;
-  --bra-yellow-dark: #e6c800;
-  --bra-yellow-light: #ffe866;
-  --bra-blue: #002776;
-  --bra-blue-dark: #001a52;
-  --bra-blue-light: #0044b3;
-  --bra-white: #f0f4ff;
-  --bra-night: #0a0e17;
+  /* Paleta Policial RJ (Tático/Noturno) */
+  --bg-main: #0a0e14; /* Fundo da página */
+  --bg-card: #131b26; /* Fundo dos cartões */
+  --bg-header-category: #0d1620; /* Cabeçalhos de categorias */
 
-  /* --- MAPEAMENTO PARA A LÓGICA DO SISTEMA --- */
-  --bg-main: var(--bra-night);
-  --bg-card: linear-gradient(145deg, #0d1a2b 0%, #0a121f 100%);
-  --bg-header-category: linear-gradient(90deg, #0d2a1a 0%, #0a121f 100%);
+  --text-primary: #f0f2f5; /* Texto principal (quase branco) */
+  --text-secondary: #8b9bb4; /* Texto secundário (cinza azulado) */
 
-  --text-primary: var(--bra-white);
-  --text-secondary: #9ab8d9;
-  --text-muted: #5a7a9a;
+  --color-revoada: #0056b3; /* Azul Real (Destaque principal) */
+  --color-revoada-light: #3378c9; /* Azul mais claro para hovers */
 
-  --color-revoada: var(--bra-yellow);
-  --color-revoada-light: var(--bra-yellow-light);
+  --color-danger: #d32f2f; /* Vermelho (Infiançável/Erro) */
+  --color-success: #2e7d32; /* Verde (Sucesso/Dinheiro) */
+  --color-info: #0288d1; /* Azul Info */
 
-  --color-danger: #e63946;
-  --color-success: var(--bra-green-light);
-  --color-info: var(--bra-blue-light);
-  --color-warning: var(--bra-yellow);
-
-  --border-color: rgba(255, 223, 0, 0.25);
-  --border-focus: var(--bra-yellow);
-
-  --card-border: 1px solid rgba(0, 156, 59, 0.3);
-  --card-shadow: 0 4px 20px rgba(0, 39, 118, 0.3);
+  --border-color: #1f2d40; /* Bordas sutis */
 }
 
-/* =========================================
-   2. ANIMAÇÕES GLOBAIS
-   ========================================= */
-
-/* Onda Brasileira no fundo */
-@keyframes waveGreen {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+body.light-mode {
+  --bg-main: #eef3f9;
+  --bg-card: #ffffff;
+  --bg-header-category: #dce7f3;
+  --text-primary: #182433;
+  --text-secondary: #5f738a;
+  --color-revoada: #0056b3;
+  --color-revoada-light: #3378c9;
+  --color-danger: #c0392b;
+  --color-success: #2e7d32;
+  --color-info: #0277bd;
+  --border-color: #c8d6e6;
 }
 
-body.theme-copa {
-  font-family: "Roboto", "Segoe UI", sans-serif;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", "Roboto", "Arial", sans-serif; /* Fonte mais moderna */
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  padding: 20px;
+  font-size: 14px;
+  line-height: 1.5;
   background: linear-gradient(135deg, #0a0e17 0%, #001a2e 30%, #0a2010 60%, #0a0e17 100%);
   background-size: 400% 400%;
   animation: waveGreen 20s ease infinite;
-  position: relative;
   overflow-x: hidden;
 }
 
-/* Overlay sutil da bandeira no fundo */
-body.theme-copa::before {
+body::before {
   content: "";
   position: fixed;
   top: 0;
@@ -77,37 +69,2091 @@ body.theme-copa::before {
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(0, 156, 59, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 50%, rgba(255, 223, 0, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 30%, rgba(0, 39, 118, 0.08) 0%, transparent 50%);
+    radial-gradient(ellipse at 20% 50%, rgba(0, 156, 59, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(255, 223, 0, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 30%, rgba(0, 39, 118, 0.06) 0%, transparent 50%);
 }
 
-/* Garante que o container principal fique acima do fundo */
-body.theme-copa .container {
+@keyframes waveGreen {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+body.light-mode {
+  background:
+    radial-gradient(circle at top left, rgba(0, 86, 179, 0.06), transparent 24%),
+    linear-gradient(180deg, #f4f8fc 0%, #eaf1f8 100%);
+}
+
+.settings-menu {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10002;
+}
+
+.settings-toggle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: rgba(19, 27, 38, 0.95);
+  color: var(--color-revoada);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  font-size: 1.05rem;
+  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.settings-toggle:hover {
+  transform: translateY(-2px) rotate(18deg);
+  border-color: var(--color-revoada);
+}
+
+.settings-popup {
+  position: absolute;
+  top: 58px;
+  right: 0;
+  width: 280px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  background: rgba(19, 27, 38, 0.97);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(12px);
+}
+
+.settings-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.settings-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-revoada);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.settings-profile-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.settings-profile-label {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.settings-username {
+  color: var(--text-primary);
+  font-weight: 800;
+  font-size: 0.92rem;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.settings-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  border-radius: 12px;
+  padding: 11px 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.settings-action-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--color-revoada);
+  background: rgba(0, 86, 179, 0.1);
+}
+
+.settings-action-btn i {
+  color: var(--color-revoada);
+  width: 16px;
+  text-align: center;
+}
+
+.settings-action-btn.is-disabled,
+.settings-action-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.settings-action-btn.settings-action-danger {
+  color: #fff;
+  background: rgba(211, 47, 47, 0.14);
+  border-color: rgba(211, 47, 47, 0.35);
+}
+
+.settings-action-btn.settings-action-danger i {
+  color: #ff7a7a;
+}
+
+body.light-mode .settings-toggle {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: var(--border-color);
+  box-shadow: 0 10px 24px rgba(24, 36, 51, 0.16);
+}
+
+body.light-mode .settings-popup {
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 16px 38px rgba(24, 36, 51, 0.14);
+}
+
+body.light-mode .settings-profile {
+  border-bottom-color: rgba(24, 36, 51, 0.1);
+}
+
+body.light-mode .settings-action-btn {
+  background: rgba(0, 86, 179, 0.04);
+}
+
+.easter-scene {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .settings-menu {
+    top: 14px;
+    right: 14px;
+  }
+
+  .settings-popup {
+    width: min(280px, calc(100vw - 28px));
+  }
+}
+
+.container {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* =========================================
+   2. TELA DE LOGIN
+   ========================================= */
+.login-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0a0e17 0%, #001a2e 50%, #0a2010 100%);
+  background-size: 400% 400%;
+  animation: waveGreen 15s ease infinite;
+  z-index: 99999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.login-box {
+  background-color: var(--bg-card);
+  padding: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--color-revoada);
+  text-align: center;
+  box-shadow: 0 0 40px rgba(0, 86, 179, 0.2);
+  max-width: 400px;
+  width: 90%;
+}
+
+.login-logo {
+  height: 100px;
+  margin-bottom: 20px;
+}
+
+.login-box h2 {
+  color: var(--color-revoada);
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.login-box p {
+  color: var(--text-secondary);
+  margin-bottom: 30px;
+}
+
+.btn-discord-login {
+  background-color: #5865f2; /* Cor oficial Discord */
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 6px;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  display: block;
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+
+.btn-discord-login:hover {
+  background-color: #4752c4;
+  transform: translateY(-2px);
+}
+
+.login-footer {
+  font-size: 0.8em;
+  margin-top: 20px;
+  opacity: 0.5;
+}
+
+/* =========================================
+   3. HEADER E TOPO
+   ========================================= */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 25px;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+header h1 {
+  font-size: 1.8em;
+  color: var(--color-revoada);
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+header p.titulo {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+  margin-top: 2px;
+}
+
+.badge-area {
+  display: flex;
+  gap: 12px;
+}
+
+.badge {
+  height: 50px;
+  transition: transform 0.2s;
+}
+.badge:hover {
+  transform: scale(1.1);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 15px;
+  border-radius: 30px;
+  border: 1px solid var(--border-color);
+}
+
+.avatar-small {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid var(--color-revoada);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.user-label {
+  color: var(--text-secondary);
+  font-size: 0.75em;
+  text-transform: uppercase;
+}
+.user-value {
+  color: var(--color-revoada);
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+/* Configuração do Bot (Input Webhook) */
+.config-bot {
+  margin-bottom: 20px;
+  border-left: 4px solid #5865f2;
+}
+
+/* =========================================
+   4. ESTRUTURA DE GRIDS (LAYOUT)
+   ========================================= */
+
+/* Dados do Preso + Uploads (Topo) */
+.dados-preso-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Esquerda: Texto (2), Direita: Uploads (1) */
+  gap: 20px;
+  align-items: start;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.dados-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Conteúdo Principal (Lista de Crimes + Resumo) */
+.main-content {
+  display: grid;
+  grid-template-columns: 3fr 1fr; /* Esquerda: 75%, Direita: 25% */
+  gap: 20px;
+  align-items: start;
+}
+
+/* =========================================
+   5. CARDS, INPUTS E FORMULÁRIOS
+   ========================================= */
+.card {
+  background-color: var(--bg-card);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+}
+
+.card-header {
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--text-primary);
+  padding-bottom: 12px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+}
+
+.card-header i {
+  color: var(--color-revoada);
+  margin-right: 10px;
+}
+
+/* Inputs Gerais */
+.input-group {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 15px;
+  margin-bottom: 5px;
+  align-items: center;
+}
+
+.input-group label {
+  font-size: 0.95em;
+  color: var(--text-secondary);
+  text-align: right;
+  width: 130px;
+  font-weight: 500;
+}
+
+input:not([type="file"]),
+textarea,
+select {
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 0.95em;
+  min-height: 40px;
+  transition: border-color 0.2s;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--color-revoada);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.2);
+}
+
+textarea {
+  resize: vertical; /* Permite redimensionar só altura */
+  min-height: 100px;
+  max-height: 400px;
+  width: 100%;
+}
+
+/* =========================================
+   6. UPLOADS E PREVIEW
+   ========================================= */
+.upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+/* ... [MANTENHA TODO O SEU CSS ANTERIOR AQUI] ... */
+/* CSS DO MODAL */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 99999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px);
+}
+#modal-confirmacao,
+#modal-patch-notes,
+#modal-substituir-itens-ia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+}
+.modal-content {
+  background: #1e1e2e;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  border-radius: 12px;
+  border: 1px solid #444;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+.modal-box {
+  background: #1e1e2e;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  border-radius: 12px;
+  border: 1px solid #444;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.modal-box-small {
+  max-width: 520px;
+}
+
+.confirm-ia-text {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--text-primary);
+  text-align: center;
+}
+.modal-header {
+  padding: 15px 20px;
+  background: #252535;
+  border-bottom: 1px solid #444;
+  border-radius: 12px 12px 0 0;
+  text-align: center;
+  color: #fff;
+}
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  color: #ddd;
+  font-size: 0.95rem;
+}
+.confirm-section {
+  margin-bottom: 15px;
+}
+.confirm-section h4 {
+  color: #a5b4fc;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+.confirm-row {
+  display: flex;
+  gap: 10px;
+}
+.conf-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.confirm-section.half {
+  flex: 1;
+}
+.conf-group {
+  margin-bottom: 10px;
+}
+.conf-group label {
+  font-size: 0.85em;
+  color: var(--color-revoada);
+  font-weight: 700;
+}
+.info-text {
+  background: #151520;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #333;
+}
+.info-text.highlight {
+  color: #fff;
+  font-weight: bold;
+  border-color: #555;
+}
+.confirm-list {
+  list-style: none;
+  padding: 0;
+}
+.confirm-list li {
+  padding: 4px 0;
+  border-bottom: 1px solid #333;
+  font-size: 0.85rem;
+}
+
+.crimes-detail {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px;
+  background: #151520;
+}
+.conf-value {
+  font-size: 1em;
+  color: #fff;
+  padding: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+.conf-list {
+  list-style: none;
+  padding: 0;
+}
+.conf-list li {
+  border-bottom: 1px dashed #444;
+  padding: 5px 0;
+}
+.img-wrapper img {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+.conf-img-box {
+  text-align: center;
+}
+.itens-apreendidos {
+  margin-top: 10px;
+}
+.confirm-imgs {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 5px;
+  flex-wrap: wrap;
+}
+.confirm-imgs div {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.confirm-imgs img {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background-color: rgba(0, 0, 0, 0.3);
+  max-width: 100%;
+}
+.confirm-imgs small {
+  margin-top: 5px;
+  font-size: 0.75em;
+  color: var(--text-secondary);
+}
+
+.modal-footer {
+  padding: 15px;
+  border-top: 1px solid #444;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  background: #252535;
+  border-radius: 0 0 12px 12px;
+}
+.btn-cancelar {
+  background: #444;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-confirmar {
+  background: #22c55e;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn-confirmar:hover {
+  background: #16a34a;
+}
+/* CAMPO DE PESQUISA (DROPDOWN) */
+.search-container {
+  position: relative;
+  width: 100%;
+}
+.search-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.form-search {
+  width: 40%;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.95em;
+}
+
+.dropdown-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  z-index: 1000;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background-color 0.2s;
+  font-size: 0.9em;
+}
+
+.dropdown-item:hover {
+  background-color: var(--color-revoada);
+  color: white;
+}
+
+.dropdown-item small {
+  display: block;
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.5);
+}
+.empty-message {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+/* --- PATCH NOTES --- */
+.patch-notes-container {
+  margin-top: 25px;
+  background-color: rgba(0, 0, 0, 0.6); /* Fundo escuro transparente */
+  border: 1px solid #444;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px; /* Mesma largura provável do seu login */
+  margin-left: auto;
+  margin-right: auto;
+  color: #ddd;
+  font-size: 0.9rem;
+  text-align: left;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.patch-header {
+  background-color: #222;
+  padding: 10px 15px;
+  font-weight: bold;
+  border-bottom: 1px solid #444;
+  border-radius: 8px 8px 0 0;
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.placeholder-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.logo-revoada {
+  max-height: 74px;
+  width: auto;
+}
+
+.patch-scroll-area {
+  max-height: 200px; /* Altura máxima antes de criar rolagem */
+  overflow-y: auto;
+  padding: 10px;
+}
+
+/* Scrollbar personalizada */
+.patch-scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+.patch-scroll-area::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+.patch-scroll-area::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 3px;
+}
+
+.patch-entry {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #333;
+}
+.patch-entry:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.patch-title {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.version {
+  color: #4da6ff; /* Azul claro */
+  font-weight: bold;
+}
+
+.patch-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.patch-list li {
+  margin-bottom: 6px;
+  line-height: 1.4;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+/* Tags coloridas */
+.tag {
+  font-size: 0.65rem;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-weight: bold;
+  min-width: 45px;
+  text-align: center;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.tag-new {
+  background-color: #28a745;
+  color: white;
+} /* Verde */
+.tag-fix {
+  background-color: #dc3545;
+  color: white;
+} /* Vermelho */
+.tag-logic {
+  background-color: #ffc107;
+  color: #333;
+} /* Amarelo */
+.tag-ux {
+  background-color: #17a2b8;
+  color: white;
+} /* Ciano */
+/* ... [RESTO DO CSS IGUAL] ... */
+.upload-box {
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  padding: 12px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Efeito ao clicar para colar */
+.upload-box:focus,
+.upload-box.active-box {
+  border-color: var(--color-revoada);
+  box-shadow: 0 0 10px rgba(0, 86, 179, 0.3);
+  background-color: rgba(0, 86, 179, 0.05);
+}
+
+.upload-box label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: var(--text-primary);
+  font-size: 0.9em;
+}
+
+.btn-escolher-arquivo {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-header-category);
+  color: var(--text-primary);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-escolher-arquivo:hover {
+  border-color: var(--color-revoada);
+  background: rgba(0, 86, 179, 0.15);
+}
+
+.paste-hint {
+  font-size: 0.75em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.preview-area {
+  width: 100%;
+  height: 130px;
+  background-color: #050505;
+  border: 2px dashed var(--border-color);
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.preview-area i {
+  font-size: 2.5em;
+  color: var(--border-color);
+  opacity: 0.5;
+}
+
+.preview-area img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+input[type="file"] {
+  width: 100%;
+  font-size: 0.8em;
+  color: var(--text-secondary);
+}
+
+/* =========================================
+   7. SELEÇÃO DE PARTICIPANTES (TAGS)
+   ========================================= */
+.participantes-section {
+  border-top: 1px dashed var(--border-color);
+  padding-top: 15px;
+  margin-top: 10px;
+}
+
+.participante-selector-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.form-select {
+  flex: 1;
+}
+
+.btn-small {
+  background-color: var(--bg-header-category);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 0 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-small:hover {
+  background-color: var(--color-revoada);
+  border-color: var(--color-revoada);
+}
+
+/* Tags visuais dos participantes */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+.officer-tag {
+  background-color: var(--color-revoada);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.officer-tag button {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-weight: bold;
+  padding: 0;
+  font-size: 1.1em;
+  line-height: 1;
+}
+.officer-tag button:hover {
+  color: #fff;
+}
+/* BOTÃO DE MÚSICA FLUTUANTE */
+.music-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--color-revoada);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2em;
+  transition: transform 0.2s, background-color 0.2s;
+}
+.music-btn:hover {
+  transform: scale(1.1);
+  background-color: #3378c9;
+}
+.music-btn.paused {
+  background-color: var(--bg-header-category);
+  color: var(--text-secondary);
+}
+/* =========================================
+   8. LISTA DE CRIMES
+   ========================================= */
+.crimes-aplicados {
+  min-width: 0;
+}
+
+.crimes-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 colunas internas */
+  gap: 25px;
+  padding: 0 20px 20px 20px;
+}
+
+.category-title {
+  background: linear-gradient(
+    90deg,
+    var(--bg-header-category) 0%,
+    var(--bg-card) 100%
+  );
+  border-left: 4px solid var(--color-revoada);
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  font-size: 0.9em;
+  margin-top: 25px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.5px;
+}
+.crime-column .category-title:first-child {
+  margin-top: 0;
+}
+
+.category-content {
+  display: block;
+  padding: 5px 0;
+}
+
+.crime-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.crime-name {
+  flex: 1;
+}
+
+.crime-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding-left: 20px; /* Efeito de movimento */
+}
+
+.crime-item:last-child {
+  border-bottom: none;
+}
+
+.crime-item.selected {
+  background-color: rgba(0, 86, 179, 0.15);
+  border-left: 3px solid var(--color-revoada);
+  color: #fff;
+}
+
+.crime-item[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 14px;
+  top: 100%;
+  margin-top: 10px;
+  width: clamp(220px, 32vw, 360px);
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(13, 22, 32, 0.98);
+  color: var(--text-primary);
+  border: 1px solid rgba(0, 86, 179, 0.45);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  font-size: 0.85em;
+  line-height: 1.4;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  z-index: 20;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.crime-item[data-tip]:hover::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Caixa de dicas */
+.dica-box {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  width: min(320px, 88vw);
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 86, 179, 0.22),
+    rgba(10, 14, 20, 0.94)
+  );
+  border: 1px solid rgba(0, 86, 179, 0.4);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
+  color: var(--text-primary);
+  z-index: 9998;
+}
+
+.dica-close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 86, 179, 0.45);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--text-primary);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.dica-close:hover {
+  transform: scale(1.05);
+  background: rgba(0, 86, 179, 0.22);
+}
+
+.dica-reopen {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 86, 179, 0.45);
+  background: rgba(13, 22, 32, 0.95);
+  color: var(--text-primary);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  z-index: 9998;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.dica-reopen:hover {
+  transform: translateY(-1px);
+  background: rgba(0, 86, 179, 0.2);
+}
+
+.dica-title {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-revoada-light);
+  margin-bottom: 6px;
+  font-size: 0.75em;
+}
+
+.dica-text {
+  font-size: 0.9em;
+  line-height: 1.4;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.dica-text.is-fading {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+/* Etiquetas */
+.btn-info {
+  background-color: var(--color-danger);
+  color: white;
+  border: none;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.7em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.crime-condition {
+  font-size: 0.75em;
+  background-color: #1e3a8a;
+  color: #bfdbfe;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  font-weight: 600;
+}
+
+/* =========================================
+   9. RESUMO DA SENTENÇA (DIREITA)
+   ========================================= */
+.resumo-sentenca {
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+  min-width: 320px;
+}
+
+.resumo-section {
+  margin-bottom: 20px;
+  padding: 0 5px;
+}
+
+.crimes-selecionados {
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 0.5px;
+}
+
+.section-title-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.section-title-actions span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-ia-itens {
+  padding: 7px 10px;
+  font-size: 0.72em;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.btn-ia-itens.is-loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.section-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.8em;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 20px 0;
+  opacity: 0.5;
+}
+
+/* Lista de Selecionados */
+.output-list {
+  min-height: 60px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  max-height: 350px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+}
+
+.crime-output-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 0.9em;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  align-items: center;
+}
+.crime-output-item:last-child {
+  border-bottom: none;
+}
+
+.crime-output-item span {
+  line-height: 1.4;
+  padding-right: 10px;
+}
+
+.crime-output-item button {
+  background: none;
+  border: none;
+  color: var(--color-danger);
+  cursor: pointer;
+  font-size: 1.1em;
+  transition: transform 0.2s;
+}
+.crime-output-item button:hover {
+  transform: scale(1.2);
+}
+
+/* Totais */
+.pena-multa .section-title {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 1.1em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#pena-total {
+  color: var(--color-danger);
+  font-weight: 800;
+}
+#multa-total {
+  color: var(--color-success);
+  font-weight: 800;
+}
+
+/* Alerta */
+.alert-box {
+  background-color: rgba(211, 47, 47, 0.15);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 15px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  animation: pulse 2s infinite;
+}
+
+.alert-inafiancavel {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 760px;
+  background: rgba(10, 14, 20, 0.96);
+  border: 1px solid var(--color-danger);
+  color: #ffd7d7;
+  padding: 14px 18px;
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  text-align: center;
+  font-weight: 700;
+  z-index: 20000;
+}
+
+/* Atenuantes */
+.atenuante-item {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+.atenuante-item:hover {
+  border-color: var(--color-revoada);
+}
+.atenuantes {
+  margin-top: 8px;
+}
+.atenuantes-title {
+  margin-bottom: 12px;
+}
+.atenuante-item label {
+  margin-left: 10px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.95em;
+}
+.atenuante-item input[type="checkbox"] {
+  accent-color: var(--color-revoada);
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Linhas Calculadas (Fiança, HP) */
+.calculated-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding-bottom: 5px;
+}
+.calculated-row label {
+  font-size: 0.95em;
+  color: var(--text-secondary);
+}
+.calculated-row input {
+  width: 45%;
+  text-align: right;
+  background-color: #252535;
+  font-weight: bold;
+}
+
+.calculated-row-radio {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding: 8px 0;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.1);
+}
+.radio-group {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+.radio-label {
+  margin-left: 6px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.95em;
+}
+input[type="radio"] {
+  accent-color: var(--color-revoada);
+  cursor: pointer;
+  transform: scale(1.1);
+}
+
+/* Fiança Breakdown (Estilo Premium) */
+.fianca-breakdown {
+  background-color: rgba(16, 185, 129, 0.08); /* Verde suave */
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+  border-left: 4px solid var(--color-success);
+}
+.dinheiro-sujo {
+  margin-top: 12px;
+}
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  font-size: 0.9em;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+.breakdown-row:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.breakdown-row i {
+  margin-right: 8px;
+  width: 20px;
+  text-align: center;
+  color: var(--text-primary);
+  opacity: 0.8;
+}
+.breakdown-row span:last-child {
+  font-weight: 700;
+  color: #fff;
+  font-size: 1.05em;
+  letter-spacing: 0.5px;
+}
+
+/* Botões de Ação */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+}
+.btn-action {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background-color: var(--color-revoada);
+  color: #fff;
+  border: 1px solid var(--color-revoada-light);
+}
+.btn-primary:hover {
+  background-color: var(--color-revoada-light);
+}
+
+.btn-add {
+  background-color: var(--bg-header-category);
+  color: var(--color-revoada);
+  border: 1px solid var(--color-revoada);
+  padding: 0 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-add:hover {
+  background-color: var(--color-revoada);
+  color: #fff;
+}
+
+#btn-enviar {
+  background-color: #5865f2;
+  color: white;
+  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+}
+#btn-enviar:hover {
+  background-color: #4752c4;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
+}
+
+.btn-limpar {
+  background-color: var(--bg-header-category);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+.btn-limpar:hover {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+  color: white;
+}
+
+/* Alertas Toast */
+.custom-alert {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  background-color: var(--bg-card);
+  padding: 18px 25px;
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 9999;
+  border-left: 6px solid;
+  animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
+    fadeOut 0.5s forwards 4s;
+  color: white;
+}
+.custom-alert.error {
+  border-color: var(--color-danger);
+}
+.custom-alert.error i {
+  color: var(--color-danger);
+  font-size: 1.5em;
+}
+.custom-alert.success {
+  border-color: var(--color-success);
+}
+.custom-alert.success i {
+  color: var(--color-success);
+  font-size: 1.5em;
+}
+
+.alert-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.alert-title {
+  font-weight: 800;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.alert-msg {
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+
+/* Animações */
+@keyframes slideIn {
+  from {
+    transform: translateX(120%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+}
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(211, 47, 47, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(211, 47, 47, 0);
+  }
+}
+
+/* =========================================
+   10. RESPONSIVIDADE
+   ========================================= */
+@media (max-width: 1200px) {
+  .main-content {
+    grid-template-columns: 60% 40%;
+  }
+}
+
+@media (max-width: 1000px) {
+  .dados-preso-container {
+    grid-template-columns: 1fr;
+  }
+  .main-content {
+    grid-template-columns: 1fr; /* Vira coluna única */
+  }
+  .crimes-list {
+    grid-template-columns: 1fr;
+  }
+  .resumo-sentenca {
+    position: relative; /* Remove sticky no mobile */
+    top: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .dica-box {
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
+  .dica-reopen {
+    left: 12px;
+  }
+  .section-title-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* UTILS */
+.hidden {
+  display: none;
+}
+
+#input-dinheiro-sujo {
+  font-weight: bold;
+  color: var(--color-success);
+}
+/* --- CORREÇÃO DE VISIBILIDADE (Obrigatório) --- */
+
+/* Classe utilitária para esconder elementos */
+.hidden {
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+}
+
+/* Garante que o container principal ocupe a tela quando aparecer */
+#app-content {
+  display: block; /* Padrão, mas o JS pode mudar para flex se precisar */
+  width: 100%;
+  min-height: 100vh;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease-in;
+}
+
+/* Corrige o tamanho da foto de perfil para não sumir */
+#user-avatar {
+  display: block;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #333; /* Cor de fundo caso a imagem falhe */
+}
+#patch-notes-content ul {
+  list-style: none;
+  padding: 0;
+}
+#patch-notes-content li {
+  background: rgba(255, 255, 255, 0.05);
+  margin-bottom: 8px;
+  padding: 10px;
+  border-left: 3px solid var(--color-primary);
+  border-radius: 4px;
+}
+#patch-notes-content h4 {
+  color: var(--color-primary);
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 5px;
+}
+#btn-fechar-patch {
+  background-color: var(
+    --color-primary,
+    #3498db
+  ); /* Usa a cor principal ou azul padrão */
+  color: #ffffff;
+  border: none;
+  padding: 12px 35px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  outline: none;
+
+  /* Centraliza se o container permitir, mas define largura mínima */
+  min-width: 150px;
+}
+
+/* Efeito ao passar o mouse (Hover) */
+#btn-fechar-patch:hover {
+  background-color: var(--color-secondary, #2980b9); /* Escurece um pouco */
+  transform: translateY(-2px); /* Sobe levemente */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Aumenta a sombra */
+}
+
+/* Efeito ao clicar (Active) */
+#btn-fechar-patch:active {
+  transform: translateY(1px); /* Desce como se fosse apertado */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Ajuste do rodapé do modal para centralizar o botão */
+.modal-footer {
+  display: flex;
+  justify-content: center; /* Centraliza o botão */
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* =========================================
+   EXTRA: BARRA DE ROLAGEM BONITA
+   (Para a área de texto das novidades)
+   ========================================= */
+#modal-patch-notes .modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+#modal-patch-notes .modal-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+#modal-patch-notes .modal-body::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary, #555);
+  border-radius: 4px;
+  border: 2px solid transparent; /* Cria um respiro */
+  background-clip: content-box;
+}
+
+#modal-patch-notes .modal-body::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-secondary, #777);
+}
+
+/* =========================================
+   11. PLAYER DE MÚSICA ESTILO SPOTIFY
+   ========================================= */
+.spotify-player-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(19, 27, 38, 0.95);
+  border: 1px solid var(--color-revoada);
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+  max-width: 350px;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.spotify-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.btn-minimize {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--color-revoada);
+  color: var(--color-revoada);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.8em;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.btn-minimize:hover {
+  background: var(--color-revoada);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.btn-restore {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(19, 27, 38, 0.95);
+  border: 1px solid var(--color-revoada);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-revoada);
+  font-size: 1.5em;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  transition: all 0.3s ease;
+}
+
+.btn-restore:hover {
+  background: var(--color-revoada);
+  color: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 0 25px rgba(0, 86, 179, 0.5);
+}
+
+.spotify-player-container:hover {
+  box-shadow: 0 0 25px rgba(0, 86, 179, 0.3);
+  border-color: var(--color-revoada-light);
+}
+
+/* Capa do Álbum (Vinil Giratório) */
+.spotify-img-wrapper {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #111;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+  position: relative;
+}
+
+/* Brilho do Vinil */
+.spotify-img-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 15px;
+  height: 15px;
+  background: #000;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--color-revoada);
+  z-index: 1;
+}
+
+.spotify-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: rotateVinyl 8s linear infinite;
+}
+
+@keyframes rotateVinyl {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Informações da Faixa */
+.spotify-track-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 180px;
+}
+
+.track-title {
+  color: var(--color-revoada);
+  font-weight: 700;
+  font-size: 0.95em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+
+.track-artist {
+  color: var(--text-secondary);
+  font-size: 0.75em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Controles */
+.spotify-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+}
+
+.control-btn:hover {
+  color: var(--text-primary);
+  text-shadow: 0 0 5px var(--color-revoada);
+}
+
+.control-btn:active {
+  transform: scale(0.95);
+}
+
+.control-btn.small {
+  font-size: 1.2em;
+}
+
+/* Botão Play Principal */
+.play-btn-main {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--color-revoada);
+  color: #fff;
+  font-size: 1.2em;
+  box-shadow: 0 0 10px rgba(0, 86, 179, 0.4);
+}
+
+.play-btn-main:hover {
+  transform: scale(1.1);
+  background-color: var(--color-revoada-light);
+  color: #fff;
+}
+
+@media screen and (max-width: 1450px), screen and (max-height: 800px) {
+  .spotify-player-container {
+    max-width: 280px;
+    padding: 10px;
+  }
+
+  .spotify-img-wrapper {
+    width: 50px;
+    height: 50px;
+  }
+
+  .track-title {
+    font-size: 0.8rem;
+  }
+
+  .track-artist {
+    font-size: 0.7rem;
+  }
+}
+
+/* =========================================
+   COPA DO MUNDO - ESTILOS ADICIONAIS
+   ========================================= */
+
+/* Container principal fica acima do overlay */
+.container {
   position: relative;
   z-index: 1;
 }
 
-/* =========================================
-   3. CABEÇALHO - ESTILO COPA
-   ========================================= */
-body.theme-copa header {
+/* Header gradiente */
+header {
   border-bottom: 3px solid transparent;
   border-image: linear-gradient(90deg, var(--bra-green), var(--bra-yellow), var(--bra-blue), var(--bra-yellow), var(--bra-green)) 1;
-  padding-bottom: 15px;
-  margin-bottom: 25px;
 }
 
-body.theme-copa header h1 {
+header h1 {
   background: linear-gradient(135deg, var(--bra-green) 0%, var(--bra-yellow) 40%, var(--bra-blue) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   font-family: "Oswald", sans-serif;
   font-weight: 900;
-  font-size: 2em;
-  letter-spacing: 2px;
-  text-shadow: none;
   animation: tituloBrilho 3s ease-in-out infinite;
 }
 
@@ -116,30 +2162,23 @@ body.theme-copa header h1 {
   50% { filter: brightness(1.3); }
 }
 
-body.theme-copa header p.titulo {
+header p.titulo {
   background: linear-gradient(90deg, var(--bra-yellow), var(--bra-white));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-weight: bold;
 }
 
-/* =========================================
-   4. CARDS - ESTILO COPA
-   ========================================= */
-body.theme-copa .card {
-  background: linear-gradient(145deg, rgba(13, 26, 43, 0.95) 0%, rgba(10, 18, 31, 0.95) 100%);
-  border: var(--card-border);
-  box-shadow: var(--card-shadow);
+/* Cards */
+.card {
+  background: linear-gradient(145deg, rgba(15, 29, 46, 0.95) 0%, rgba(10, 18, 31, 0.95) 100%);
+  border: 1px solid rgba(0, 156, 59, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 39, 118, 0.3);
   backdrop-filter: blur(5px);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-body.theme-copa .card:hover {
-  box-shadow: 0 6px 25px rgba(0, 156, 59, 0.2), 0 4px 20px rgba(0, 39, 118, 0.3);
-}
-
-body.theme-copa .card-header {
+.card-header {
   border-bottom: 2px solid transparent;
   border-image: linear-gradient(90deg, var(--bra-green), var(--bra-yellow), var(--bra-blue)) 1;
   color: var(--bra-yellow);
@@ -147,80 +2186,56 @@ body.theme-copa .card-header {
   letter-spacing: 2px;
 }
 
-body.theme-copa .card-header i {
+.card-header i {
   color: var(--bra-green-light);
 }
 
-/* =========================================
-   5. CATEGORIAS DE CRIMES - ESTILO COPA
-   ========================================= */
-body.theme-copa .category-title {
+/* Categorias */
+.category-title {
   background: linear-gradient(90deg, rgba(0, 156, 59, 0.2) 0%, rgba(0, 39, 118, 0.1) 100%);
   border-left: 4px solid var(--bra-yellow);
   color: var(--bra-yellow);
   font-family: "Oswald", sans-serif;
-  letter-spacing: 1px;
 }
 
-body.theme-copa .crime-item:hover {
+.crime-item:hover {
   background: linear-gradient(90deg, rgba(0, 156, 59, 0.12) 0%, rgba(255, 223, 0, 0.05) 100%);
 }
 
-body.theme-copa .crime-item.selected {
+.crime-item.selected {
   background: linear-gradient(90deg, rgba(0, 156, 59, 0.2) 0%, rgba(255, 223, 0, 0.1) 100%);
   border-left: 3px solid var(--bra-yellow);
 }
 
-/* =========================================
-   6. INPUTS - ESTILO COPA
-   ========================================= */
-body.theme-copa input:not([type="file"]),
-body.theme-copa textarea,
-body.theme-copa select {
-  border-color: rgba(0, 156, 59, 0.3);
-  background: rgba(0, 0, 0, 0.3);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-body.theme-copa input:focus,
-body.theme-copa textarea:focus,
-body.theme-copa select:focus {
+/* Inputs */
+input:not([type="file"]):focus,
+textarea:focus,
+select:focus {
   border-color: var(--bra-yellow);
   box-shadow: 0 0 10px rgba(255, 223, 0, 0.2), 0 0 0 2px rgba(255, 223, 0, 0.1);
 }
 
-/* =========================================
-   7. BOTÕES - ANIMAÇÕES SUAVES
-   ========================================= */
-
-/* Botão primário */
-body.theme-copa .btn-primary {
+/* Botão Primário */
+.btn-primary {
   background: linear-gradient(135deg, var(--bra-green) 0%, var(--bra-green-dark) 100%);
   border: 1px solid var(--bra-yellow);
   color: #fff;
-  position: relative;
   overflow: hidden;
-  transition: all 0.3s ease;
 }
 
-body.theme-copa .btn-primary:hover {
+.btn-primary:hover {
   background: linear-gradient(135deg, var(--bra-green-light) 0%, var(--bra-green) 100%);
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 6px 20px rgba(0, 156, 59, 0.4);
 }
 
-body.theme-copa .btn-primary:active {
-  transform: translateY(0) scale(0.98);
-}
-
-/* Botão de ação */
-body.theme-copa .btn-action {
+/* Ripple effect nos botões de ação */
+.btn-action {
   position: relative;
   overflow: hidden;
-  transition: all 0.3s ease;
 }
 
-body.theme-copa .btn-action::after {
+.btn-action::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -234,349 +2249,145 @@ body.theme-copa .btn-action::after {
   opacity: 0;
 }
 
-body.theme-copa .btn-action:active::after {
+.btn-action:active::after {
   width: 300px;
   height: 300px;
   opacity: 1;
 }
 
-/* Botão Enviar */
-body.theme-copa #btn-enviar {
+#btn-enviar {
   background: linear-gradient(135deg, var(--bra-green) 0%, #007a2e 100%);
-  color: white;
   border: 1px solid var(--bra-yellow);
   box-shadow: 0 4px 15px rgba(0, 156, 59, 0.3);
 }
 
-body.theme-copa #btn-enviar:hover {
+#btn-enviar:hover {
   background: linear-gradient(135deg, var(--bra-green-light) 0%, var(--bra-green) 100%);
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 8px 25px rgba(0, 156, 59, 0.5), 0 0 15px rgba(255, 223, 0, 0.2);
 }
 
-/* Botão Limpar */
-body.theme-copa .btn-limpar {
-  border: 1px solid rgba(230, 57, 70, 0.3);
-}
-
-body.theme-copa .btn-limpar:hover {
-  background: linear-gradient(135deg, #e63946 0%, #c1121f 100%);
-  border-color: #e63946;
-}
-
-/* Botão small */
-body.theme-copa .btn-small {
-  transition: all 0.3s ease;
-}
-
-body.theme-copa .btn-small:hover {
+.btn-small:hover {
   background: linear-gradient(135deg, var(--bra-green) 0%, var(--bra-blue) 100%);
   border-color: var(--bra-yellow);
   transform: translateY(-1px);
 }
 
-/* Botão settings toggle */
-body.theme-copa .settings-toggle {
+/* Settings */
+.settings-toggle {
   background: linear-gradient(135deg, rgba(0, 156, 59, 0.3) 0%, rgba(0, 39, 118, 0.3) 100%);
   border-color: var(--bra-yellow);
-  animation: pulseCopa 2s ease-in-out infinite;
 }
 
-@keyframes pulseCopa {
-  0%, 100% { box-shadow: 0 0 10px rgba(255, 223, 0, 0.2); }
-  50% { box-shadow: 0 0 20px rgba(255, 223, 0, 0.4), 0 0 30px rgba(0, 156, 59, 0.2); }
-}
-
-body.theme-copa .settings-toggle:hover {
-  animation: none;
-  border-color: var(--bra-green-light);
-  box-shadow: 0 0 20px rgba(0, 156, 59, 0.5);
-}
-
-body.theme-copa .settings-popup {
-  background: linear-gradient(145deg, rgba(13, 26, 43, 0.98) 0%, rgba(10, 18, 31, 0.98) 100%);
+.settings-popup {
+  background: linear-gradient(145deg, rgba(15, 29, 46, 0.98) 0%, rgba(10, 18, 31, 0.98) 100%);
   border-color: var(--bra-yellow);
   box-shadow: 0 16px 38px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 223, 0, 0.1);
 }
 
-body.theme-copa .settings-action-btn:hover {
+.settings-action-btn:hover {
   background: linear-gradient(135deg, rgba(0, 156, 59, 0.15) 0%, rgba(255, 223, 0, 0.15) 100%);
   border-color: var(--bra-yellow);
 }
 
-/* Botão Discord Login */
-body.theme-copa .btn-discord-login {
+/* Login */
+.btn-discord-login {
   background: linear-gradient(135deg, var(--bra-green) 0%, var(--bra-blue) 100%);
   border: 1px solid var(--bra-yellow);
-  transition: all 0.3s ease;
 }
 
-body.theme-copa .btn-discord-login:hover {
+.btn-discord-login:hover {
   background: linear-gradient(135deg, var(--bra-green-light) 0%, var(--bra-blue-light) 100%);
   transform: translateY(-3px) scale(1.02);
   box-shadow: 0 6px 20px rgba(0, 156, 59, 0.4);
 }
 
-body.theme-copa .login-box {
+.login-box {
   border: 2px solid transparent;
   border-image: linear-gradient(135deg, var(--bra-green), var(--bra-yellow), var(--bra-blue)) 1;
-  background: linear-gradient(145deg, #0d1a2b 0%, #0a121f 100%);
+  background: linear-gradient(145deg, #0f1d2e 0%, #0a121f 100%);
 }
 
-/* =========================================
-   8. ATENUANTES - ESTILO COPA
-   ========================================= */
-body.theme-copa .atenuante-item {
-  transition: all 0.3s ease;
-}
-
-body.theme-copa .atenuante-item:hover {
+/* Atenuantes */
+.atenuante-item:hover {
   background: linear-gradient(135deg, rgba(0, 156, 59, 0.1) 0%, rgba(255, 223, 0, 0.05) 100%);
   border-color: var(--bra-yellow);
 }
 
-/* =========================================
-   9. FIANÇA - ESTILO COPA
-   ========================================= */
-body.theme-copa .fianca-breakdown {
+/* Fiança */
+.fianca-breakdown {
   background: linear-gradient(135deg, rgba(0, 156, 59, 0.1) 0%, rgba(0, 39, 118, 0.1) 100%);
   border-left: 4px solid var(--bra-yellow);
 }
 
-/* =========================================
-   10. ALERTAS - ESTILO COPA
-   ========================================= */
-body.theme-copa .alert-box {
-  background: linear-gradient(135deg, rgba(230, 57, 70, 0.15) 0%, rgba(0, 39, 118, 0.1) 100%);
-  animation: pulseAlerta 1.5s ease-in-out infinite;
-}
-
-@keyframes pulseAlerta {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(230, 57, 70, 0); }
-}
-
-/* =========================================
-   11. TAGS E BADGES - ESTILO COPA
-   ========================================= */
-body.theme-copa .officer-tag {
+/* Tags */
+.officer-tag {
   background: linear-gradient(135deg, var(--bra-green) 0%, var(--bra-blue) 100%);
   border: 1px solid var(--bra-yellow);
 }
 
-body.theme-copa .crime-condition {
+.crime-condition {
   background: linear-gradient(135deg, var(--bra-green) 0%, var(--bra-blue) 100%);
   color: var(--bra-yellow);
 }
 
-body.theme-copa .btn-info {
-  background: linear-gradient(135deg, var(--bra-blue) 0%, var(--bra-green-dark) 100%);
-}
-
-/* =========================================
-   12. PLAYER DE MÚSICA - ESTILO COPA
-   ========================================= */
-body.theme-copa .spotify-player-container {
+/* Player */
+.spotify-player-container {
   border: 2px solid transparent;
   border-image: linear-gradient(135deg, var(--bra-green), var(--bra-yellow), var(--bra-blue)) 1;
-  background: linear-gradient(145deg, rgba(13, 26, 43, 0.96) 0%, rgba(10, 18, 31, 0.96) 100%);
+  background: linear-gradient(145deg, rgba(15, 29, 46, 0.96) 0%, rgba(10, 18, 31, 0.96) 100%);
 }
 
-body.theme-copa .track-title {
-  color: var(--bra-yellow);
-}
-
-body.theme-copa .play-btn-main {
+.play-btn-main {
   background: linear-gradient(135deg, var(--bra-green) 0%, var(--bra-blue) 100%);
   border: 1px solid var(--bra-yellow);
 }
 
-body.theme-copa .play-btn-main:hover {
-  background: linear-gradient(135deg, var(--bra-green-light) 0%, var(--bra-blue-light) 100%);
-  box-shadow: 0 0 20px rgba(255, 223, 0, 0.4);
-}
-
-/* =========================================
-   13. MODAL - ESTILO COPA
-   ========================================= */
-body.theme-copa .modal-content,
-body.theme-copa .modal-box {
+/* Modal */
+.modal-content,
+.modal-box {
   border: 2px solid transparent;
   border-image: linear-gradient(135deg, var(--bra-green), var(--bra-yellow), var(--bra-blue)) 1;
-  background: linear-gradient(145deg, #0d1a2b 0%, #0a121f 100%);
+  background: linear-gradient(145deg, #0f1d2e 0%, #0a121f 100%);
 }
 
-body.theme-copa .modal-header {
+.modal-header {
   background: linear-gradient(135deg, rgba(0, 156, 59, 0.3) 0%, rgba(0, 39, 118, 0.3) 100%);
   border-bottom: 1px solid var(--bra-yellow);
 }
 
-body.theme-copa .modal-footer {
+.modal-footer {
   background: linear-gradient(135deg, rgba(0, 156, 59, 0.2) 0%, rgba(0, 39, 118, 0.2) 100%);
   border-top: 1px solid var(--bra-yellow);
 }
 
-body.theme-copa .btn-confirmar {
-  background: linear-gradient(135deg, var(--bra-green) 0%, #007a2e 100%);
+/* User info */
+.user-value { color: var(--bra-yellow); }
+.user-info { border-color: var(--bra-yellow); }
+.avatar-small { border-color: var(--bra-yellow); }
+#pena-total { color: var(--bra-yellow); }
+#multa-total { color: var(--bra-green-light); }
+
+/* Dica box */
+.dica-box {
+  background: linear-gradient(135deg, rgba(0, 156, 59, 0.2) 0%, rgba(0, 39, 118, 0.2) 100%);
   border: 1px solid var(--bra-yellow);
 }
 
-body.theme-copa .btn-confirmar:hover {
-  background: linear-gradient(135deg, var(--bra-green-light) 0%, var(--bra-green) 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 156, 59, 0.4);
-}
+.dica-title { color: var(--bra-yellow); }
 
-/* =========================================
-   14. SCROLLBAR - ESTILO COPA
-   ========================================= */
-body.theme-copa ::-webkit-scrollbar-thumb {
+/* Scrollbar */
+::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, var(--bra-green), var(--bra-yellow), var(--bra-blue));
   border-radius: 4px;
 }
 
-body.theme-copa ::-webkit-scrollbar-track {
-  background: var(--bra-night);
+/* Alert box */
+.alert-box {
+  background: linear-gradient(135deg, rgba(230, 57, 70, 0.15) 0%, rgba(0, 39, 118, 0.1) 100%);
 }
 
-/* =========================================
-   15. TOASTS E ALERTAS - ESTILO COPA
-   ========================================= */
-body.theme-copa .custom-alert {
-  border-left: 6px solid var(--bra-yellow);
-  background: linear-gradient(135deg, rgba(13, 26, 43, 0.98) 0%, rgba(10, 18, 31, 0.98) 100%);
-}
-
-/* =========================================
-   16. DICA BOX - ESTILO COPA
-   ========================================= */
-body.theme-copa .dica-box {
-  background: linear-gradient(135deg, rgba(0, 156, 59, 0.25) 0%, rgba(0, 39, 118, 0.25) 100%);
-  border: 1px solid var(--bra-yellow);
-}
-
-body.theme-copa .dica-title {
-  color: var(--bra-yellow);
-}
-
-/* =========================================
-   17. PATCH NOTES - ESTILO COPA
-   ========================================= */
-body.theme-copa .patch-notes-container {
-  border-color: var(--bra-yellow);
-}
-
-body.theme-copa .patch-header {
-  background: linear-gradient(135deg, rgba(0, 156, 59, 0.3) 0%, rgba(0, 39, 118, 0.3) 100%);
-  border-bottom: 1px solid var(--bra-yellow);
-}
-
-body.theme-copa .version {
-  color: var(--bra-yellow);
-}
-
-/* =========================================
-   18. LOGO E BADGES - EFEITOS COPA
-   ========================================= */
-body.theme-copa .badge {
-  transition: all 0.3s ease;
-  filter: drop-shadow(0 0 5px rgba(255, 223, 0, 0.2));
-}
-
-body.theme-copa .badge:hover {
-  transform: scale(1.15) rotate(-5deg);
-  filter: drop-shadow(0 0 10px rgba(255, 223, 0, 0.4));
-}
-
-body.theme-copa .logo-revoada {
-  transition: transform 0.3s ease;
-}
-
-body.theme-copa .logo-revoada:hover {
-  transform: scale(1.1) rotate(-3deg);
-}
-
-/* =========================================
-   19. UPLOAD BOX - ESTILO COPA
-   ========================================= */
-body.theme-copa .upload-box:focus,
-body.theme-copa .upload-box.active-box {
-  border-color: var(--bra-yellow);
-  box-shadow: 0 0 15px rgba(255, 223, 0, 0.3);
-  background: rgba(0, 156, 59, 0.08);
-}
-
-/* =========================================
-   20. CONFIRMAÇÃO - ESTILO COPA
-   ========================================= */
-body.theme-copa .confirm-section h4 {
-  color: var(--bra-yellow);
-}
-
-/* =========================================
-   21. RESUMO SENTENÇA - ESTILO COPA
-   ========================================= */
-body.theme-copa .resumo-sentenca .section-title {
-  color: var(--bra-yellow);
-}
-
-body.theme-copa #pena-total {
-  color: var(--bra-yellow);
-}
-
-body.theme-copa #multa-total {
-  color: var(--bra-green-light);
-}
-
-/* =========================================
-   22. CONTAINER DE LOGOS DA CBF CAINDO
-   ========================================= */
-#cbf-falling-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 9998;
-  overflow: hidden;
-}
-
-.cbf-logo-falling {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  opacity: 0.12;
-  animation: cbfFall linear infinite;
-  will-change: transform;
-}
-
-.cbf-logo-falling img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-@keyframes cbfFall {
-  0% {
-    transform: translateY(-60px) rotate(0deg) scale(1);
-    opacity: 0;
-  }
-  5% {
-    opacity: 0.15;
-  }
-  90% {
-    opacity: 0.15;
-  }
-  100% {
-    transform: translateY(calc(100vh + 60px)) rotate(720deg) scale(0.8);
-    opacity: 0;
-  }
-}
-
-/* =========================================
-   23. ESTRELAS E CONFETES DA COPA
-   ========================================= */
+/* Confetes */
 .copa-confete {
   position: fixed;
   width: 8px;
@@ -601,7 +2412,7 @@ body.theme-copa #multa-total {
   }
 }
 
-/* Estrelas cintilantes no fundo */
+/* Estrelas */
 .copa-star {
   position: fixed;
   width: 3px;
@@ -618,52 +2429,70 @@ body.theme-copa #multa-total {
   50% { opacity: 0.8; transform: scale(1.5); }
 }
 
-/* =========================================
-   24. TELA DE LOGIN ESPECIAL COPA
-   ========================================= */
-body.theme-copa .login-overlay {
-  background: linear-gradient(135deg, #0a0e17 0%, #001a2e 50%, #0a2010 100%);
-  background-size: 400% 400%;
-  animation: waveGreen 15s ease infinite;
+/* Badge hover */
+.badge:hover {
+  transform: scale(1.15) rotate(-5deg);
+  filter: drop-shadow(0 0 10px rgba(255, 223, 0, 0.4));
 }
 
-/* =========================================
-   25. LINKS E DESTAQUES
-   ========================================= */
-body.theme-copa .user-value {
-  color: var(--bra-yellow);
-}
-
-body.theme-copa .user-info {
+/* Upload box focus */
+.upload-box:focus,
+.upload-box.active-box {
   border-color: var(--bra-yellow);
+  box-shadow: 0 0 15px rgba(255, 223, 0, 0.3);
+  background: rgba(0, 156, 59, 0.08);
 }
 
-body.theme-copa .avatar-small {
-  border-color: var(--bra-yellow);
+/* Confirmação section */
+.confirm-section h4 { color: var(--bra-yellow); }
+
+/* Patch notes */
+.patch-header {
+  background: linear-gradient(135deg, rgba(0, 156, 59, 0.3) 0%, rgba(0, 39, 118, 0.3) 100%);
+  border-bottom: 1px solid var(--bra-yellow);
 }
 
-/* =========================================
-   26. BOTÃO DE TEMA - INDICADOR ATIVO
-   ========================================= */
+/* Track title */
+.track-title { color: var(--bra-yellow); }
+
+/* Botão confirmar */
+.btn-confirmar {
+  background: linear-gradient(135deg, var(--bra-green) 0%, #007a2e 100%);
+  border: 1px solid var(--bra-yellow);
+}
+
+.btn-confirmar:hover {
+  background: linear-gradient(135deg, var(--bra-green-light) 0%, var(--bra-green) 100%);
+  transform: translateY(-2px);
+}
+
+/* Botão de tema ativo */
 #popup-theme-copa {
-  position: relative;
-}
-
-body.theme-copa #popup-theme-copa {
   background: linear-gradient(135deg, rgba(0, 156, 59, 0.2) 0%, rgba(255, 223, 0, 0.15) 100%);
   border-color: var(--bra-yellow);
 }
 
-body.theme-copa #popup-theme-copa i {
-  color: var(--bra-yellow);
-}
+#popup-theme-copa i { color: var(--bra-yellow); }
 
-/* =========================================
-   27. RESPONSIVO
-   ========================================= */
+/* Responsivo CBF */
 @media (max-width: 768px) {
   .cbf-logo-falling {
     width: 30px;
     height: 30px;
   }
 }
+
+/* Badge CBF estática no header - aparece no tema Copa */
+.badge-cbf {
+  display: none;
+  height: 55px !important;
+  border-radius: 8px;
+  filter: drop-shadow(0 0 8px rgba(255, 223, 0, 0.3));
+  transition: all 0.3s ease;
+}
+
+.badge-cbf:hover {
+  transform: scale(1.1) rotate(-3deg) !important;
+  filter: drop-shadow(0 0 15px rgba(255, 223, 0, 0.6)) !important;
+}
+
