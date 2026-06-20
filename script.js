@@ -79,6 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const popupDarkToggle = document.getElementById("popup-dark-toggle");
   const popupThemeOriginal = document.getElementById("popup-theme-original");
   const popupBunnyToggle = document.getElementById("popup-bunny-toggle");
+  const popupThemeCopa = document.getElementById("popup-theme-copa");
   const popupLogout = document.getElementById("popup-logout");
   const settingsAvatar = document.getElementById("settings-avatar");
   const settingsUsername = document.getElementById("settings-username");
@@ -86,6 +87,162 @@ document.addEventListener("DOMContentLoaded", function () {
   const THEME_STORAGE_KEY = "policia_revoada_theme_mode";
   const VISUAL_THEME_STORAGE_KEY = "policia_revoada_visual_theme";
   const BUNNY_ENABLED_STORAGE_KEY = "policia_revoada_bunny_enabled";
+  const COPA_THEME_STORAGE_KEY = "policia_revoada_copa_theme";
+
+  // =========================================================
+  // 1.7. TEMA COPA DO MUNDO (BRASIL)
+  // =========================================================
+  var cbfIntervalId = null;
+  var confeteIntervalId = null;
+
+  function criarCBFcaindo() {
+    removerCBFcaindo();
+    var container = document.getElementById("cbf-falling-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "cbf-falling-container";
+      document.body.appendChild(container);
+    }
+    container.style.display = "block";
+    cbfIntervalId = setInterval(function () {
+      if (!document.body.classList.contains("theme-copa")) {
+        removerCBFcaindo();
+        return;
+      }
+      var el = document.createElement("div");
+      el.className = "cbf-logo-falling";
+      el.style.left = Math.random() * 100 + "%";
+      el.style.animationDuration = Math.random() * 6 + 6 + "s";
+      el.style.animationDelay = "0s";
+      el.style.width = Math.random() * 20 + 30 + "px";
+      el.style.opacity = Math.random() * 0.08 + 0.06;
+      el.innerHTML =
+        '<img src="Imagens/Logo_cbf_brasil.png" alt="CBF" draggable="false">';
+      container.appendChild(el);
+      setTimeout(function () {
+        if (el.parentNode) el.parentNode.removeChild(el);
+      }, 14000);
+    }, 800);
+  }
+
+  function removerCBFcaindo() {
+    if (cbfIntervalId) {
+      clearInterval(cbfIntervalId);
+      cbfIntervalId = null;
+    }
+    var container = document.getElementById("cbf-falling-container");
+    if (container) {
+      container.innerHTML = "";
+      container.style.display = "none";
+    }
+  }
+
+  function criarConfetesCopa() {
+    pararConfetesCopa();
+    var cores = ["#009c3b", "#ffdf00", "#002776", "#ffffff", "#00c44a", "#ffe866"];
+    confeteIntervalId = setInterval(function () {
+      if (!document.body.classList.contains("theme-copa")) {
+        pararConfetesCopa();
+        return;
+      }
+      for (var i = 0; i < 3; i++) {
+        var confete = document.createElement("div");
+        confete.className = "copa-confete";
+        confete.style.left = Math.random() * 100 + "%";
+        confete.style.background =
+          cores[Math.floor(Math.random() * cores.length)];
+        confete.style.animationDuration = Math.random() * 3 + 4 + "s";
+        confete.style.animationDelay = Math.random() * 2 + "s";
+        confete.style.width = Math.random() * 4 + 5 + "px";
+        confete.style.height = confete.style.width;
+        confete.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+        document.body.appendChild(confete);
+        setTimeout(function () {
+          if (confete.parentNode) confete.parentNode.removeChild(confete);
+        }, 8000);
+      }
+    }, 500);
+  }
+
+  function pararConfetesCopa() {
+    if (confeteIntervalId) {
+      clearInterval(confeteIntervalId);
+      confeteIntervalId = null;
+    }
+    document.querySelectorAll(".copa-confete").forEach(function (el) {
+      el.remove();
+    });
+  }
+
+  function aplicarTemaCopa(ativo) {
+    if (ativo) {
+      themeStylesheet.setAttribute("href", "style_copa.css");
+      document.body.classList.add("theme-copa");
+      document.body.classList.remove("theme-original", "theme-pascoa");
+      document.body.classList.remove("light-mode", "dark-mode");
+      document.body.classList.remove("easter-dark-mode");
+      if (easterScene) {
+        easterScene.classList.add("hidden");
+        easterScene.style.display = "none";
+        easterScene.setAttribute("aria-hidden", "true");
+      }
+      if (popupDarkToggle) {
+        popupDarkToggle.disabled = true;
+        popupDarkToggle.classList.add("is-disabled");
+        popupDarkToggle.innerHTML =
+          '<i class="fa-solid fa-futbol"></i><span>Indisponível na Copa</span>';
+      }
+      if (popupThemeCopa) {
+        popupThemeCopa.innerHTML =
+          '<i class="fa-solid fa-palette"></i><span>Desativar Tema Copa</span>';
+      }
+      localStorage.setItem(COPA_THEME_STORAGE_KEY, "ativo");
+      criarEstrelasFundo();
+      criarCBFcaindo();
+      criarConfetesCopa();
+    } else {
+      themeStylesheet.setAttribute("href", "style.css");
+      document.body.classList.remove("theme-copa");
+      document.body.classList.add("theme-original");
+      document.body.classList.remove("theme-pascoa");
+      if (popupDarkToggle) {
+        popupDarkToggle.disabled = false;
+        popupDarkToggle.classList.remove("is-disabled");
+        popupDarkToggle.innerHTML =
+          '<i class="fa-solid fa-moon"></i><span>Modo Escuro</span>';
+      }
+      if (popupThemeCopa) {
+        popupThemeCopa.innerHTML =
+          '<i class="fa-solid fa-futbol"></i><span>Ativar Tema Copa do Mundo</span>';
+      }
+      localStorage.setItem(COPA_THEME_STORAGE_KEY, "inativo");
+      removerEstrelasFundo();
+      removerCBFcaindo();
+      pararConfetesCopa();
+      aplicarTemaPascoa(localStorage.getItem(THEME_STORAGE_KEY) || "dark");
+    }
+  }
+
+  function criarEstrelasFundo() {
+    removerEstrelasFundo();
+    for (var i = 0; i < 30; i++) {
+      var star = document.createElement("div");
+      star.className = "copa-star";
+      star.style.left = Math.random() * 100 + "%";
+      star.style.top = Math.random() * 100 + "%";
+      star.style.animationDelay = Math.random() * 3 + "s";
+      star.style.animationDuration = Math.random() * 2 + 1.5 + "s";
+      star.style.width = Math.random() * 2 + 2 + "px";
+      star.style.height = star.style.width;
+      document.body.appendChild(star);
+    }
+  }
+
+  function removerEstrelasFundo() {
+    document.querySelectorAll(".copa-star").forEach(function (el) {
+      el.remove();
+    });
+  }
 
   function aplicarTemaPascoa(theme) {
     const isLight = theme === "light";
@@ -211,10 +368,15 @@ document.addEventListener("DOMContentLoaded", function () {
   const themeSalvo = localStorage.getItem(THEME_STORAGE_KEY) || "dark";
   const visualThemeSalvo =
     localStorage.getItem(VISUAL_THEME_STORAGE_KEY) || "original";
+  const copaThemeSalvo = localStorage.getItem(COPA_THEME_STORAGE_KEY) || "inativo";
   localStorage.setItem(VISUAL_THEME_STORAGE_KEY, "original");
-  aplicarTemaVisual(visualThemeSalvo);
-  aplicarTemaPascoa(themeSalvo);
-  atualizarEstadoBotoesTema();
+  if (copaThemeSalvo === "ativo") {
+    aplicarTemaCopa(true);
+  } else {
+    aplicarTemaVisual(visualThemeSalvo);
+    aplicarTemaPascoa(themeSalvo);
+    atualizarEstadoBotoesTema();
+  }
 
   if (popupDarkToggle) {
     popupDarkToggle.addEventListener("click", function () {
@@ -264,6 +426,15 @@ document.addEventListener("DOMContentLoaded", function () {
         bunnyEstaAtivo() ? "false" : "true",
       );
       aplicarVisibilidadeCoelho();
+    });
+  }
+
+  if (popupThemeCopa) {
+    popupThemeCopa.addEventListener("click", function () {
+      var copaAtivo =
+        localStorage.getItem(COPA_THEME_STORAGE_KEY) === "ativo";
+      var novoEstado = !copaAtivo;
+      aplicarTemaCopa(novoEstado);
     });
   }
 
@@ -860,22 +1031,22 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
   const playlist = [
     {
-      title: "Riders on the Storm",
-      artist: "Snoop Dogg",
-      src: "Música/Snoop Dogg - Riders on the Storm (feat. The Doors) - Rebel Music Studios (youtube).mp3",
-      cover: "Imagens/Album_NF.webp",
+      title: "País do Futebol",
+      artist: "McGuime",
+      src: "Música/videoplayback (4).m4a",
+      cover: "Imagens/Album_pais_do_futebol.webp",
     },
     {
-      title: "Feel Good Inc.",
-      artist: "Gorillaz",
-      src: "Música/Gorillaz - Feel Good Inc. (Official Video) - Gorillaz (youtube).mp3",
-      cover: "Imagens/Album_gorillaz.webp",
+      title: "Waka Wak.",
+      artist: "Shakira",
+      src: "Música/Shakira - Waka Waka (This Time for Africa) (The Official 2010 FIFA World Cup™ Song) - shakiraVEVO (youtube).mp3",
+      cover: "Imagens/Album_waka_waka.jpg",
     },
     {
-      title: "Music Sounds Better With You",
-      artist: "Stardust",
-      src: "Música/Stardust - Music Sounds Better With You (Official Music Video).mp4",
-      cover: "Imagens/capa_stardust.jpg",
+      title: "Dai Dai",
+      artist: "Shakira",
+      src: "Música/Shakira - Dai Dai (Official Music Video) - Shakira (youtube).mp4",
+      cover: "Imagens/Capa_daidai.png",
     },
     {
       title: "Lady (Hear Me Tonight)",
