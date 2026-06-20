@@ -31,7 +31,8 @@
   var tiposC = ["flag","star","ball","ribbon"];
 
   // templates de innerHTML (montados 1x)
-  var scoreHTML = '<div class="copa-scoreboard-team brasil"><span class="copa-bandeira" id="copa-bandeira-casa">\u{1F1E7}\u{1F1F7}</span> BRASIL</div><div class="copa-scoreboard-score"><span class="score-value" id="score-brasil">-</span><span class="score-divider">:</span><span class="score-value" id="score-adv">-</span></div><div class="copa-scoreboard-team" id="copa-adv-name"><span class="copa-bandeira" id="copa-bandeira-fora">\u{1F3C6}</span> ADVERSARIO</div><div class="copa-scoreboard-timer" id="score-timer">CARREGANDO...</div>';
+  var bandeiraBrasilSVG = '<svg viewBox="0 0 40 28" style="width:22px;height:15px;border-radius:2px;vertical-align:middle"><rect width="40" height="28" fill="#009c3b"/><polygon points="20,2 36,14 20,26 4,14" fill="#ffdf00"/><circle cx="20" cy="14" r="5" fill="#002776"/><polygon points="20,11 21.5,13.5 24,14 21.5,14.5 20,17 18.5,14.5 16,14 18.5,13.5" fill="#fff"/></svg>';
+  var scoreHTML = '<div class="copa-scoreboard-team brasil">' + bandeiraBrasilSVG + ' BRASIL</div><div class="copa-scoreboard-score"><span class="score-value" id="score-brasil">-</span><span class="score-divider">:</span><span class="score-value" id="score-adv">-</span></div><div class="copa-scoreboard-team" id="copa-adv-name"><span class="copa-bandeira">⚽</span> ADVERSARIO</div><div class="copa-scoreboard-timer" id="score-timer">CARREGANDO...</div>';
   var cdHTML = '<div class="copa-countdown-label">FINAL DA COPA 2026</div><div class="copa-countdown-digits"><div><div class="copa-countdown-digit" id="cd-dias">00</div><div class="copa-countdown-unit">Dias</div></div><span class="copa-countdown-sep">:</span><div><div class="copa-countdown-digit" id="cd-horas">00</div><div class="copa-countdown-unit">Horas</div></div><span class="copa-countdown-sep">:</span><div><div class="copa-countdown-digit" id="cd-min">00</div><div class="copa-countdown-unit">Min</div></div><span class="copa-countdown-sep">:</span><div><div class="copa-countdown-digit" id="cd-seg">00</div><div class="copa-countdown-unit">Seg</div></div></div>';
   var golHTML = '<span class="copa-gol-flag left">\u{1F1E7}\u{1F1F7}</span><div class="copa-gol-text">GOOOOOOOOOOL</div><span class="copa-gol-flag right">\u{1F1E7}\u{1F1F7}</span>';
   var introHTML = '<div class="copa2026-intro-stage"><div class="copa2026-intro-spotlight"></div><div class="copa2026-intro-spotlight"></div><div class="copa2026-intro-spotlight"></div><div class="copa2026-intro-spotlight"></div><div class="copa2026-intro-bandeira"></div><div class="copa2026-intro-text">RUMO AO HEXA</div><div class="copa2026-intro-year">2026</div><button class="copa2026-intro-skip">PULAR</button></div>';
@@ -147,175 +148,94 @@
   }
 
   // =============================================
-  // SCOREBOARD AO VIVO
+  // SCOREBOARD VIA API PRÓPRIA (Vercel)
   // =============================================
-  var scoreTimerSeg = 0;
-  var scoreTimerMin = 0;
-  var scoreTimerAtivo = false;
-  var ultimaBuscaJogos = 0;
-  var jogosCache = null;
   var scoreAtualInterval = null;
-  var ADVERSARIO_PLACEHOLDER = "ADVERSARIO";
-  // bandeiras em emoji por nome do time (mais comuns)
-  var bandeiras = {
-    "Brasil": "\u{1F1E7}\u{1F1F7}", "Argentina": "\u{1F1E6}\u{1F1F7}", "Uruguai": "\u{1F1FA}\u{1F1FE}",
-    "Paraguai": "\u{1F1F5}\u{1F1FE}", "Chile": "\u{1F1E8}\u{1F1F1}", "Colômbia": "\u{1F1E8}\u{1F1F4}",
-    "Equador": "\u{1F1EA}\u{1F1E8}", "Peru": "\u{1F1F5}\u{1F1EA}", "Venezuela": "\u{1F1FB}\u{1F1EA}",
-    "Bolívia": "\u{1F1E7}\u{1F1F4}", "Alemanha": "\u{1F1E9}\u{1F1EA}", "França": "\u{1F1EB}\u{1F1F7}",
-    "Inglaterra": "\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}", "Espanha": "\u{1F1EA}\u{1F1F8}",
-    "Portugal": "\u{1F1F5}\u{1F1F9}", "Países Baixos": "\u{1F1F3}\u{1F1F1}", "Holanda": "\u{1F1F3}\u{1F1F1}",
-    "Itália": "\u{1F1EE}\u{1F1F9}", "Bélgica": "\u{1F1E7}\u{1F1EA}", "Croácia": "\u{1F1ED}\u{1F1F7}",
-    "Suíça": "\u{1F1E8}\u{1F1ED}", "Dinamarca": "\u{1F1E9}\u{1F1F0}", "Suécia": "\u{1F1F8}\u{1F1EA}",
-    "Polônia": "\u{1F1F5}\u{1F1F1}", "Ucrânia": "\u{1F1FA}\u{1F1E6}", "Sérvia": "\u{1F1F7}\u{1F1F8}",
-    "Japão": "\u{1F1EF}\u{1F1F5}", "Coreia do Sul": "\u{1F1F0}\u{1F1F7}", "Austrália": "\u{1F1E6}\u{1F1FA}",
-    "Estados Unidos": "\u{1F1FA}\u{1F1F8}", "EUA": "\u{1F1FA}\u{1F1F8}", "México": "\u{1F1F2}\u{1F1FD}",
-    "Canadá": "\u{1F1E8}\u{1F1E6}", "Costa Rica": "\u{1F1E8}\u{1F1F7}", "Marrocos": "\u{1F1F2}\u{1F1E6}",
-    "Senegal": "\u{1F1F8}\u{1F1F3}", "Nigéria": "\u{1F1F3}\u{1F1EC}", "Camarões": "\u{1F1E8}\u{1F1F2}",
-    "Gana": "\u{1F1EC}\u{1F1ED}", "Tunísia": "\u{1F1F9}\u{1F1F3}", "Argélia": "\u{1F1E9}\u{1F1FF}",
-    "Egito": "\u{1F1EA}\u{1F1EC}", "Arábia Saudita": "\u{1F1F8}\u{1F1E6}", "Irã": "\u{1F1EE}\u{1F1F7}",
-    "Catar": "\u{1F1F6}\u{1F1E6}", "Emirados Árabes": "\u{1F1E6}\u{1F1EA}", "África do Sul": "\u{1F1FF}\u{1F1E6}",
-    "Nova Zelândia": "\u{1F1F3}\u{1F1FF}", "Panamá": "\u{1F1F5}\u{1F1E6}", "Honduras": "\u{1F1ED}\u{1F1F3}"
-  };
-
-  function buscarJogosBrasil(callback) {
-    var agora = Date.now();
-    if (jogosCache && agora - ultimaBuscaJogos < 120000) {
-      callback(jogosCache);
-      return;
-    }
-    // OpenLigaDB: gratuita, sem chave, CORS aberto
-    // teamId 7 = Brasil na Copa do Mundo
-    fetch("https://api.openligadb.de/getmatchdata/5128/2026") // 5128 = Copa do Mundo 2026
-      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then(function (jogos) {
-        ultimaBuscaJogos = Date.now();
-        // filtra só jogos do Brasil
-        var brasil = [];
-        for (var i = 0; i < jogos.length; i++) {
-          var j = jogos[i];
-          if (j.team1 && j.team2 && (j.team1.teamName === "Brasil" || j.team2.teamName === "Brasil")) {
-            brasil.push(j);
-          }
-        }
-        jogosCache = { matches: brasil };
-        callback(jogosCache);
-      })
-      .catch(function () {
-        // fallback: busca em copas anteriores
-        fetch("https://api.openligadb.de/getmatchdata/5114/2026") // WC Qualifiers
-          .then(function (r2) { if (!r2.ok) throw new Error(""); return r2.json(); })
-          .then(function (jogos2) {
-            ultimaBuscaJogos = Date.now();
-            var brasil2 = [];
-            for (var i2 = 0; i2 < jogos2.length; i2++) {
-              var j2 = jogos2[i2];
-              if (j2.team1 && j2.team2 && (j2.team1.teamName === "Brasil" || j2.team2.teamName === "Brasil")) {
-                brasil2.push(j2);
-              }
-            }
-            jogosCache = { matches: brasil2 };
-            callback(jogosCache);
-          })
-          .catch(function () {
-            ultimaBuscaJogos = Date.now();
-            jogosCache = { matches: [] };
-            callback(null);
-          });
-      });
-  }
 
   function atualizarPlacar() {
-    buscarJogosBrasil(function (data) {
-      var elSB = document.getElementById("score-brasil");
-      var elSA = document.getElementById("score-adv");
-      var elAdv = document.getElementById("copa-adv-name");
-      var elTimer = document.getElementById("score-timer");
-      if (!elSB || !elSA || !elAdv || !elTimer) return;
+    var elSB = document.getElementById("score-brasil");
+    var elSA = document.getElementById("score-adv");
+    var elAdv = document.getElementById("copa-adv-name");
+    var elTimer = document.getElementById("score-timer");
+    if (!elSB || !elSA || !elAdv || !elTimer) return;
 
-      var jogo = null;
-      if (data && data.matches && data.matches.length > 0) {
-        // pega o jogo mais relevante: primeiro ao vivo, depois o mais proximo
+    fetch("/api/brasil-jogo")
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data || !data.matches || data.matches.length === 0) {
+          mostrarSemJogo(elSB, elSA, elAdv, elTimer);
+          return;
+        }
+
         var aoVivo = null, proximo = null;
         for (var i = 0; i < data.matches.length; i++) {
           var m = data.matches[i];
-          if (m.matchIsFinished === false && m.matchIsStarted) {
-            var dInicio = new Date(m.matchDateTimeUTC).getTime();
-            if (!aoVivo || Math.abs(dInicio - Date.now()) < Math.abs(new Date(aoVivo.matchDateTimeUTC).getTime() - Date.now())) {
-              aoVivo = m;
-            }
-          }
+          if (!m) continue;
+          var st = m.status || "";
+          if (st === "IN_PLAY" || st === "PAUSED") { aoVivo = m; break; }
         }
         if (!aoVivo) {
           for (var i2 = 0; i2 < data.matches.length; i2++) {
             var m2 = data.matches[i2];
-            if (!m2.matchIsFinished) {
-              var d2 = new Date(m2.matchDateTimeUTC).getTime();
-              if (!proximo || d2 > Date.now() && d2 < new Date(proximo.matchDateTimeUTC).getTime()) {
+            if (!m2) continue;
+            var st2 = m2.status || "";
+            if (st2 === "SCHEDULED" || st2 === "TIMED") {
+              if (!proximo || new Date(m2.utcDate).getTime() < new Date(proximo.utcDate).getTime()) {
                 proximo = m2;
               }
             }
           }
         }
-        jogo = aoVivo || proximo || data.matches[data.matches.length - 1];
-      }
+        var jogo = aoVivo || proximo;
 
-      if (!jogo) {
-        elSB.textContent = "-";
-        elSA.textContent = "-";
-        elAdv.textContent = "\u{1F3C6} ?";
-        var final2026 = new Date("2026-07-19T18:00:00-03:00");
-        var faltam = Math.ceil((final2026 - Date.now()) / 86400000);
-        elTimer.textContent = faltam > 0 ? "FINAL: " + faltam + "d" : "EM BREVE";
-        return;
-      }
-
-      var timeCasa = jogo.team1.name || jogo.team1.teamName;
-      var timeFora = jogo.team2.name || jogo.team2.teamName;
-      var ehBrasilCasa = timeCasa === "Brasil";
-      var adv = ehBrasilCasa ? timeFora : timeCasa;
-      var bandeiraAdv = bandeiras[adv] || bandeiras[timeFora] || "\u{1F3C6}";
-      elAdv.innerHTML = '<span class="copa-bandeira">' + bandeiraAdv + '</span> ' + (adv.length > 14 ? adv.substring(0, 14).toUpperCase() : adv.toUpperCase());
-
-      if (jogo.matchIsStarted && !jogo.matchIsFinished) {
-        // jogo rolando
-        elSB.textContent = jogo.matchResults && jogo.matchResults.length > 0 ? jogo.matchResults[jogo.matchResults.length - 1].pointsTeam1 : 0;
-        elSA.textContent = jogo.matchResults && jogo.matchResults.length > 0 ? jogo.matchResults[jogo.matchResults.length - 1].pointsTeam2 : 0;
-        elTimer.textContent = "AO VIVO";
-      } else if (jogo.matchIsFinished) {
-        var resFinal = null;
-        if (jogo.matchResults) {
-          for (var ri = 0; ri < jogo.matchResults.length; ri++) {
-            if (jogo.matchResults[ri].resultName === "Endergebnis") resFinal = jogo.matchResults[ri];
-          }
+        if (!jogo) {
+          mostrarSemJogo(elSB, elSA, elAdv, elTimer);
+          return;
         }
-        if (resFinal) {
-          elSB.textContent = ehBrasilCasa ? resFinal.pointsTeam1 : resFinal.pointsTeam2;
-          elSA.textContent = ehBrasilCasa ? resFinal.pointsTeam2 : resFinal.pointsTeam1;
+
+        var ehCasa = jogo.homeTeam && jogo.homeTeam.id === 764;
+        var nomeAdv = ehCasa
+          ? (jogo.awayTeam.shortName || jogo.awayTeam.name)
+          : (jogo.homeTeam.shortName || jogo.homeTeam.name);
+        elAdv.innerHTML = '<span class="copa-bandeira">⚽</span> ' + (nomeAdv.length > 14 ? nomeAdv.substring(0, 14).toUpperCase() : nomeAdv.toUpperCase());
+
+        if (jogo.status === "IN_PLAY" || jogo.status === "PAUSED") {
+          var gB = ehCasa
+            ? (jogo.score.fullTime.home ?? jogo.score.halfTime.home ?? 0)
+            : (jogo.score.fullTime.away ?? jogo.score.halfTime.away ?? 0);
+          var gA = ehCasa
+            ? (jogo.score.fullTime.away ?? jogo.score.halfTime.away ?? 0)
+            : (jogo.score.fullTime.home ?? jogo.score.halfTime.home ?? 0);
+          elSB.textContent = gB;
+          elSA.textContent = gA;
+          elTimer.textContent = "AO VIVO";
         } else {
-          elSB.textContent = "-"; elSA.textContent = "-";
-        }
-        elTimer.textContent = "FINALIZADO";
-      } else {
-        // jogo futuro
-        elSB.textContent = "-";
-        elSA.textContent = "-";
-        var dataJogo = new Date(jogo.matchDateTimeUTC);
-        var diff = dataJogo - Date.now();
-        if (diff > 0) {
-          var dias = Math.floor(diff / 86400000);
-          var horas = Math.floor((diff % 86400000) / 3600000);
-          if (dias > 0) {
-            elTimer.textContent = dias + "d " + horas + "h";
-          } else if (horas > 0) {
-            elTimer.textContent = horas + "h " + Math.floor((diff % 3600000) / 60000) + "min";
+          elSB.textContent = "-";
+          elSA.textContent = "-";
+          var diff = new Date(jogo.utcDate).getTime() - Date.now();
+          if (diff > 0) {
+            var dias = Math.floor(diff / 86400000);
+            if (dias > 0) {
+              elTimer.textContent = dias + "d " + Math.floor((diff % 86400000) / 3600000) + "h";
+            } else {
+              elTimer.textContent = Math.floor(diff / 3600000) + "h " + Math.floor((diff % 3600000) / 60000) + "min";
+            }
           } else {
-            elTimer.textContent = Math.floor(diff / 60000) + "min";
+            elTimer.textContent = "EM BREVE";
           }
-        } else {
-          elTimer.textContent = "EM BREVE";
         }
-      }
-    });
+      })
+      .catch(function () {
+        mostrarSemJogo(elSB, elSA, elAdv, elTimer);
+      });
+  }
+
+  function mostrarSemJogo(elSB, elSA, elAdv, elTimer) {
+    elSB.textContent = "-";
+    elSA.textContent = "-";
+    elAdv.innerHTML = '<span class="copa-bandeira">⚽</span> ?';
+    var faltam = Math.ceil((new Date("2026-07-19T18:00:00-03:00") - Date.now()) / 86400000);
+    elTimer.textContent = faltam > 0 ? "FINAL: " + faltam + "d" : "EM BREVE";
   }
 
   function criarScoreboard() {
@@ -328,13 +248,11 @@
     sb.style.display = "flex";
     atualizarPlacar();
     if (scoreAtualInterval) clearInterval(scoreAtualInterval);
-    // atualiza a cada 30s (respeita rate limit de 10/min)
-    scoreAtualInterval = setInterval(atualizarPlacar, 30000);
+    scoreAtualInterval = setInterval(atualizarPlacar, 60000);
   }
 
   function removerScoreboard() {
     if (scoreAtualInterval) { clearInterval(scoreAtualInterval); scoreAtualInterval = null; }
-    pararTimerPlacar();
     var el = document.getElementById("copa-scoreboard");
     if (el) el.remove();
   }
