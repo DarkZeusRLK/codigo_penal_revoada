@@ -197,7 +197,13 @@
         var nomeAdv = ehCasa
           ? (jogo.awayTeam.shortName || jogo.awayTeam.name)
           : (jogo.homeTeam.shortName || jogo.homeTeam.name);
-        elAdv.innerHTML = '<span class="copa-bandeira">⚽</span> ' + (nomeAdv.length > 14 ? nomeAdv.substring(0, 14).toUpperCase() : nomeAdv.toUpperCase());
+        var tlaAdv = ehCasa
+          ? (jogo.awayTeam.tla || "")
+          : (jogo.homeTeam.tla || "");
+        var bandeiraAdv = tlaAdv
+          ? '<img src="https://flagcdn.com/w40/' + tlaAdv.toLowerCase() + '.png" style="width:20px;height:15px;border-radius:2px;vertical-align:middle" alt="">'
+          : '<span class="copa-bandeira">⚽</span>';
+        elAdv.innerHTML = bandeiraAdv + ' ' + (nomeAdv.length > 14 ? nomeAdv.substring(0, 14).toUpperCase() : nomeAdv.toUpperCase());
 
         if (jogo.status === "IN_PLAY" || jogo.status === "PAUSED") {
           var gB = ehCasa
