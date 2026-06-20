@@ -94,18 +94,37 @@ document.addEventListener("DOMContentLoaded", function () {
   var confeteIntervalId = null;
 
   function criarConfetesCopa() {
-    // Delegado para copa_2026.js (carregado depois)
-    if (typeof copa2026Init !== "undefined") {
-      copa2026Init();
-    }
+    pararConfetesCopa();
+    var cores = ["#009c3b", "#ffdf00", "#002776", "#ffffff", "#00c44a", "#ffe866"];
+    confeteIntervalId = setInterval(function () {
+      if (!document.body.classList.contains("theme-copa")) {
+        pararConfetesCopa();
+        return;
+      }
+      for (var i = 0; i < 3; i++) {
+        var confete = document.createElement("div");
+        confete.className = "copa-confete";
+        confete.style.left = Math.random() * 100 + "%";
+        confete.style.background = cores[Math.floor(Math.random() * cores.length)];
+        confete.style.animationDuration = Math.random() * 3 + 4 + "s";
+        confete.style.animationDelay = Math.random() * 2 + "s";
+        confete.style.width = Math.random() * 4 + 5 + "px";
+        confete.style.height = confete.style.width;
+        confete.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+        document.body.appendChild(confete);
+        setTimeout(function () {
+          if (confete.parentNode) confete.parentNode.removeChild(confete);
+        }, 8000);
+      }
+    }, 500);
   }
 
   function pararConfetesCopa() {
-    // Delegado para copa_2026.js (carregado depois)
-    if (typeof copa2026Destroy !== "undefined") {
-      copa2026Destroy();
+    if (confeteIntervalId) {
+      clearInterval(confeteIntervalId);
+      confeteIntervalId = null;
     }
-    document.querySelectorAll(".copa-confete, .copa2026-confete").forEach(function (el) {
+    document.querySelectorAll(".copa-confete").forEach(function (el) {
       el.remove();
     });
   }
