@@ -2865,6 +2865,7 @@ select:focus {
 .copa-scoreboard-team.brasil { color: #ffdf00; }
 
 .copa-bandeira { font-size: 1.2rem; line-height: 1; }
+.copa-scoreboard-team .fi { font-size: 1.2rem; line-height: 1; border-radius: 2px; }
 
 .copa-scoreboard-score {
   display: flex;

@@ -31,8 +31,7 @@
   var tiposC = ["flag","star","ball","ribbon"];
 
   // templates de innerHTML (montados 1x)
-  var bandeiraBrasilSVG = '<svg viewBox="0 0 40 28" style="width:22px;height:15px;border-radius:2px;vertical-align:middle"><rect width="40" height="28" fill="#009c3b"/><polygon points="20,2 36,14 20,26 4,14" fill="#ffdf00"/><circle cx="20" cy="14" r="5" fill="#002776"/><polygon points="20,11 21.5,13.5 24,14 21.5,14.5 20,17 18.5,14.5 16,14 18.5,13.5" fill="#fff"/></svg>';
-  var scoreHTML = '<div class="copa-scoreboard-team brasil">' + bandeiraBrasilSVG + ' BRASIL</div><div class="copa-scoreboard-score"><span class="score-value" id="score-brasil">-</span><span class="score-divider">:</span><span class="score-value" id="score-adv">-</span></div><div class="copa-scoreboard-team" id="copa-adv-name"><span class="copa-bandeira">⚽</span> ADVERSARIO</div><div class="copa-scoreboard-timer" id="score-timer">CARREGANDO...</div>';
+  var scoreHTML = '<div class="copa-scoreboard-team brasil"><span class="fi fi-br"></span> BRASIL</div><div class="copa-scoreboard-score"><span class="score-value" id="score-brasil">-</span><span class="score-divider">:</span><span class="score-value" id="score-adv">-</span></div><div class="copa-scoreboard-team" id="copa-adv-name"><span class="copa-bandeira">⚽</span> ADVERSARIO</div><div class="copa-scoreboard-timer" id="score-timer">CARREGANDO...</div>';
   var cdHTML = '<div class="copa-countdown-label">FINAL DA COPA 2026</div><div class="copa-countdown-digits"><div><div class="copa-countdown-digit" id="cd-dias">00</div><div class="copa-countdown-unit">Dias</div></div><span class="copa-countdown-sep">:</span><div><div class="copa-countdown-digit" id="cd-horas">00</div><div class="copa-countdown-unit">Horas</div></div><span class="copa-countdown-sep">:</span><div><div class="copa-countdown-digit" id="cd-min">00</div><div class="copa-countdown-unit">Min</div></div><span class="copa-countdown-sep">:</span><div><div class="copa-countdown-digit" id="cd-seg">00</div><div class="copa-countdown-unit">Seg</div></div></div>';
   var golHTML = '<span class="copa-gol-flag left">\u{1F1E7}\u{1F1F7}</span><div class="copa-gol-text">GOOOOOOOOOOL</div><span class="copa-gol-flag right">\u{1F1E7}\u{1F1F7}</span>';
   var introHTML = '<div class="copa2026-intro-stage"><div class="copa2026-intro-spotlight"></div><div class="copa2026-intro-spotlight"></div><div class="copa2026-intro-spotlight"></div><div class="copa2026-intro-spotlight"></div><div class="copa2026-intro-bandeira"></div><div class="copa2026-intro-text">RUMO AO HEXA</div><div class="copa2026-intro-year">2026</div><button class="copa2026-intro-skip">PULAR</button></div>';
@@ -236,7 +235,7 @@
           "American Samoa":"ASA", "Cook Islands":"COK"};
         if (!tlaAdv && tlaMap[nomeAdvRaw]) tlaAdv = tlaMap[nomeAdvRaw];
         var bandeiraAdv = tlaAdv
-          ? '<img src="https://flagcdn.com/w40/' + tlaAdv.toLowerCase() + '.png" style="width:20px;height:15px;border-radius:2px;vertical-align:middle" alt="">'
+          ? '<span class="fi fi-' + tlaAdv.toLowerCase() + '"></span>'
           : '<span class="copa-bandeira">⚽</span>';
         elAdv.innerHTML = bandeiraAdv + ' ' + (nomeAdv.length > 14 ? nomeAdv.substring(0, 14).toUpperCase() : nomeAdv.toUpperCase());
 
