@@ -197,9 +197,44 @@
         var nomeAdv = ehCasa
           ? (jogo.awayTeam.shortName || jogo.awayTeam.name)
           : (jogo.homeTeam.shortName || jogo.homeTeam.name);
+        var nomeAdvRaw = ehCasa ? (jogo.awayTeam.name || "") : (jogo.homeTeam.name || "");
         var tlaAdv = ehCasa
           ? (jogo.awayTeam.tla || "")
           : (jogo.homeTeam.tla || "");
+        // fallback manual para times sem TLA
+        var tlaMap = { "Scotland":"SCO", "Wales":"WAL", "Northern Ireland":"NIR", "Kosovo":"KVX",
+          "Czech Republic":"CZE", "North Macedonia":"MKD", "Bosnia":"BIH", "Ivory Coast":"CIV",
+          "DR Congo":"COD", "South Korea":"KOR", "Iran":"IRN", "Russia":"RUS", "Turkey":"TUR",
+          "Greece":"GRE", "Romania":"ROU", "Hungary":"HUN", "Austria":"AUT", "Slovakia":"SVK",
+          "Slovenia":"SVN", "Bulgaria":"BGR", "Iceland":"ISL", "Norway":"NOR", "Finland":"FIN",
+          "Ireland":"IRL", "Montenegro":"MNE", "Albania":"ALB", "Georgia":"GEO", "Armenia":"ARM",
+          "Azerbaijan":"AZE", "Belarus":"BLR", "Cyprus":"CYP", "Estonia":"EST", "Faroe Islands":"FRO",
+          "Israel":"ISR", "Kazakhstan":"KAZ", "Latvia":"LVA", "Lithuania":"LTU", "Luxembourg":"LUX",
+          "Malta":"MLT", "Moldova":"MDA", "San Marino":"SMR", "China":"CHN", "India":"IND",
+          "Saudi Arabia":"KSA", "United Arab Emirates":"UAE", "Qatar":"QAT", "Oman":"OMA",
+          "Uzbekistan":"UZB", "Iraq":"IRQ", "Jordan":"JOR", "Bahrain":"BHR", "Palestine":"PLE",
+          "Syria":"SYR", "Lebanon":"LBN", "Yemen":"YEM", "Kuwait":"KUW", "Libya":"LBY",
+          "Sudan":"SDN", "Mauritania":"MTN", "Burkina Faso":"BFA", "Mali":"MLI",
+          "Cape Verde":"CPV", "Zambia":"ZAM", "Congo":"CGO", "Equatorial Guinea":"EQG",
+          "Gabon":"GAB", "Guinea":"GUI", "Guinea-Bissau":"GNB", "Togo":"TOG",
+          "Sierra Leone":"SLE", "Benin":"BEN", "Rwanda":"RWA", "Uganda":"UGA",
+          "Mozambique":"MOZ", "Angola":"ANG", "Namibia":"NAM", "Tanzania":"TAN",
+          "Comoros":"COM", "Madagascar":"MAD", "Zimbabwe":"ZIM", "Malawi":"MAW",
+          "Swaziland":"SWZ", "Lesotho":"LES", "Botswana":"BOT", "South Sudan":"SSD",
+          "Ethiopia":"ETH", "Kenya":"KEN", "Niger":"NER", "Chad":"CHA",
+          "Central African Republic":"CAF", "Sao Tome":"STP", "Seychelles":"SEY",
+          "Mauritius":"MRI", "Djibouti":"DJI", "Gambia":"GAM", "Liberia":"LBR",
+          "Somalia":"SOM", "Afghanistan":"AFG", "Bangladesh":"BAN",
+          "Bhutan":"BHU", "Brunei":"BRU", "Cambodia":"CAM", "Indonesia":"IDN",
+          "Laos":"LAO", "Malaysia":"MAS", "Maldives":"MDV", "Mongolia":"MNG",
+          "Myanmar":"MYA", "Nepal":"NEP", "Pakistan":"PAK", "Philippines":"PHI",
+          "Singapore":"SGP", "Sri Lanka":"SRI", "Tajikistan":"TJK",
+          "Thailand":"THA", "Timor-Leste":"TLS", "Turkmenistan":"TKM",
+          "Vietnam":"VIE", "Fiji":"FIJ", "Papua New Guinea":"PNG",
+          "New Caledonia":"NCL", "Tahiti":"TAH", "Vanuatu":"VAN",
+          "Solomon Islands":"SOL", "Samoa":"SAM", "Tonga":"TGA",
+          "American Samoa":"ASA", "Cook Islands":"COK"};
+        if (!tlaAdv && tlaMap[nomeAdvRaw]) tlaAdv = tlaMap[nomeAdvRaw];
         var bandeiraAdv = tlaAdv
           ? '<img src="https://flagcdn.com/w40/' + tlaAdv.toLowerCase() + '.png" style="width:20px;height:15px;border-radius:2px;vertical-align:middle" alt="">'
           : '<span class="copa-bandeira">⚽</span>';
