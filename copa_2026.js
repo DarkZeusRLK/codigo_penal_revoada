@@ -31,7 +31,7 @@
   var tiposC = ["flag","star","ball","ribbon"];
 
   // templates de innerHTML (montados 1x)
-  var scoreHTML = '<div class="copa-scoreboard-team brasil">\u{1F1E7}\u{1F1F7} BRASIL</div><div class="copa-scoreboard-score"><span class="score-value" id="score-brasil">-</span><span class="score-divider">:</span><span class="score-value" id="score-adv">-</span></div><div class="copa-scoreboard-team" id="copa-adv-name">\u{1F3C6} ADVERSARIO</div><div class="copa-scoreboard-timer" id="score-timer">CARREGANDO...</div>';
+  var scoreHTML = '<div class="copa-scoreboard-team brasil"><span class="copa-bandeira" id="copa-bandeira-casa">\u{1F1E7}\u{1F1F7}</span> BRASIL</div><div class="copa-scoreboard-score"><span class="score-value" id="score-brasil">-</span><span class="score-divider">:</span><span class="score-value" id="score-adv">-</span></div><div class="copa-scoreboard-team" id="copa-adv-name"><span class="copa-bandeira" id="copa-bandeira-fora">\u{1F3C6}</span> ADVERSARIO</div><div class="copa-scoreboard-timer" id="score-timer">CARREGANDO...</div>';
   var cdHTML = '<div class="copa-countdown-label">FINAL DA COPA 2026</div><div class="copa-countdown-digits"><div><div class="copa-countdown-digit" id="cd-dias">00</div><div class="copa-countdown-unit">Dias</div></div><span class="copa-countdown-sep">:</span><div><div class="copa-countdown-digit" id="cd-horas">00</div><div class="copa-countdown-unit">Horas</div></div><span class="copa-countdown-sep">:</span><div><div class="copa-countdown-digit" id="cd-min">00</div><div class="copa-countdown-unit">Min</div></div><span class="copa-countdown-sep">:</span><div><div class="copa-countdown-digit" id="cd-seg">00</div><div class="copa-countdown-unit">Seg</div></div></div>';
   var golHTML = '<span class="copa-gol-flag left">\u{1F1E7}\u{1F1F7}</span><div class="copa-gol-text">GOOOOOOOOOOL</div><span class="copa-gol-flag right">\u{1F1E7}\u{1F1F7}</span>';
   var introHTML = '<div class="copa2026-intro-stage"><div class="copa2026-intro-spotlight"></div><div class="copa2026-intro-spotlight"></div><div class="copa2026-intro-spotlight"></div><div class="copa2026-intro-spotlight"></div><div class="copa2026-intro-bandeira"></div><div class="copa2026-intro-text">RUMO AO HEXA</div><div class="copa2026-intro-year">2026</div><button class="copa2026-intro-skip">PULAR</button></div>';
@@ -53,9 +53,9 @@
     requestAnimationFrame(function () {
       var cards = document.querySelectorAll(".card");
       for (var ci = 0; ci < cards.length; ci++) {
-        cards[ci].classList.add("copa-card-3d","copa-card-glass");
+        cards[ci].classList.add("copa-card-glass");
       }
-      cardTilt(cards);
+      // card tilt removido
     });
     criarCursor();
     iniciarConfetes();
@@ -74,7 +74,7 @@
     pararAtmosfera();
     var cards = document.querySelectorAll(".card");
     for (var ci = 0; ci < cards.length; ci++) {
-      cards[ci].classList.remove("copa-card-3d","copa-card-glass");
+      cards[ci].classList.remove("copa-card-glass");
     }
     document.body.classList.remove("copa-atmosphere-mode","copa-campeao-mode");
     var hr = document.querySelectorAll(".copa-hexa-rain");
@@ -137,7 +137,7 @@
       if (tipo === "ribbon") el.style.background = coresC[Math.floor(Math.random() * coresC.length)];
       document.body.appendChild(el);
       setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 10000);
-    }, 700);
+    }, 1200);
   }
 
   function pararConfetes() {
@@ -156,28 +156,71 @@
   var jogosCache = null;
   var scoreAtualInterval = null;
   var ADVERSARIO_PLACEHOLDER = "ADVERSARIO";
+  // bandeiras em emoji por nome do time (mais comuns)
+  var bandeiras = {
+    "Brasil": "\u{1F1E7}\u{1F1F7}", "Argentina": "\u{1F1E6}\u{1F1F7}", "Uruguai": "\u{1F1FA}\u{1F1FE}",
+    "Paraguai": "\u{1F1F5}\u{1F1FE}", "Chile": "\u{1F1E8}\u{1F1F1}", "Colômbia": "\u{1F1E8}\u{1F1F4}",
+    "Equador": "\u{1F1EA}\u{1F1E8}", "Peru": "\u{1F1F5}\u{1F1EA}", "Venezuela": "\u{1F1FB}\u{1F1EA}",
+    "Bolívia": "\u{1F1E7}\u{1F1F4}", "Alemanha": "\u{1F1E9}\u{1F1EA}", "França": "\u{1F1EB}\u{1F1F7}",
+    "Inglaterra": "\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}", "Espanha": "\u{1F1EA}\u{1F1F8}",
+    "Portugal": "\u{1F1F5}\u{1F1F9}", "Países Baixos": "\u{1F1F3}\u{1F1F1}", "Holanda": "\u{1F1F3}\u{1F1F1}",
+    "Itália": "\u{1F1EE}\u{1F1F9}", "Bélgica": "\u{1F1E7}\u{1F1EA}", "Croácia": "\u{1F1ED}\u{1F1F7}",
+    "Suíça": "\u{1F1E8}\u{1F1ED}", "Dinamarca": "\u{1F1E9}\u{1F1F0}", "Suécia": "\u{1F1F8}\u{1F1EA}",
+    "Polônia": "\u{1F1F5}\u{1F1F1}", "Ucrânia": "\u{1F1FA}\u{1F1E6}", "Sérvia": "\u{1F1F7}\u{1F1F8}",
+    "Japão": "\u{1F1EF}\u{1F1F5}", "Coreia do Sul": "\u{1F1F0}\u{1F1F7}", "Austrália": "\u{1F1E6}\u{1F1FA}",
+    "Estados Unidos": "\u{1F1FA}\u{1F1F8}", "EUA": "\u{1F1FA}\u{1F1F8}", "México": "\u{1F1F2}\u{1F1FD}",
+    "Canadá": "\u{1F1E8}\u{1F1E6}", "Costa Rica": "\u{1F1E8}\u{1F1F7}", "Marrocos": "\u{1F1F2}\u{1F1E6}",
+    "Senegal": "\u{1F1F8}\u{1F1F3}", "Nigéria": "\u{1F1F3}\u{1F1EC}", "Camarões": "\u{1F1E8}\u{1F1F2}",
+    "Gana": "\u{1F1EC}\u{1F1ED}", "Tunísia": "\u{1F1F9}\u{1F1F3}", "Argélia": "\u{1F1E9}\u{1F1FF}",
+    "Egito": "\u{1F1EA}\u{1F1EC}", "Arábia Saudita": "\u{1F1F8}\u{1F1E6}", "Irã": "\u{1F1EE}\u{1F1F7}",
+    "Catar": "\u{1F1F6}\u{1F1E6}", "Emirados Árabes": "\u{1F1E6}\u{1F1EA}", "África do Sul": "\u{1F1FF}\u{1F1E6}",
+    "Nova Zelândia": "\u{1F1F3}\u{1F1FF}", "Panamá": "\u{1F1F5}\u{1F1E6}", "Honduras": "\u{1F1ED}\u{1F1F3}"
+  };
 
   function buscarJogosBrasil(callback) {
     var agora = Date.now();
-    if (jogosCache && agora - ultimaBuscaJogos < 60000) {
+    if (jogosCache && agora - ultimaBuscaJogos < 120000) {
       callback(jogosCache);
       return;
     }
-    var ano = new Date().getFullYear();
-    // football-data.org: busca jogos do Brasil (team 764 = Brazil)
-    var url = "https://api.football-data.org/v4/teams/764/matches?status=SCHEDULED,IN_PLAY,PAUSED&limit=5";
-    fetch(url, { headers: { "X-Auth-Token": "b3c1e5f7a9d24e7e8a6f3c2d1b0a9e8f" } })
+    // OpenLigaDB: gratuita, sem chave, CORS aberto
+    // teamId 7 = Brasil na Copa do Mundo
+    fetch("https://api.openligadb.de/getmatchdata/5128/2026") // 5128 = Copa do Mundo 2026
       .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then(function (data) {
+      .then(function (jogos) {
         ultimaBuscaJogos = Date.now();
-        jogosCache = data;
-        callback(data);
+        // filtra só jogos do Brasil
+        var brasil = [];
+        for (var i = 0; i < jogos.length; i++) {
+          var j = jogos[i];
+          if (j.team1 && j.team2 && (j.team1.teamName === "Brasil" || j.team2.teamName === "Brasil")) {
+            brasil.push(j);
+          }
+        }
+        jogosCache = { matches: brasil };
+        callback(jogosCache);
       })
       .catch(function () {
-        // fallback: mostra contagem pra final da copa
-        ultimaBuscaJogos = Date.now();
-        jogosCache = { matches: [] };
-        callback(null);
+        // fallback: busca em copas anteriores
+        fetch("https://api.openligadb.de/getmatchdata/5114/2026") // WC Qualifiers
+          .then(function (r2) { if (!r2.ok) throw new Error(""); return r2.json(); })
+          .then(function (jogos2) {
+            ultimaBuscaJogos = Date.now();
+            var brasil2 = [];
+            for (var i2 = 0; i2 < jogos2.length; i2++) {
+              var j2 = jogos2[i2];
+              if (j2.team1 && j2.team2 && (j2.team1.teamName === "Brasil" || j2.team2.teamName === "Brasil")) {
+                brasil2.push(j2);
+              }
+            }
+            jogosCache = { matches: brasil2 };
+            callback(jogosCache);
+          })
+          .catch(function () {
+            ultimaBuscaJogos = Date.now();
+            jogosCache = { matches: [] };
+            callback(null);
+          });
       });
   }
 
@@ -191,52 +234,74 @@
 
       var jogo = null;
       if (data && data.matches && data.matches.length > 0) {
-        jogo = data.matches[0];
+        // pega o jogo mais relevante: primeiro ao vivo, depois o mais proximo
+        var aoVivo = null, proximo = null;
+        for (var i = 0; i < data.matches.length; i++) {
+          var m = data.matches[i];
+          if (m.matchIsFinished === false && m.matchIsStarted) {
+            var dInicio = new Date(m.matchDateTimeUTC).getTime();
+            if (!aoVivo || Math.abs(dInicio - Date.now()) < Math.abs(new Date(aoVivo.matchDateTimeUTC).getTime() - Date.now())) {
+              aoVivo = m;
+            }
+          }
+        }
+        if (!aoVivo) {
+          for (var i2 = 0; i2 < data.matches.length; i2++) {
+            var m2 = data.matches[i2];
+            if (!m2.matchIsFinished) {
+              var d2 = new Date(m2.matchDateTimeUTC).getTime();
+              if (!proximo || d2 > Date.now() && d2 < new Date(proximo.matchDateTimeUTC).getTime()) {
+                proximo = m2;
+              }
+            }
+          }
+        }
+        jogo = aoVivo || proximo || data.matches[data.matches.length - 1];
       }
 
       if (!jogo) {
-        // sem dados da API — mostra a data da final
         elSB.textContent = "-";
         elSA.textContent = "-";
-        if (elAdv) elAdv.textContent = "\u{1F3C6} ?";
+        elAdv.textContent = "\u{1F3C6} ?";
         var final2026 = new Date("2026-07-19T18:00:00-03:00");
         var faltam = Math.ceil((final2026 - Date.now()) / 86400000);
         elTimer.textContent = faltam > 0 ? "FINAL: " + faltam + "d" : "EM BREVE";
-        pararTimerPlacar();
         return;
       }
 
-      var status = jogo.status; // SCHEDULED, IN_PLAY, PAUSED, FINISHED
-      var timeCasa = jogo.homeTeam.name;
-      var timeFora = jogo.awayTeam.name;
-      var ehBrasilCasa = jogo.homeTeam.id === 764;
+      var timeCasa = jogo.team1.name || jogo.team1.teamName;
+      var timeFora = jogo.team2.name || jogo.team2.teamName;
+      var ehBrasilCasa = timeCasa === "Brasil";
       var adv = ehBrasilCasa ? timeFora : timeCasa;
-      ADVERSARIO_PLACEHOLDER = adv.toUpperCase();
+      var bandeiraAdv = bandeiras[adv] || bandeiras[timeFora] || "\u{1F3C6}";
+      elAdv.innerHTML = '<span class="copa-bandeira">' + bandeiraAdv + '</span> ' + (adv.length > 14 ? adv.substring(0, 14).toUpperCase() : adv.toUpperCase());
 
-      if (elAdv) elAdv.textContent = "\u{1F3C6} " + ADVERSARIO_PLACEHOLDER;
-
-      if (status === "IN_PLAY" || status === "PAUSED") {
+      if (jogo.matchIsStarted && !jogo.matchIsFinished) {
         // jogo rolando
-        var golsBrasil = ehBrasilCasa ? (jogo.score.fullTime.home ?? jogo.score.halfTime.home ?? 0) : (jogo.score.fullTime.away ?? jogo.score.halfTime.away ?? 0);
-        var golsAdv = ehBrasilCasa ? (jogo.score.fullTime.away ?? jogo.score.halfTime.away ?? 0) : (jogo.score.fullTime.home ?? jogo.score.halfTime.home ?? 0);
-        elSB.textContent = golsBrasil;
-        elSA.textContent = golsAdv;
-        var minuto = jogo.minute || (jogo.matchday ? "1T" : "");
-        elTimer.textContent = minuto ? minuto + "'" : "AO VIVO";
-        iniciarTimerPlacar();
+        elSB.textContent = jogo.matchResults && jogo.matchResults.length > 0 ? jogo.matchResults[jogo.matchResults.length - 1].pointsTeam1 : 0;
+        elSA.textContent = jogo.matchResults && jogo.matchResults.length > 0 ? jogo.matchResults[jogo.matchResults.length - 1].pointsTeam2 : 0;
+        elTimer.textContent = "AO VIVO";
+      } else if (jogo.matchIsFinished) {
+        var resFinal = null;
+        if (jogo.matchResults) {
+          for (var ri = 0; ri < jogo.matchResults.length; ri++) {
+            if (jogo.matchResults[ri].resultName === "Endergebnis") resFinal = jogo.matchResults[ri];
+          }
+        }
+        if (resFinal) {
+          elSB.textContent = ehBrasilCasa ? resFinal.pointsTeam1 : resFinal.pointsTeam2;
+          elSA.textContent = ehBrasilCasa ? resFinal.pointsTeam2 : resFinal.pointsTeam1;
+        } else {
+          elSB.textContent = "-"; elSA.textContent = "-";
+        }
+        elTimer.textContent = "FINALIZADO";
       } else {
         // jogo futuro
-        var dataJogo = new Date(jogo.utcDate);
-        var agora = new Date();
-        var diff = dataJogo - agora;
-        if (diff < 0 && status === "FINISHED") {
-          elSB.textContent = jogo.score.fullTime.home ?? "-";
-          elSA.textContent = jogo.score.fullTime.away ?? "-";
-          elTimer.textContent = "FINALIZADO";
-          pararTimerPlacar();
-        } else if (diff > 0) {
-          elSB.textContent = "-";
-          elSA.textContent = "-";
+        elSB.textContent = "-";
+        elSA.textContent = "-";
+        var dataJogo = new Date(jogo.matchDateTimeUTC);
+        var diff = dataJogo - Date.now();
+        if (diff > 0) {
           var dias = Math.floor(diff / 86400000);
           var horas = Math.floor((diff % 86400000) / 3600000);
           if (dias > 0) {
@@ -246,28 +311,11 @@
           } else {
             elTimer.textContent = Math.floor(diff / 60000) + "min";
           }
-          pararTimerPlacar();
         } else {
-          elSB.textContent = "-";
-          elSA.textContent = "-";
           elTimer.textContent = "EM BREVE";
-          pararTimerPlacar();
         }
       }
     });
-  }
-
-  function iniciarTimerPlacar() {
-    if (scoreTimerAtivo) return;
-    scoreTimerAtivo = true;
-    scoreTimerSeg = 0;
-    scoreTimerMin = 0;
-  }
-
-  function pararTimerPlacar() {
-    scoreTimerAtivo = false;
-    scoreTimerSeg = 0;
-    scoreTimerMin = 0;
   }
 
   function criarScoreboard() {
@@ -374,17 +422,17 @@
   // =============================================
   function firework(x, y) {
     var cor = coresC[Math.floor(Math.random() * coresC.length)];
-    for (var i = 0; i < 12; i++) {
+    for (var i = 0; i < 8; i++) {
       var p = document.createElement("div");
       p.className = "copa-firework-particle";
       var ang = Math.random() * Math.PI * 2;
-      var dist = 40 + Math.random() * 80;
+      var dist = 30 + Math.random() * 60;
       p.style.cssText = "left:" + x + "px;top:" + y + "px;width:" + (2 + Math.random() * 3) + "px;height:" + (2 + Math.random() * 3) + "px;background:" + cor + ";";
       p.style.setProperty("--fw-x", Math.cos(ang) * dist + "px");
       p.style.setProperty("--fw-y", Math.sin(ang) * dist + "px");
-      p.style.animationDuration = (0.6 + Math.random() * 0.6) + "s";
+      p.style.animationDuration = (0.5 + Math.random() * 0.5) + "s";
       document.body.appendChild(p);
-      setTimeout(function () { if (p.parentNode) p.parentNode.removeChild(p); }, 1500);
+      setTimeout(function () { if (p.parentNode) p.parentNode.removeChild(p); }, 1200);
     }
   }
 
@@ -479,6 +527,7 @@
   // =============================================
   function criarCursor() {
     if (cursorOn) return;
+    if (window.matchMedia("(pointer: coarse)").matches) return; // sem cursor em touch
     cursorOn = true;
     var s = document.createElement("style");
     s.id = "copa-cs";
@@ -488,7 +537,7 @@
     cursorDot.id = "copa-cd";
     cursorDot.className = "copa-cursor-dot";
     document.body.appendChild(cursorDot);
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < 3; i++) {
       var t = document.createElement("div");
       t.className = "copa-cursor-trail";
       t.id = "copa-ct-" + i;
@@ -498,7 +547,7 @@
     var ticking = false;
     document.addEventListener("mousemove", function (e) {
       trailData.push({ x: e.clientX, y: e.clientY });
-      if (trailData.length > 15) trailData.shift();
+      if (trailData.length > 10) trailData.shift();
       if (!ticking) {
         ticking = true;
         requestAnimationFrame(function () {
@@ -517,21 +566,6 @@
           }
         });
       }
-    });
-    document.addEventListener("click", function (e) {
-      for (var r = 0; r < 6; r++) (function () {
-        var sp = document.createElement("div");
-        sp.style.cssText = "position:fixed;pointer-events:none;z-index:99998;width:4px;height:4px;border-radius:50%;background:#ffdf00;left:" + e.clientX + "px;top:" + e.clientY + "px";
-        var ang = (r / 6) * Math.PI * 2;
-        var dist = 15 + Math.random() * 20;
-        document.body.appendChild(sp);
-        requestAnimationFrame(function () {
-          sp.style.transition = "all 0.4s ease-out";
-          sp.style.transform = "translate(" + (Math.cos(ang) * dist) + "px," + (Math.sin(ang) * dist) + "px)";
-          sp.style.opacity = "0";
-        });
-        setTimeout(function () { if (sp.parentNode) sp.parentNode.removeChild(sp); }, 500);
-      })();
     });
   }
 
@@ -591,46 +625,13 @@
       b.style.opacity = (0.3 + Math.random() * 0.3).toFixed(2);
       document.body.appendChild(b);
       setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 16000);
-    }, 1200);
+    }, 2500);
   }
 
   function pararBolasCaindo() {
     if (bolasInterval) { clearInterval(bolasInterval); bolasInterval = null; }
     var els = document.querySelectorAll(".copa-bola-caindo");
     for (var i = 0; i < els.length; i++) els[i].remove();
-  }
-
-  // =============================================
-  // CARD TILT (com cache de rect + debounce)
-  // =============================================
-  function cardTilt(cards) {
-    for (var ci = 0; ci < cards.length; ci++) {
-      (function (card) {
-        var lastMove = 0;
-        var rectCache = null;
-        card.addEventListener("mouseenter", function () {
-          rectCache = card.getBoundingClientRect();
-        });
-        card.addEventListener("mousemove", function (e) {
-          if (!rectCache) rectCache = card.getBoundingClientRect();
-          var x = e.clientX - rectCache.left, y = e.clientY - rectCache.top;
-          var cx = x / rectCache.width, cy = y / rectCache.height;
-          if (Math.abs(cx - 0.5) + Math.abs(cy - 0.5) < 0.2) {
-            card.style.transform = "";
-            return;
-          }
-          var now = Date.now();
-          if (now - lastMove < 100) return;
-          lastMove = now;
-          card.style.transform = "perspective(800px) rotateX(" + ((cy - 0.5) * -5) + "deg) rotateY(" + ((cx - 0.5) * 5) + "deg)";
-        });
-        card.addEventListener("mouseleave", function () {
-          lastMove = 0;
-          rectCache = null;
-          card.style.transform = "";
-        });
-      })(cards[ci]);
-    }
   }
 
   // =============================================

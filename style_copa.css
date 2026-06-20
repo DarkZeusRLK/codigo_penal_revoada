@@ -2841,7 +2841,6 @@ select:focus {
   align-items: center;
   gap: 16px;
   z-index: 9998;
-  backdrop-filter: blur(10px);
   box-shadow: 0 4px 30px rgba(0,0,0,0.5), 0 0 20px rgba(255,223,0,0.1);
   font-family: 'Oswald', sans-serif;
   animation: scoreboardSlideIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
@@ -2864,6 +2863,8 @@ select:focus {
 }
 
 .copa-scoreboard-team.brasil { color: #ffdf00; }
+
+.copa-bandeira { font-size: 1.2rem; line-height: 1; }
 
 .copa-scoreboard-score {
   display: flex;
@@ -3100,20 +3101,6 @@ select:focus {
 @keyframes copaPulse {
   0%, 100% { box-shadow: 0 0 5px rgba(255,223,0,0.2); }
   50% { box-shadow: 0 0 20px rgba(255,223,0,0.4), 0 0 40px rgba(0,156,59,0.2); }
-}
-
-/* --- CARD 3D TILT --- */
-.card.copa-card-3d {
-  transition: transform 0.1s ease, box-shadow 0.3s ease;
-  transform-style: preserve-3d;
-  perspective: 1000px;
-}
-
-.card.copa-card-3d:hover {
-  box-shadow:
-    0 10px 40px rgba(0,39,118,0.3),
-    0 0 20px rgba(0,156,59,0.15),
-    0 0 40px rgba(255,223,0,0.1);
 }
 
 /* Glass reflection overlay on cards */
