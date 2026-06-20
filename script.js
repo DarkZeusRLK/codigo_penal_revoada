@@ -86,90 +86,26 @@ document.addEventListener("DOMContentLoaded", function () {
   const easterScene = document.querySelector(".easter-scene");
   const THEME_STORAGE_KEY = "policia_revoada_theme_mode";
   const VISUAL_THEME_STORAGE_KEY = "policia_revoada_visual_theme";
-  const BUNNY_ENABLED_STORAGE_KEY = "policia_revoada_bunny_enabled";
   const COPA_THEME_STORAGE_KEY = "policia_revoada_copa_theme";
 
   // =========================================================
   // 1.7. TEMA COPA DO MUNDO (BRASIL)
   // =========================================================
-  var cbfIntervalId = null;
   var confeteIntervalId = null;
 
-  function criarCBFcaindo() {
-    removerCBFcaindo();
-    var container = document.getElementById("cbf-falling-container");
-    if (!container) {
-      container = document.createElement("div");
-      container.id = "cbf-falling-container";
-      document.body.appendChild(container);
-    }
-    container.style.display = "block";
-    cbfIntervalId = setInterval(function () {
-      if (!document.body.classList.contains("theme-copa")) {
-        removerCBFcaindo();
-        return;
-      }
-      var el = document.createElement("div");
-      el.className = "cbf-logo-falling";
-      el.style.left = Math.random() * 100 + "%";
-      el.style.animationDuration = Math.random() * 6 + 6 + "s";
-      el.style.animationDelay = "0s";
-      el.style.width = Math.random() * 20 + 30 + "px";
-      el.style.opacity = Math.random() * 0.08 + 0.06;
-      el.innerHTML =
-        '<img src="Imagens/Logo_cbf_brasil.png" alt="CBF" draggable="false">';
-      container.appendChild(el);
-      setTimeout(function () {
-        if (el.parentNode) el.parentNode.removeChild(el);
-      }, 14000);
-    }, 800);
-  }
-
-  function removerCBFcaindo() {
-    if (cbfIntervalId) {
-      clearInterval(cbfIntervalId);
-      cbfIntervalId = null;
-    }
-    var container = document.getElementById("cbf-falling-container");
-    if (container) {
-      container.innerHTML = "";
-      container.style.display = "none";
-    }
-  }
-
   function criarConfetesCopa() {
-    pararConfetesCopa();
-    var cores = ["#009c3b", "#ffdf00", "#002776", "#ffffff", "#00c44a", "#ffe866"];
-    confeteIntervalId = setInterval(function () {
-      if (!document.body.classList.contains("theme-copa")) {
-        pararConfetesCopa();
-        return;
-      }
-      for (var i = 0; i < 3; i++) {
-        var confete = document.createElement("div");
-        confete.className = "copa-confete";
-        confete.style.left = Math.random() * 100 + "%";
-        confete.style.background =
-          cores[Math.floor(Math.random() * cores.length)];
-        confete.style.animationDuration = Math.random() * 3 + 4 + "s";
-        confete.style.animationDelay = Math.random() * 2 + "s";
-        confete.style.width = Math.random() * 4 + 5 + "px";
-        confete.style.height = confete.style.width;
-        confete.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
-        document.body.appendChild(confete);
-        setTimeout(function () {
-          if (confete.parentNode) confete.parentNode.removeChild(confete);
-        }, 8000);
-      }
-    }, 500);
+    // Delegado para copa_2026.js (carregado depois)
+    if (typeof copa2026Init !== "undefined") {
+      copa2026Init();
+    }
   }
 
   function pararConfetesCopa() {
-    if (confeteIntervalId) {
-      clearInterval(confeteIntervalId);
-      confeteIntervalId = null;
+    // Delegado para copa_2026.js (carregado depois)
+    if (typeof copa2026Destroy !== "undefined") {
+      copa2026Destroy();
     }
-    document.querySelectorAll(".copa-confete").forEach(function (el) {
+    document.querySelectorAll(".copa-confete, .copa2026-confete").forEach(function (el) {
       el.remove();
     });
   }
@@ -199,7 +135,6 @@ document.addEventListener("DOMContentLoaded", function () {
       localStorage.setItem(COPA_THEME_STORAGE_KEY, "ativo");
       var badgeCBF = document.getElementById("badge-cbf");
       if (badgeCBF) badgeCBF.style.display = "inline-block";
-      criarEstrelasFundo();
       criarConfetesCopa();
     } else {
       themeStylesheet.setAttribute("href", "style.css");
@@ -219,31 +154,9 @@ document.addEventListener("DOMContentLoaded", function () {
       localStorage.setItem(COPA_THEME_STORAGE_KEY, "inativo");
       var badgeCBF = document.getElementById("badge-cbf");
       if (badgeCBF) badgeCBF.style.display = "none";
-      removerEstrelasFundo();
       pararConfetesCopa();
       aplicarTemaPascoa(localStorage.getItem(THEME_STORAGE_KEY) || "dark");
     }
-  }
-
-  function criarEstrelasFundo() {
-    removerEstrelasFundo();
-    for (var i = 0; i < 30; i++) {
-      var star = document.createElement("div");
-      star.className = "copa-star";
-      star.style.left = Math.random() * 100 + "%";
-      star.style.top = Math.random() * 100 + "%";
-      star.style.animationDelay = Math.random() * 3 + "s";
-      star.style.animationDuration = Math.random() * 2 + 1.5 + "s";
-      star.style.width = Math.random() * 2 + 2 + "px";
-      star.style.height = star.style.width;
-      document.body.appendChild(star);
-    }
-  }
-
-  function removerEstrelasFundo() {
-    document.querySelectorAll(".copa-star").forEach(function (el) {
-      el.remove();
-    });
   }
 
   function aplicarTemaPascoa(theme) {
@@ -1042,12 +955,12 @@ document.addEventListener("DOMContentLoaded", function () {
       title: "Waka Wak.",
       artist: "Shakira",
       src: "Música/Shakira - Waka Waka (This Time for Africa) (The Official 2010 FIFA World Cup™ Song) - shakiraVEVO (youtube).mp3",
-      cover: "Imagens/Album_waka_waka.jpg",
+      cover: "Imagens/Capa_waka_waka.jpg",
     },
     {
       title: "Dai Dai",
       artist: "Shakira",
-      src: "Música/Shakira - Dai Dai (Official Music Video) - Shakira (youtube).mp4",
+      src: "Música/Shakira - Dai Dai (Official Music Video) - Shakira (youtube).m4a",
       cover: "Imagens/Capa_daidai.png",
     },
     {
