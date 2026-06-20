@@ -1,0 +1,669 @@
+/* =========================================
+   🏆 CSS EDIÇÃO ESPECIAL COPA DO MUNDO ⚽
+   (Tema Brasil - Copa do Mundo)
+   ========================================= */
+
+/* Fontes */
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700;900&family=Roboto:wght@400;500;700;900&display=swap");
+
+/* =========================================
+   1. VARIÁVEIS E CONFIGURAÇÕES GERAIS
+   ========================================= */
+:root {
+  /* --- PALETA BRASIL EXCLUSIVA --- */
+  --bra-green: #009c3b;
+  --bra-green-dark: #006b28;
+  --bra-green-light: #00c44a;
+  --bra-yellow: #ffdf00;
+  --bra-yellow-dark: #e6c800;
+  --bra-yellow-light: #ffe866;
+  --bra-blue: #002776;
+  --bra-blue-dark: #001a52;
+  --bra-blue-light: #0044b3;
+  --bra-white: #f0f4ff;
+  --bra-night: #0a0e17;
+
+  /* --- MAPEAMENTO PARA A LÓGICA DO SISTEMA --- */
+  --bg-main: var(--bra-night);
+  --bg-card: linear-gradient(145deg, #0d1a2b 0%, #0a121f 100%);
+  --bg-header-category: linear-gradient(90deg, #0d2a1a 0%, #0a121f 100%);
+
+  --text-primary: var(--bra-white);
+  --text-secondary: #9ab8d9;
+  --text-muted: #5a7a9a;
+
+  --color-revoada: var(--bra-yellow);
+  --color-revoada-light: var(--bra-yellow-light);
+
+  --color-danger: #e63946;
+  --color-success: var(--bra-green-light);
+  --color-info: var(--bra-blue-light);
+  --color-warning: var(--bra-yellow);
+
+  --border-color: rgba(255, 223, 0, 0.25);
+  --border-focus: var(--bra-yellow);
+
+  --card-border: 1px solid rgba(0, 156, 59, 0.3);
+  --card-shadow: 0 4px 20px rgba(0, 39, 118, 0.3);
+}
+
+/* =========================================
+   2. ANIMAÇÕES GLOBAIS
+   ========================================= */
+
+/* Onda Brasileira no fundo */
+@keyframes waveGreen {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+body.theme-copa {
+  font-family: "Roboto", "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #0a0e17 0%, #001a2e 30%, #0a2010 60%, #0a0e17 100%);
+  background-size: 400% 400%;
+  animation: waveGreen 20s ease infinite;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Overlay sutil da bandeira no fundo */
+body.theme-copa::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(0, 156, 59, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(255, 223, 0, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 30%, rgba(0, 39, 118, 0.08) 0%, transparent 50%);
+}
+
+/* Garante que o container principal fique acima do fundo */
+body.theme-copa .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================================
+   3. CABEÇALHO - ESTILO COPA
+   ========================================= */
+body.theme-copa header {
+  border-bottom: 3px solid transparent;
+  border-image: linear-gradient(90deg, var(--bra-green), var(--bra-yellow), var(--bra-blue), var(--bra-yellow), var(--bra-green)) 1;
+  padding-bottom: 15px;
+  margin-bottom: 25px;
+}
+
+body.theme-copa header h1 {
+  background: linear-gradient(135deg, var(--bra-green) 0%, var(--bra-yellow) 40%, var(--bra-blue) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: "Oswald", sans-serif;
+  font-weight: 900;
+  font-size: 2em;
+  letter-spacing: 2px;
+  text-shadow: none;
+  animation: tituloBrilho 3s ease-in-out infinite;
+}
+
+@keyframes tituloBrilho {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+}
+
+body.theme-copa header p.titulo {
+  background: linear-gradient(90deg, var(--bra-yellow), var(--bra-white));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: bold;
+}
+
+/* =========================================
+   4. CARDS - ESTILO COPA
+   ========================================= */
+body.theme-copa .card {
+  background: linear-gradient(145deg, rgba(13, 26, 43, 0.95) 0%, rgba(10, 18, 31, 0.95) 100%);
+  border: var(--card-border);
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(5px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.theme-copa .card:hover {
+  box-shadow: 0 6px 25px rgba(0, 156, 59, 0.2), 0 4px 20px rgba(0, 39, 118, 0.3);
+}
+
+body.theme-copa .card-header {
+  border-bottom: 2px solid transparent;
+  border-image: linear-gradient(90deg, var(--bra-green), var(--bra-yellow), var(--bra-blue)) 1;
+  color: var(--bra-yellow);
+  font-family: "Oswald", sans-serif;
+  letter-spacing: 2px;
+}
+
+body.theme-copa .card-header i {
+  color: var(--bra-green-light);
+}
+
+/* =========================================
+   5. CATEGORIAS DE CRIMES - ESTILO COPA
+   ========================================= */
+body.theme-copa .category-title {
+  background: linear-gradient(90deg, rgba(0, 156, 59, 0.2) 0%, rgba(0, 39, 118, 0.1) 100%);
+  border-left: 4px solid var(--bra-yellow);
+  color: var(--bra-yellow);
+  font-family: "Oswald", sans-serif;
+  letter-spacing: 1px;
+}
+
+body.theme-copa .crime-item:hover {
+  background: linear-gradient(90deg, rgba(0, 156, 59, 0.12) 0%, rgba(255, 223, 0, 0.05) 100%);
+}
+
+body.theme-copa .crime-item.selected {
+  background: linear-gradient(90deg, rgba(0, 156, 59, 0.2) 0%, rgba(255, 223, 0, 0.1) 100%);
+  border-left: 3px solid var(--bra-yellow);
+}
+
+/* =========================================
+   6. INPUTS - ESTILO COPA
+   ========================================= */
+body.theme-copa input:not([type="file"]),
+body.theme-copa textarea,
+body.theme-copa select {
+  border-color: rgba(0, 156, 59, 0.3);
+  background: rgba(0, 0, 0, 0.3);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.theme-copa input:focus,
+body.theme-copa textarea:focus,
+body.theme-copa select:focus {
+  border-color: var(--bra-yellow);
+  box-shadow: 0 0 10px rgba(255, 223, 0, 0.2), 0 0 0 2px rgba(255, 223, 0, 0.1);
+}
+
+/* =========================================
+   7. BOTÕES - ANIMAÇÕES SUAVES
+   ========================================= */
+
+/* Botão primário */
+body.theme-copa .btn-primary {
+  background: linear-gradient(135deg, var(--bra-green) 0%, var(--bra-green-dark) 100%);
+  border: 1px solid var(--bra-yellow);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+body.theme-copa .btn-primary:hover {
+  background: linear-gradient(135deg, var(--bra-green-light) 0%, var(--bra-green) 100%);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 156, 59, 0.4);
+}
+
+body.theme-copa .btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Botão de ação */
+body.theme-copa .btn-action {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+body.theme-copa .btn-action::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+
+body.theme-copa .btn-action:active::after {
+  width: 300px;
+  height: 300px;
+  opacity: 1;
+}
+
+/* Botão Enviar */
+body.theme-copa #btn-enviar {
+  background: linear-gradient(135deg, var(--bra-green) 0%, #007a2e 100%);
+  color: white;
+  border: 1px solid var(--bra-yellow);
+  box-shadow: 0 4px 15px rgba(0, 156, 59, 0.3);
+}
+
+body.theme-copa #btn-enviar:hover {
+  background: linear-gradient(135deg, var(--bra-green-light) 0%, var(--bra-green) 100%);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 156, 59, 0.5), 0 0 15px rgba(255, 223, 0, 0.2);
+}
+
+/* Botão Limpar */
+body.theme-copa .btn-limpar {
+  border: 1px solid rgba(230, 57, 70, 0.3);
+}
+
+body.theme-copa .btn-limpar:hover {
+  background: linear-gradient(135deg, #e63946 0%, #c1121f 100%);
+  border-color: #e63946;
+}
+
+/* Botão small */
+body.theme-copa .btn-small {
+  transition: all 0.3s ease;
+}
+
+body.theme-copa .btn-small:hover {
+  background: linear-gradient(135deg, var(--bra-green) 0%, var(--bra-blue) 100%);
+  border-color: var(--bra-yellow);
+  transform: translateY(-1px);
+}
+
+/* Botão settings toggle */
+body.theme-copa .settings-toggle {
+  background: linear-gradient(135deg, rgba(0, 156, 59, 0.3) 0%, rgba(0, 39, 118, 0.3) 100%);
+  border-color: var(--bra-yellow);
+  animation: pulseCopa 2s ease-in-out infinite;
+}
+
+@keyframes pulseCopa {
+  0%, 100% { box-shadow: 0 0 10px rgba(255, 223, 0, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(255, 223, 0, 0.4), 0 0 30px rgba(0, 156, 59, 0.2); }
+}
+
+body.theme-copa .settings-toggle:hover {
+  animation: none;
+  border-color: var(--bra-green-light);
+  box-shadow: 0 0 20px rgba(0, 156, 59, 0.5);
+}
+
+body.theme-copa .settings-popup {
+  background: linear-gradient(145deg, rgba(13, 26, 43, 0.98) 0%, rgba(10, 18, 31, 0.98) 100%);
+  border-color: var(--bra-yellow);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 223, 0, 0.1);
+}
+
+body.theme-copa .settings-action-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 156, 59, 0.15) 0%, rgba(255, 223, 0, 0.15) 100%);
+  border-color: var(--bra-yellow);
+}
+
+/* Botão Discord Login */
+body.theme-copa .btn-discord-login {
+  background: linear-gradient(135deg, var(--bra-green) 0%, var(--bra-blue) 100%);
+  border: 1px solid var(--bra-yellow);
+  transition: all 0.3s ease;
+}
+
+body.theme-copa .btn-discord-login:hover {
+  background: linear-gradient(135deg, var(--bra-green-light) 0%, var(--bra-blue-light) 100%);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 156, 59, 0.4);
+}
+
+body.theme-copa .login-box {
+  border: 2px solid transparent;
+  border-image: linear-gradient(135deg, var(--bra-green), var(--bra-yellow), var(--bra-blue)) 1;
+  background: linear-gradient(145deg, #0d1a2b 0%, #0a121f 100%);
+}
+
+/* =========================================
+   8. ATENUANTES - ESTILO COPA
+   ========================================= */
+body.theme-copa .atenuante-item {
+  transition: all 0.3s ease;
+}
+
+body.theme-copa .atenuante-item:hover {
+  background: linear-gradient(135deg, rgba(0, 156, 59, 0.1) 0%, rgba(255, 223, 0, 0.05) 100%);
+  border-color: var(--bra-yellow);
+}
+
+/* =========================================
+   9. FIANÇA - ESTILO COPA
+   ========================================= */
+body.theme-copa .fianca-breakdown {
+  background: linear-gradient(135deg, rgba(0, 156, 59, 0.1) 0%, rgba(0, 39, 118, 0.1) 100%);
+  border-left: 4px solid var(--bra-yellow);
+}
+
+/* =========================================
+   10. ALERTAS - ESTILO COPA
+   ========================================= */
+body.theme-copa .alert-box {
+  background: linear-gradient(135deg, rgba(230, 57, 70, 0.15) 0%, rgba(0, 39, 118, 0.1) 100%);
+  animation: pulseAlerta 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseAlerta {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(230, 57, 70, 0); }
+}
+
+/* =========================================
+   11. TAGS E BADGES - ESTILO COPA
+   ========================================= */
+body.theme-copa .officer-tag {
+  background: linear-gradient(135deg, var(--bra-green) 0%, var(--bra-blue) 100%);
+  border: 1px solid var(--bra-yellow);
+}
+
+body.theme-copa .crime-condition {
+  background: linear-gradient(135deg, var(--bra-green) 0%, var(--bra-blue) 100%);
+  color: var(--bra-yellow);
+}
+
+body.theme-copa .btn-info {
+  background: linear-gradient(135deg, var(--bra-blue) 0%, var(--bra-green-dark) 100%);
+}
+
+/* =========================================
+   12. PLAYER DE MÚSICA - ESTILO COPA
+   ========================================= */
+body.theme-copa .spotify-player-container {
+  border: 2px solid transparent;
+  border-image: linear-gradient(135deg, var(--bra-green), var(--bra-yellow), var(--bra-blue)) 1;
+  background: linear-gradient(145deg, rgba(13, 26, 43, 0.96) 0%, rgba(10, 18, 31, 0.96) 100%);
+}
+
+body.theme-copa .track-title {
+  color: var(--bra-yellow);
+}
+
+body.theme-copa .play-btn-main {
+  background: linear-gradient(135deg, var(--bra-green) 0%, var(--bra-blue) 100%);
+  border: 1px solid var(--bra-yellow);
+}
+
+body.theme-copa .play-btn-main:hover {
+  background: linear-gradient(135deg, var(--bra-green-light) 0%, var(--bra-blue-light) 100%);
+  box-shadow: 0 0 20px rgba(255, 223, 0, 0.4);
+}
+
+/* =========================================
+   13. MODAL - ESTILO COPA
+   ========================================= */
+body.theme-copa .modal-content,
+body.theme-copa .modal-box {
+  border: 2px solid transparent;
+  border-image: linear-gradient(135deg, var(--bra-green), var(--bra-yellow), var(--bra-blue)) 1;
+  background: linear-gradient(145deg, #0d1a2b 0%, #0a121f 100%);
+}
+
+body.theme-copa .modal-header {
+  background: linear-gradient(135deg, rgba(0, 156, 59, 0.3) 0%, rgba(0, 39, 118, 0.3) 100%);
+  border-bottom: 1px solid var(--bra-yellow);
+}
+
+body.theme-copa .modal-footer {
+  background: linear-gradient(135deg, rgba(0, 156, 59, 0.2) 0%, rgba(0, 39, 118, 0.2) 100%);
+  border-top: 1px solid var(--bra-yellow);
+}
+
+body.theme-copa .btn-confirmar {
+  background: linear-gradient(135deg, var(--bra-green) 0%, #007a2e 100%);
+  border: 1px solid var(--bra-yellow);
+}
+
+body.theme-copa .btn-confirmar:hover {
+  background: linear-gradient(135deg, var(--bra-green-light) 0%, var(--bra-green) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 156, 59, 0.4);
+}
+
+/* =========================================
+   14. SCROLLBAR - ESTILO COPA
+   ========================================= */
+body.theme-copa ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--bra-green), var(--bra-yellow), var(--bra-blue));
+  border-radius: 4px;
+}
+
+body.theme-copa ::-webkit-scrollbar-track {
+  background: var(--bra-night);
+}
+
+/* =========================================
+   15. TOASTS E ALERTAS - ESTILO COPA
+   ========================================= */
+body.theme-copa .custom-alert {
+  border-left: 6px solid var(--bra-yellow);
+  background: linear-gradient(135deg, rgba(13, 26, 43, 0.98) 0%, rgba(10, 18, 31, 0.98) 100%);
+}
+
+/* =========================================
+   16. DICA BOX - ESTILO COPA
+   ========================================= */
+body.theme-copa .dica-box {
+  background: linear-gradient(135deg, rgba(0, 156, 59, 0.25) 0%, rgba(0, 39, 118, 0.25) 100%);
+  border: 1px solid var(--bra-yellow);
+}
+
+body.theme-copa .dica-title {
+  color: var(--bra-yellow);
+}
+
+/* =========================================
+   17. PATCH NOTES - ESTILO COPA
+   ========================================= */
+body.theme-copa .patch-notes-container {
+  border-color: var(--bra-yellow);
+}
+
+body.theme-copa .patch-header {
+  background: linear-gradient(135deg, rgba(0, 156, 59, 0.3) 0%, rgba(0, 39, 118, 0.3) 100%);
+  border-bottom: 1px solid var(--bra-yellow);
+}
+
+body.theme-copa .version {
+  color: var(--bra-yellow);
+}
+
+/* =========================================
+   18. LOGO E BADGES - EFEITOS COPA
+   ========================================= */
+body.theme-copa .badge {
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 0 5px rgba(255, 223, 0, 0.2));
+}
+
+body.theme-copa .badge:hover {
+  transform: scale(1.15) rotate(-5deg);
+  filter: drop-shadow(0 0 10px rgba(255, 223, 0, 0.4));
+}
+
+body.theme-copa .logo-revoada {
+  transition: transform 0.3s ease;
+}
+
+body.theme-copa .logo-revoada:hover {
+  transform: scale(1.1) rotate(-3deg);
+}
+
+/* =========================================
+   19. UPLOAD BOX - ESTILO COPA
+   ========================================= */
+body.theme-copa .upload-box:focus,
+body.theme-copa .upload-box.active-box {
+  border-color: var(--bra-yellow);
+  box-shadow: 0 0 15px rgba(255, 223, 0, 0.3);
+  background: rgba(0, 156, 59, 0.08);
+}
+
+/* =========================================
+   20. CONFIRMAÇÃO - ESTILO COPA
+   ========================================= */
+body.theme-copa .confirm-section h4 {
+  color: var(--bra-yellow);
+}
+
+/* =========================================
+   21. RESUMO SENTENÇA - ESTILO COPA
+   ========================================= */
+body.theme-copa .resumo-sentenca .section-title {
+  color: var(--bra-yellow);
+}
+
+body.theme-copa #pena-total {
+  color: var(--bra-yellow);
+}
+
+body.theme-copa #multa-total {
+  color: var(--bra-green-light);
+}
+
+/* =========================================
+   22. CONTAINER DE LOGOS DA CBF CAINDO
+   ========================================= */
+#cbf-falling-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9998;
+  overflow: hidden;
+}
+
+.cbf-logo-falling {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  opacity: 0.12;
+  animation: cbfFall linear infinite;
+  will-change: transform;
+}
+
+.cbf-logo-falling img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+@keyframes cbfFall {
+  0% {
+    transform: translateY(-60px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.15;
+  }
+  90% {
+    opacity: 0.15;
+  }
+  100% {
+    transform: translateY(calc(100vh + 60px)) rotate(720deg) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* =========================================
+   23. ESTRELAS E CONFETES DA COPA
+   ========================================= */
+.copa-confete {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 9997;
+  animation: confeteFall linear infinite;
+}
+
+@keyframes confeteFall {
+  0% {
+    transform: translateY(-10px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(calc(100vh + 10px)) rotate(1080deg);
+    opacity: 0;
+  }
+}
+
+/* Estrelas cintilantes no fundo */
+.copa-star {
+  position: fixed;
+  width: 3px;
+  height: 3px;
+  background: var(--bra-yellow);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  animation: starTwinkle 2s ease-in-out infinite;
+}
+
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.5); }
+}
+
+/* =========================================
+   24. TELA DE LOGIN ESPECIAL COPA
+   ========================================= */
+body.theme-copa .login-overlay {
+  background: linear-gradient(135deg, #0a0e17 0%, #001a2e 50%, #0a2010 100%);
+  background-size: 400% 400%;
+  animation: waveGreen 15s ease infinite;
+}
+
+/* =========================================
+   25. LINKS E DESTAQUES
+   ========================================= */
+body.theme-copa .user-value {
+  color: var(--bra-yellow);
+}
+
+body.theme-copa .user-info {
+  border-color: var(--bra-yellow);
+}
+
+body.theme-copa .avatar-small {
+  border-color: var(--bra-yellow);
+}
+
+/* =========================================
+   26. BOTÃO DE TEMA - INDICADOR ATIVO
+   ========================================= */
+#popup-theme-copa {
+  position: relative;
+}
+
+body.theme-copa #popup-theme-copa {
+  background: linear-gradient(135deg, rgba(0, 156, 59, 0.2) 0%, rgba(255, 223, 0, 0.15) 100%);
+  border-color: var(--bra-yellow);
+}
+
+body.theme-copa #popup-theme-copa i {
+  color: var(--bra-yellow);
+}
+
+/* =========================================
+   27. RESPONSIVO
+   ========================================= */
+@media (max-width: 768px) {
+  .cbf-logo-falling {
+    width: 30px;
+    height: 30px;
+  }
+}
