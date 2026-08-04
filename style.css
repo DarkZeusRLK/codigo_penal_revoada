@@ -18,6 +18,9 @@
   --color-info: #0288d1; /* Azul Info */
 
   --border-color: #1f2d40; /* Bordas sutis */
+
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 body.light-mode {
@@ -72,12 +75,17 @@ body.light-mode {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
   cursor: pointer;
   font-size: 1.05rem;
-  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: transform 0.25s var(--ease-smooth), border-color 0.25s var(--ease-smooth), color 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth);
 }
 
 .settings-toggle:hover {
   transform: translateY(-2px) rotate(18deg);
   border-color: var(--color-revoada);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.4);
+}
+
+.settings-toggle:active {
+  transform: translateY(0) rotate(18deg) scale(0.94);
 }
 
 .settings-popup {
@@ -151,13 +159,19 @@ body.light-mode {
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: transform 0.25s var(--ease-smooth), border-color 0.25s var(--ease-smooth), background 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth);
 }
 
 .settings-action-btn:hover {
   transform: translateY(-1px);
   border-color: var(--color-revoada);
   background: rgba(0, 86, 179, 0.1);
+  box-shadow: 0 6px 16px rgba(0, 86, 179, 0.18);
+}
+
+.settings-action-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.1s;
 }
 
 .settings-action-btn i {
@@ -199,10 +213,6 @@ body.light-mode .settings-profile {
 
 body.light-mode .settings-action-btn {
   background: rgba(0, 86, 179, 0.04);
-}
-
-.easter-scene {
-  display: none !important;
 }
 
 @media (max-width: 600px) {
@@ -274,7 +284,7 @@ body.light-mode .settings-action-btn {
   font-size: 1em;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.25s var(--ease-smooth), background-color 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth);
   width: 100%;
   display: block;
   text-decoration: none;
@@ -284,6 +294,12 @@ body.light-mode .settings-action-btn {
 .btn-discord-login:hover {
   background-color: #4752c4;
   transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(88, 101, 242, 0.35);
+}
+
+.btn-discord-login:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.1s;
 }
 
 .login-footer {
@@ -331,10 +347,11 @@ header p.titulo {
 
 .badge {
   height: 50px;
-  transition: transform 0.2s;
+  transition: transform 0.3s var(--ease-bounce), filter 0.25s var(--ease-smooth);
 }
 .badge:hover {
-  transform: scale(1.1);
+  transform: scale(1.12) translateY(-2px);
+  filter: brightness(1.08);
 }
 
 .user-info {
@@ -464,7 +481,7 @@ select {
   border-radius: 6px;
   font-size: 0.95em;
   min-height: 40px;
-  transition: border-color 0.2s;
+  transition: border-color 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth);
 }
 
 input:focus,
@@ -472,7 +489,7 @@ textarea:focus,
 select:focus {
   border-color: var(--color-revoada);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.2);
+  box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.22);
 }
 
 textarea {
@@ -687,6 +704,17 @@ textarea {
   padding: 10px 20px;
   border-radius: 6px;
   cursor: pointer;
+  transition: transform 0.25s var(--ease-smooth), background-color 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth);
+}
+.btn-cancelar:hover {
+  background: #555;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+.btn-cancelar:active,
+.btn-confirmar:active {
+  transform: translateY(0) scale(0.96);
+  transition-duration: 0.1s;
 }
 .btn-confirmar {
   background: #22c55e;
@@ -696,9 +724,12 @@ textarea {
   border-radius: 6px;
   font-weight: bold;
   cursor: pointer;
+  transition: transform 0.25s var(--ease-smooth), background-color 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth);
 }
 .btn-confirmar:hover {
   background: #16a34a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.35);
 }
 /* CAMPO DE PESQUISA (DROPDOWN) */
 .search-container {
@@ -740,13 +771,14 @@ textarea {
   padding: 10px;
   cursor: pointer;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  transition: background-color 0.2s;
+  transition: background-color 0.2s var(--ease-smooth), padding-left 0.2s var(--ease-smooth), color 0.2s var(--ease-smooth);
   font-size: 0.9em;
 }
 
 .dropdown-item:hover {
   background-color: var(--color-revoada);
   color: white;
+  padding-left: 14px;
 }
 
 .dropdown-item small {
@@ -895,10 +927,15 @@ textarea {
   border: 1px solid var(--border-color);
   padding: 12px;
   border-radius: 8px;
-  transition: all 0.2s;
+  transition: transform 0.25s var(--ease-smooth), border-color 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth), background-color 0.25s var(--ease-smooth);
   outline: none;
   cursor: pointer;
   position: relative;
+}
+
+.upload-box:hover {
+  border-color: var(--color-revoada-light);
+  transform: translateY(-2px);
 }
 
 /* Efeito ao clicar para colar */
@@ -907,6 +944,10 @@ textarea {
   border-color: var(--color-revoada);
   box-shadow: 0 0 10px rgba(0, 86, 179, 0.3);
   background-color: rgba(0, 86, 179, 0.05);
+}
+
+.upload-box:active {
+  transform: translateY(0) scale(0.99);
 }
 
 .upload-box label {
@@ -926,11 +967,16 @@ textarea {
   padding: 8px 10px;
   font-size: 0.85em;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.25s var(--ease-smooth), border-color 0.25s var(--ease-smooth), background 0.25s var(--ease-smooth);
 }
 .btn-escolher-arquivo:hover {
   border-color: var(--color-revoada);
   background: rgba(0, 86, 179, 0.15);
+  transform: translateY(-1px);
+}
+.btn-escolher-arquivo:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.1s;
 }
 
 .paste-hint {
@@ -1004,11 +1050,17 @@ input[type="file"] {
   padding: 0 15px;
   border-radius: 6px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: transform 0.25s var(--ease-smooth), background-color 0.25s var(--ease-smooth), border-color 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth);
 }
 .btn-small:hover {
   background-color: var(--color-revoada);
   border-color: var(--color-revoada);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0, 86, 179, 0.25);
+}
+.btn-small:active {
+  transform: translateY(0) scale(0.95);
+  transition-duration: 0.1s;
 }
 
 /* Tags visuais dos participantes */
@@ -1044,9 +1096,14 @@ input[type="file"] {
   padding: 0;
   font-size: 1.1em;
   line-height: 1;
+  transition: color 0.2s var(--ease-smooth), transform 0.2s var(--ease-smooth);
 }
 .officer-tag button:hover {
   color: #fff;
+  transform: scale(1.25);
+}
+.officer-tag button:active {
+  transform: scale(0.9);
 }
 /* BOTÃO DE MÚSICA FLUTUANTE */
 .music-btn {
@@ -1066,11 +1123,16 @@ input[type="file"] {
   justify-content: center;
   align-items: center;
   font-size: 1.2em;
-  transition: transform 0.2s, background-color 0.2s;
+  transition: transform 0.25s var(--ease-bounce), background-color 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth);
 }
 .music-btn:hover {
-  transform: scale(1.1);
+  transform: scale(1.1) translateY(-2px);
   background-color: #3378c9;
+  box-shadow: 0 8px 18px rgba(0, 86, 179, 0.4);
+}
+.music-btn:active {
+  transform: scale(0.94);
+  transition-duration: 0.1s;
 }
 .music-btn.paused {
   background-color: var(--bg-header-category);
@@ -1125,8 +1187,9 @@ input[type="file"] {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   cursor: pointer;
   font-size: 0.9em;
-  transition: all 0.2s;
+  transition: background-color 0.25s var(--ease-smooth), padding-left 0.25s var(--ease-smooth), border-left-color 0.25s var(--ease-smooth), color 0.25s var(--ease-smooth);
   position: relative;
+  border-left: 3px solid transparent;
 }
 
 .crime-name {
@@ -1138,13 +1201,18 @@ input[type="file"] {
   padding-left: 20px; /* Efeito de movimento */
 }
 
+.crime-item:active {
+  background-color: rgba(0, 86, 179, 0.12);
+  transition-duration: 0.1s;
+}
+
 .crime-item:last-child {
   border-bottom: none;
 }
 
 .crime-item.selected {
   background-color: rgba(0, 86, 179, 0.15);
-  border-left: 3px solid var(--color-revoada);
+  border-left-color: var(--color-revoada);
   color: #fff;
 }
 
@@ -1210,12 +1278,16 @@ input[type="file"] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition: transform 0.2s var(--ease-smooth), background 0.2s var(--ease-smooth);
 }
 
 .dica-close:hover {
-  transform: scale(1.05);
+  transform: scale(1.1) rotate(90deg);
   background: rgba(0, 86, 179, 0.22);
+}
+
+.dica-close:active {
+  transform: scale(0.9) rotate(90deg);
 }
 
 .dica-reopen {
@@ -1232,12 +1304,18 @@ input[type="file"] {
   cursor: pointer;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
   z-index: 9998;
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition: transform 0.25s var(--ease-smooth), background 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth);
 }
 
 .dica-reopen:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   background: rgba(0, 86, 179, 0.2);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.4);
+}
+
+.dica-reopen:active {
+  transform: translateY(0) scale(0.96);
+  transition-duration: 0.1s;
 }
 
 .dica-title {
@@ -1385,10 +1463,14 @@ hr {
   color: var(--color-danger);
   cursor: pointer;
   font-size: 1.1em;
-  transition: transform 0.2s;
+  transition: transform 0.2s var(--ease-bounce), color 0.2s var(--ease-smooth);
+  border-radius: 4px;
 }
 .crime-output-item button:hover {
-  transform: scale(1.2);
+  transform: scale(1.25) rotate(90deg);
+}
+.crime-output-item button:active {
+  transform: scale(0.9) rotate(90deg);
 }
 
 /* Totais */
@@ -1454,10 +1536,18 @@ hr {
   padding: 8px;
   border-radius: 4px;
   border: 1px solid transparent;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.25s var(--ease-smooth), background-color 0.25s var(--ease-smooth), transform 0.25s var(--ease-smooth);
 }
 .atenuante-item:hover {
   border-color: var(--color-revoada);
+  background: rgba(0, 86, 179, 0.06);
+  transform: translateX(2px);
+}
+.atenuante-item input[type="checkbox"] {
+  transition: transform 0.15s var(--ease-bounce);
+}
+.atenuante-item input[type="checkbox"]:active {
+  transform: scale(0.85);
 }
 .atenuantes {
   margin-top: 8px;
@@ -1576,7 +1666,7 @@ input[type="radio"] {
   border-radius: 6px;
   font-weight: 800;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.25s var(--ease-smooth), background-color 0.25s var(--ease-smooth), border-color 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth), color 0.25s var(--ease-smooth);
   text-transform: uppercase;
   font-size: 0.9em;
   letter-spacing: 1px;
@@ -1586,6 +1676,11 @@ input[type="radio"] {
   gap: 8px;
 }
 
+.btn-action:active {
+  transform: scale(0.97);
+  transition-duration: 0.1s;
+}
+
 .btn-primary {
   background-color: var(--color-revoada);
   color: #fff;
@@ -1593,6 +1688,8 @@ input[type="radio"] {
 }
 .btn-primary:hover {
   background-color: var(--color-revoada-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 86, 179, 0.3);
 }
 
 .btn-add {
@@ -1602,11 +1699,16 @@ input[type="radio"] {
   padding: 0 15px;
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.25s var(--ease-smooth), background-color 0.25s var(--ease-smooth), color 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth);
 }
 .btn-add:hover {
   background-color: var(--color-revoada);
   color: #fff;
+  box-shadow: 0 6px 14px rgba(0, 86, 179, 0.25);
+}
+.btn-add:active {
+  transform: scale(0.95);
+  transition-duration: 0.1s;
 }
 
 #btn-enviar {
@@ -1629,6 +1731,8 @@ input[type="radio"] {
   background-color: var(--color-danger);
   border-color: var(--color-danger);
   color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(211, 47, 47, 0.3);
 }
 
 /* Alertas Toast */
@@ -1816,7 +1920,7 @@ input[type="radio"] {
   letter-spacing: 1px;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.25s var(--ease-smooth), background-color 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   outline: none;
 
@@ -1914,14 +2018,18 @@ input[type="radio"] {
   justify-content: center;
   cursor: pointer;
   font-size: 0.8em;
-  transition: all 0.2s;
+  transition: transform 0.25s var(--ease-bounce), background-color 0.25s var(--ease-smooth), color 0.25s var(--ease-smooth);
   z-index: 10;
 }
 
 .btn-minimize:hover {
   background: var(--color-revoada);
   color: #fff;
-  transform: scale(1.1);
+  transform: scale(1.15) rotate(90deg);
+}
+
+.btn-minimize:active {
+  transform: scale(0.9) rotate(90deg);
 }
 
 .btn-restore {
@@ -1941,14 +2049,19 @@ input[type="radio"] {
   font-size: 1.5em;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
   z-index: 9999;
-  transition: all 0.3s ease;
+  transition: transform 0.3s var(--ease-bounce), background-color 0.25s var(--ease-smooth), color 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth);
 }
 
 .btn-restore:hover {
   background: var(--color-revoada);
   color: #fff;
-  transform: scale(1.1);
+  transform: scale(1.1) translateY(-2px);
   box-shadow: 0 0 25px rgba(0, 86, 179, 0.5);
+}
+
+.btn-restore:active {
+  transform: scale(0.94);
+  transition-duration: 0.1s;
 }
 
 .spotify-player-container:hover {
@@ -2042,7 +2155,7 @@ input[type="radio"] {
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: 0.2s;
+  transition: color 0.25s var(--ease-smooth), text-shadow 0.25s var(--ease-smooth), transform 0.2s var(--ease-bounce);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2052,10 +2165,12 @@ input[type="radio"] {
 .control-btn:hover {
   color: var(--text-primary);
   text-shadow: 0 0 5px var(--color-revoada);
+  transform: scale(1.15);
 }
 
 .control-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.9);
+  transition-duration: 0.1s;
 }
 
 .control-btn.small {
@@ -2071,12 +2186,19 @@ input[type="radio"] {
   color: #fff;
   font-size: 1.2em;
   box-shadow: 0 0 10px rgba(0, 86, 179, 0.4);
+  transition: transform 0.25s var(--ease-bounce), background-color 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth);
 }
 
 .play-btn-main:hover {
   transform: scale(1.1);
   background-color: var(--color-revoada-light);
   color: #fff;
+  box-shadow: 0 0 16px rgba(0, 86, 179, 0.6);
+}
+
+.play-btn-main:active {
+  transform: scale(0.92);
+  transition-duration: 0.1s;
 }
 
 @media screen and (max-width: 1450px), screen and (max-height: 800px) {
