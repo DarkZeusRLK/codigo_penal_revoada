@@ -1,0 +1,283 @@
+/* ==========================================================================
+   Revoada — Tema Halloween
+   Ativa com <html data-theme="halloween">. Os efeitos animados vêm do
+   halloween-fx.js (HalloweenFX.enable / disable).
+   ========================================================================== */
+
+/* ---------- 1. Tokens do tema ----------
+   Adapte os NOMES das variáveis aos que o site já usa nos temas claro/escuro.
+   Os valores são a paleta do Halloween. */
+:root[data-theme="halloween"] {
+  color-scheme: dark;
+  --hw-bg: #0b0612;
+  --hw-bg-2: #140a20;
+  --hw-panel: rgba(24, 13, 37, 0.9);
+  --hw-panel-2: rgba(16, 9, 26, 0.92);
+  --hw-border: rgba(255, 122, 26, 0.28);
+  --hw-border-soft: rgba(139, 61, 255, 0.22);
+  --hw-text: #efe6ff;
+  --hw-muted: #a99bc0;
+  --hw-accent: #ff7a1a;
+  --hw-accent-2: #ffb347;
+  --hw-purple: #8b3dff;
+  --hw-input: rgba(9, 5, 16, 0.75);
+  --hw-input-border: #3a2550;
+  --hw-danger: #e5322b;
+  --hw-ok: #3ddc84;
+  --hw-glow: 0 0 18px rgba(255, 122, 26, 0.35);
+
+  /* Variáveis que o site (style.css) já usa nos temas claro/escuro */
+  --bg-main: var(--hw-bg);
+  --bg-card: var(--hw-panel);
+  --bg-header-category: #1b0f2c;
+  --text-primary: var(--hw-text);
+  --text-secondary: var(--hw-muted);
+  --color-revoada: var(--hw-accent);
+  --color-revoada-light: var(--hw-accent-2);
+  --color-info: #b78cff;
+  --border-color: var(--hw-border);
+  /* --color-danger (pena / INAFIANÇÁVEL) e --color-success (multa) permanecem */
+}
+
+/* ---------- 2. Fundo da página ---------- */
+:root[data-theme="halloween"] body {
+  background:
+    radial-gradient(1200px 700px at 85% -10%, rgba(255, 138, 40, 0.16), transparent 60%),
+    radial-gradient(900px 600px at 10% 110%, rgba(139, 61, 255, 0.22), transparent 60%),
+    linear-gradient(180deg, #120821 0%, var(--hw-bg) 55%, #07040c 100%);
+  background-attachment: fixed;
+  color: var(--hw-text);
+}
+
+/* O conteúdo do site fica ACIMA da camada de efeitos (que é fixa e fica atrás) */
+:root[data-theme="halloween"] .hw-content-above { position: relative; z-index: 1; }
+
+/* ---------- 3. Camada de efeitos ---------- */
+#hw-layer {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none; overflow: hidden;
+}
+#hw-layer .hw-scene { position: absolute; inset: 0; image-rendering: pixelated; }
+
+#hw-layer .hw-vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(5, 2, 10, 0.75) 100%);
+}
+
+/* Lua */
+#hw-layer .hw-moon {
+  position: absolute; top: 4vh; right: 5vw;
+  width: clamp(90px, 9vw, 150px); aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, #fff1c9 0%, #ffd08a 35%, #f39b45 70%, #c9631f 100%);
+  box-shadow: 0 0 40px 10px rgba(255, 150, 60, 0.35), 0 0 120px 40px rgba(255, 120, 40, 0.15);
+  opacity: 0.9;
+}
+#hw-layer .hw-moon i { position: absolute; border-radius: 50%; background: rgba(170, 80, 20, 0.28); }
+#hw-layer .hw-moon i:nth-child(1) { width: 18%; height: 18%; top: 28%; left: 52%; }
+#hw-layer .hw-moon i:nth-child(2) { width: 11%; height: 11%; top: 58%; left: 30%; }
+#hw-layer .hw-moon i:nth-child(3) { width: 8%; height: 8%; top: 64%; left: 62%; }
+
+/* Névoa */
+#hw-layer .hw-fog {
+  position: absolute; left: -50%; width: 200%; bottom: -6vh; height: 34vh;
+  background:
+    radial-gradient(40% 60% at 20% 70%, rgba(150, 110, 200, 0.16), transparent 70%),
+    radial-gradient(35% 50% at 60% 80%, rgba(120, 80, 180, 0.14), transparent 70%),
+    radial-gradient(30% 55% at 85% 75%, rgba(170, 120, 210, 0.12), transparent 70%);
+  filter: blur(6px);
+  animation: hw-fog 60s linear infinite;
+}
+#hw-layer .hw-fog-2 { bottom: -10vh; opacity: 0.8; animation-duration: 95s; animation-direction: reverse; }
+@keyframes hw-fog { from { transform: translateX(0); } to { transform: translateX(25%); } }
+
+/* Teias de canto */
+#hw-layer .hw-web { position: absolute; top: 0; color: rgba(225, 212, 245, 0.32); }
+#hw-layer .hw-web-tl { left: 0; }
+#hw-layer .hw-web-tr { right: 0; }
+#hw-layer .hw-web-tr .hw-web-svg { transform: scaleX(-1); }
+#hw-layer .hw-web-svg { display: block; filter: drop-shadow(0 0 2px rgba(200, 180, 255, 0.25)); }
+
+/* Aranha pendurada */
+#hw-layer .hw-spider {
+  position: absolute; width: 28px; margin-left: -14px;
+  animation: hw-spider 6s ease-in-out infinite;
+}
+#hw-layer .hw-spider::before {
+  content: ""; position: absolute; left: 50%; bottom: 100%; width: 1px; height: 400px;
+  background: rgba(225, 212, 245, 0.4);
+}
+@keyframes hw-spider {
+  0%, 100% { transform: translateY(0); }
+  45%, 55% { transform: translateY(var(--drop, 80px)); }
+  50% { transform: translateY(calc(var(--drop, 80px) - 6px)); }
+}
+
+/* Morcegos */
+#hw-layer .hw-bat {
+  position: absolute; top: var(--y); left: 0;
+  animation: hw-bat-x var(--dur) linear infinite; animation-delay: var(--delay);
+}
+#hw-layer .hw-bat-svg { transform: scale(var(--scale)); animation: hw-bat-y 2.4s ease-in-out infinite; overflow: visible; }
+#hw-layer .hw-wing { transform-box: fill-box; animation: hw-flap 0.22s ease-in-out infinite alternate; }
+#hw-layer .hw-wing-l { transform-origin: right center; }
+#hw-layer .hw-wing-r { transform-origin: left center; }
+@keyframes hw-bat-x { from { transform: translateX(-10vw); } to { transform: translateX(110vw); } }
+@keyframes hw-bat-y { 0%, 100% { translate: 0 0; } 50% { translate: 0 18px; } }
+@keyframes hw-flap { from { transform: scaleY(1); } to { transform: scaleY(-0.35); } }
+
+/* ---------- 4. Chapéu de bruxa na logo ----------
+   Ajuste fino da posição sobre o "R":
+     --hw-hat-x     centro do R (fração da largura da logo; 0 = borda esquerda)
+     --hw-hat-y     onde a aba encosta no topo do R (fração da altura da logo)
+     --hw-hat-size  largura do chapéu (fração da altura da logo)
+     --hw-hat-rot   inclinação */
+.hw-hat-host { position: relative; }
+.hw-hat {
+  --hw-hat-x: 0.09; --hw-hat-y: 0.38; --hw-hat-size: 0.75; --hw-hat-rot: -14deg;
+  position: absolute; z-index: 2; pointer-events: none; display: block;
+  transform: rotate(var(--hw-hat-rot)); transform-origin: 50% 85%;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 10px rgba(255, 122, 26, 0.25));
+  animation: hw-hat-in 0.6s cubic-bezier(.2, 1.4, .4, 1) both, hw-hat-idle 4s ease-in-out 0.6s infinite;
+}
+.hw-hat-svg { display: block; width: 100%; height: auto; }
+@keyframes hw-hat-in { from { opacity: 0; transform: translateY(-30px) rotate(-40deg); } }
+@keyframes hw-hat-idle {
+  0%, 100% { transform: rotate(var(--hw-hat-rot)); }
+  50% { transform: rotate(calc(var(--hw-hat-rot) + 4deg)); }
+}
+
+/* ---------- 5. Acessibilidade ---------- */
+@media (prefers-reduced-motion: reduce) {
+  #hw-layer *, .hw-hat { animation: none !important; }
+}
+@media (max-width: 760px) {
+  #hw-layer .hw-web-tr, #hw-layer .hw-bats { display: none; }
+  #hw-layer .hw-web-svg { width: 140px; height: 140px; }
+}
+
+/* ---------- 6. Integração com a Calculadora Penal ---------- */
+
+/* Conteúdo acima da camada de efeitos */
+:root[data-theme="halloween"] .container { position: relative; z-index: 1; }
+
+/* Título */
+:root[data-theme="halloween"] header h1 {
+  background: linear-gradient(90deg, #ff7a1a 0%, #ffb347 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  filter: drop-shadow(0 0 10px rgba(255, 122, 26, 0.45));
+}
+:root[data-theme="halloween"] header { border-bottom-color: var(--hw-border); }
+
+/* Painéis translúcidos com teia no canto */
+:root[data-theme="halloween"] .card {
+  backdrop-filter: blur(3px);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(139, 61, 255, 0.08);
+}
+:root[data-theme="halloween"] .card:not(.resumo-sentenca) { position: relative; }
+:root[data-theme="halloween"] .card::after {
+  content: ""; position: absolute; top: 0; right: 0; width: 64px; height: 64px;
+  pointer-events: none; opacity: 0.55;
+  background: no-repeat top right / contain url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 70'><g fill='none' stroke='%23e1d4f5' stroke-opacity='.55' stroke-width='1' stroke-linecap='round'><path d='M70 0L0 0M70 0L5 28M70 0L22 55M70 0L48 70M70 0L70 70'/><path d='M42 0Q47 5 44 11Q46 17 51 22Q58 23 61 28Q66 25 70 28'/><path d='M21 0Q27 9 25 20Q29 30 36 38Q44 40 54 49Q62 45 70 49'/><path d='M0 0Q6 14 5 28Q10 44 22 55Q34 60 48 70Q60 66 70 70'/></g></svg>");
+}
+:root[data-theme="halloween"] .card-header i,
+:root[data-theme="halloween"] .section-title i { color: var(--hw-accent); }
+:root[data-theme="halloween"] .card-header { border-bottom-color: var(--hw-border); }
+
+/* Cabeçalhos dos grupos de crimes */
+:root[data-theme="halloween"] .category-title {
+  background: linear-gradient(90deg, rgba(255, 122, 26, 0.18) 0%, rgba(24, 13, 37, 0.2) 100%);
+  border-left-color: var(--hw-accent);
+  border-bottom-color: var(--hw-border-soft);
+  color: var(--hw-accent-2);
+}
+:root[data-theme="halloween"] .crime-item { border-bottom-color: rgba(139, 61, 255, 0.12); }
+:root[data-theme="halloween"] .crime-item:hover { background-color: rgba(255, 122, 26, 0.08); }
+:root[data-theme="halloween"] .crime-item:active,
+:root[data-theme="halloween"] .crime-item.selected { background-color: rgba(255, 122, 26, 0.16); }
+:root[data-theme="halloween"] .crime-item[data-tip]::after {
+  background: rgba(16, 9, 26, 0.98); border-color: var(--hw-border);
+}
+:root[data-theme="halloween"] .crime-condition { background-color: #3b1f66; color: #d9c4ff; }
+
+/* Inputs */
+:root[data-theme="halloween"] input:not([type="file"]),
+:root[data-theme="halloween"] textarea,
+:root[data-theme="halloween"] select,
+:root[data-theme="halloween"] .form-search {
+  background-color: var(--hw-input); border-color: var(--hw-input-border);
+}
+:root[data-theme="halloween"] input:focus,
+:root[data-theme="halloween"] textarea:focus,
+:root[data-theme="halloween"] select:focus {
+  border-color: var(--hw-accent); box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.22);
+}
+:root[data-theme="halloween"] .calculated-row input { background-color: #1a0f2a; }
+:root[data-theme="halloween"] .dropdown-results { background-color: #170c25; border-color: var(--hw-border); }
+:root[data-theme="halloween"] .tags-container,
+:root[data-theme="halloween"] .output-list { background: rgba(9, 5, 16, 0.55); border-color: var(--hw-input-border); }
+:root[data-theme="halloween"] .upload-box { background-color: rgba(9, 5, 16, 0.55); border-color: var(--hw-input-border); }
+:root[data-theme="halloween"] .upload-box:focus,
+:root[data-theme="halloween"] .upload-box.active-box {
+  box-shadow: 0 0 12px rgba(255, 122, 26, 0.3); background-color: rgba(255, 122, 26, 0.05);
+}
+:root[data-theme="halloween"] .preview-area { background-color: #07040c; border-color: var(--hw-input-border); }
+
+/* Botões e hovers (azul fixo -> laranja) */
+:root[data-theme="halloween"] .btn-small:hover,
+:root[data-theme="halloween"] .btn-add:hover { box-shadow: 0 6px 14px rgba(255, 122, 26, 0.3); }
+:root[data-theme="halloween"] .btn-primary:hover { box-shadow: 0 6px 16px rgba(255, 122, 26, 0.35); }
+:root[data-theme="halloween"] .btn-small:hover,
+:root[data-theme="halloween"] .btn-primary,
+:root[data-theme="halloween"] .officer-tag,
+:root[data-theme="halloween"] .dropdown-item:hover,
+:root[data-theme="halloween"] .btn-add:hover { color: #1a0a02; }
+:root[data-theme="halloween"] .officer-tag button { color: rgba(26, 10, 2, 0.7); }
+:root[data-theme="halloween"] .btn-escolher-arquivo:hover,
+:root[data-theme="halloween"] .atenuante-item:hover { background: rgba(255, 122, 26, 0.1); }
+:root[data-theme="halloween"] .atenuante-item { background: rgba(139, 61, 255, 0.05); }
+:root[data-theme="halloween"] .btn-limpar:hover { color: #fff; }
+:root[data-theme="halloween"] .btn-ia-itens { color: var(--hw-text); }
+:root[data-theme="halloween"] .btn-ia-itens:hover { color: #1a0a02; }
+
+/* Painel flutuante, player, dicas, configurações */
+:root[data-theme="halloween"] .settings-toggle,
+:root[data-theme="halloween"] .btn-restore,
+:root[data-theme="halloween"] .dica-reopen { background: rgba(20, 10, 32, 0.96); }
+:root[data-theme="halloween"] .settings-popup,
+:root[data-theme="halloween"] .spotify-player-container { background: rgba(20, 10, 32, 0.97); }
+:root[data-theme="halloween"] .settings-action-btn:hover {
+  background: rgba(255, 122, 26, 0.12); box-shadow: 0 6px 16px rgba(255, 122, 26, 0.2);
+}
+:root[data-theme="halloween"] .settings-action-btn.settings-action-danger { background: rgba(229, 50, 43, 0.14); }
+:root[data-theme="halloween"] .spotify-player-container:hover { box-shadow: 0 0 25px rgba(255, 122, 26, 0.3); }
+:root[data-theme="halloween"] .play-btn-main { color: #1a0a02; box-shadow: 0 0 12px rgba(255, 122, 26, 0.45); }
+:root[data-theme="halloween"] .play-btn-main:hover { box-shadow: 0 0 18px rgba(255, 122, 26, 0.65); color: #1a0a02; }
+:root[data-theme="halloween"] .btn-restore:hover,
+:root[data-theme="halloween"] .btn-minimize:hover { color: #1a0a02; }
+:root[data-theme="halloween"] .dica-box {
+  background: linear-gradient(135deg, rgba(255, 122, 26, 0.2), rgba(14, 7, 22, 0.95));
+  border-color: var(--hw-border);
+}
+:root[data-theme="halloween"] .dica-close,
+:root[data-theme="halloween"] .dica-reopen { border-color: var(--hw-border); }
+:root[data-theme="halloween"] .alert-inafiancavel { background: rgba(14, 7, 22, 0.97); }
+:root[data-theme="halloween"] .custom-alert { background-color: #170c25; }
+
+/* Modais e login */
+:root[data-theme="halloween"] .modal-content,
+:root[data-theme="halloween"] .modal-box { background: #150b22; border-color: var(--hw-border); }
+:root[data-theme="halloween"] .modal-header,
+:root[data-theme="halloween"] .modal-footer { background: #1d0f2e; border-color: var(--hw-border); }
+:root[data-theme="halloween"] .confirm-section h4 { color: var(--hw-accent-2); }
+:root[data-theme="halloween"] .info-text,
+:root[data-theme="halloween"] .crimes-detail { background: #0e0716; border-color: var(--hw-input-border); }
+:root[data-theme="halloween"] .login-overlay { background: linear-gradient(135deg, #07040c 0%, #1a0b2e 100%); }
+:root[data-theme="halloween"] .login-box { box-shadow: 0 0 40px rgba(255, 122, 26, 0.2); }
+:root[data-theme="halloween"] #btn-fechar-patch { background-color: var(--hw-accent); color: #1a0a02; }
+:root[data-theme="halloween"] #patch-notes-content li { border-left-color: var(--hw-accent); }
+:root[data-theme="halloween"] #patch-notes-content h4 { color: var(--hw-accent-2); }
+:root[data-theme="halloween"] .btn-confirmar { color: #fff; }
+
+/* A lua desce um pouco para não ficar atrás do "Oficial Responsável" / engrenagem */
+:root[data-theme="halloween"] #hw-layer .hw-moon { top: 17vh; right: 3vw; opacity: 0.75; }

@@ -82,19 +82,48 @@ document.addEventListener("DOMContentLoaded", function () {
   const settingsUsername = document.getElementById("settings-username");
   const THEME_STORAGE_KEY = "policia_revoada_theme_mode";
 
+  const popupHalloweenToggle = document.getElementById("popup-halloween-toggle");
+  let temaAtual = "dark";
+  let temaAntesHalloween = "dark";
+
   function aplicarTema(theme) {
     const isLight = theme === "light";
+    const isHalloween = theme === "halloween";
+    temaAtual = theme;
     if (themeStylesheet) {
       themeStylesheet.setAttribute("href", "style.css");
     }
+    // Halloween usa a base escura (dark-mode) + overrides do halloween-theme.css
     document.body.classList.toggle("light-mode", isLight);
     document.body.classList.toggle("dark-mode", !isLight);
+    document.body.classList.toggle("halloween-mode", isHalloween);
+
+    if (isHalloween) {
+      document.documentElement.setAttribute("data-theme", "halloween");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
+
+    if (window.HalloweenFX) {
+      if (isHalloween) {
+        window.HalloweenFX.enable({ logo: "header .logo-revoada" });
+      } else {
+        window.HalloweenFX.disable();
+      }
+    }
 
     if (popupDarkToggle) {
       popupDarkToggle.setAttribute("aria-pressed", isLight ? "false" : "true");
       popupDarkToggle.innerHTML = isLight
         ? '<i class="fa-solid fa-moon"></i><span>Modo Escuro</span>'
         : '<i class="fa-solid fa-sun"></i><span>Modo Claro</span>';
+    }
+
+    if (popupHalloweenToggle) {
+      popupHalloweenToggle.setAttribute("aria-pressed", isHalloween ? "true" : "false");
+      popupHalloweenToggle.innerHTML = isHalloween
+        ? '<i class="fa-solid fa-ghost"></i><span>Sair do Halloween</span>'
+        : '<i class="fa-solid fa-ghost"></i><span>🎃 Halloween</span>';
     }
   }
 
@@ -103,9 +132,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (popupDarkToggle) {
     popupDarkToggle.addEventListener("click", function () {
-      const nextTheme = document.body.classList.contains("light-mode")
-        ? "dark"
-        : "light";
+      // Claro <-> Escuro; estando no Halloween, vai para o Claro
+      const nextTheme = temaAtual === "light" ? "dark" : "light";
+      localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+      aplicarTema(nextTheme);
+    });
+  }
+
+  if (popupHalloweenToggle) {
+    popupHalloweenToggle.addEventListener("click", function () {
+      let nextTheme;
+      if (temaAtual === "halloween") {
+        nextTheme = temaAntesHalloween;
+      } else {
+        temaAntesHalloween = temaAtual;
+        nextTheme = "halloween";
+      }
       localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
       aplicarTema(nextTheme);
     });
@@ -147,34 +189,34 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================================================
   const playlist = [
     {
-      title: "País do Futebol",
-      artist: "McGuime",
-      src: "Música/videoplayback (4).m4a",
-      cover: "Imagens/Album_pais_do_futebol.webp",
+      title: "Thriller",
+      artist: "Michael Jackson",
+      src: "Música/Michael Jackson - Thriller (2003 Edit).mp3",
+      cover: "Imagens/Michael_Jackson_-_Thriller.jpg",
     },
     {
-      title: "Waka Wak.",
-      artist: "Shakira",
-      src: "Música/Shakira - Waka Waka (This Time for Africa) (The Official 2010 FIFA World Cup™ Song) - shakiraVEVO (youtube).mp3",
-      cover: "Imagens/Capa_waka_waka.jpg",
+      title: "Ghostbusters",
+      artist: "Ray Parker Jr.",
+      src: "Música/Ray Parker, Jr. - Ghostbusters.mp3",
+      cover: "Imagens/GHOSTBUSTERS.jpg",
     },
     {
-      title: "Dai Dai",
-      artist: "Shakira",
-      src: "Música/Shakira2026.m4a",
-      cover: "Imagens/Capa_daidai.png",
+      title: "Monster",
+      artist: "Reckless Love",
+      src: "Música/Monster [dazVELmg19M].mp3",
+      cover: "Imagens/RECKLESS LOVE ALBUM.jpg",
     },
     {
-      title: "Lady (Hear Me Tonight)",
-      artist: "Modjo",
-      src: "Música/Modjo - Lady (Hear Me Tonight) (Official Video) - ModjoOfficial (youtube).mp3",
-      cover: "Imagens/lady_modjo.jpg",
+      title: "Die by My Knife",
+      artist: "Slashstreet Boys",
+      src: "Música/SLASHSTREET BOYS - _DIE BY MY KNIFE_ (BACKSTREET BOYS PARODY) [3Vt5X1PtDtQ] (1).mp3",
+      cover: "Imagens/SLASHTREET BOYS ALBUM LOGO.jpg",
     },
     {
-      title: "What I've Done ",
-      artist: "Linkin Park",
-      src: "Música/What I've Done (Official Music Video) [4K Upgrade] - Linkin Park - Linkin Park (youtube).mp3",
-      cover: "Imagens/Album_linkinpark.webp",
+      title: "Halloween Theme",
+      artist: "John Carpenter",
+      src: "Música/Halloween Theme 1978 (Original Motion Picture Soundtrack) [mIhCdldRE1U].mp3",
+      cover: "Imagens/HALLOWEEN MICHAEL MYERS ALBUM.jpg",
     },
   ];
 
