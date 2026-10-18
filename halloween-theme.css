@@ -133,7 +133,7 @@
      --hw-hat-rot   inclinação */
 .hw-hat-host { position: relative; }
 .hw-hat {
-  --hw-hat-x: 0.09; --hw-hat-y: 0.38; --hw-hat-size: 0.75; --hw-hat-rot: -14deg;
+  --hw-hat-x: 0.09; --hw-hat-y: 0.38; --hw-hat-size: 0.95; --hw-hat-rot: -14deg;
   position: absolute; z-index: 2; pointer-events: none; display: block;
   transform: rotate(var(--hw-hat-rot)); transform-origin: 50% 85%;
   filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 10px rgba(255, 122, 26, 0.25));
@@ -282,3 +282,8 @@
 /* A lua fica na faixa do cabeçalho (a bruxa cruza na altura dela). O "Oficial Responsável"
    ganha fundo próprio para continuar legível quando passa sobre a lua. */
 :root[data-theme="halloween"] .user-info { background: rgba(14, 7, 22, 0.88); border-color: var(--hw-border); }
+
+/* Logo maior no Halloween (o height:50px do HTML é inline, por isso o !important).
+   O chapéu acompanha: --hw-hat-size é fração da altura da logo. */
+:root[data-theme="halloween"] .logo-revoada { height: 72px !important; max-height: 72px; }
+:root[data-theme="halloween"] header { padding-top: 26px; }
