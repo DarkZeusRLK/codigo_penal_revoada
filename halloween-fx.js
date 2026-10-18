@@ -1,16 +1,22 @@
 /*!
  * Revoada — Halloween FX
  * Tema de Halloween em pixel art 2D (sem modelos 3D, sem imagens externas).
- *  - Cavaleiro sem cabeça (Jack-o'-lantern) a cavalo, com abóbora em chamas, cruzando o fundo
+ *  - Cavaleiro sem cabeça cruzando o fundo. Na maioria das vezes com a abóbora em chamas erguida na mão;
+ *    às vezes (swordChance) vem de espada, com a abóbora em chamas no lugar da cabeça: um zumbi levanta,
+ *    o cavaleiro passa, corta e leva a cabeça. O zumbi corre atrás, some, volta com a cabeça debaixo
+ *    do braço, recoloca e entra na cova.
  *  - Túmulos nas laterais; de vez em quando um zumbi policial sai da cova, olha em volta,
- *    coça a cabeça e cai de volta
+ *    coça a cabeça e cai de volta.
  *  - Chapéu de bruxa sobre o "R" da logo, teias com aranhas, morcegos, lua, névoa, abóboras
  *
  * API:
  *   HalloweenFX.enable({ logo: '#logo-revoada' })   // liga (idempotente)
  *   HalloweenFX.disable()                           // desliga e remove tudo
- *   HalloweenFX.ride()    // força uma passagem do cavaleiro
- *   HalloweenFX.zombie()  // força um zumbi
+ *   HalloweenFX.ride()         // cavaleiro (sorteia abóbora na mão ou espada)
+ *   HalloweenFX.ride('sword')  // força a cena da espada | ride('pumpkin') força a abóbora na mão
+ *   HalloweenFX.zombie()       // zumbi (sorteia clássico ou cena do cavaleiro)
+ *   HalloweenFX.zombie(0, 'classic' | 'horse' | 'decap')
+ * Opções do enable: swordChance (0.35), horseChance (0.25), decapChance (0), killer ('reaper' | 'slasher')
  */
 (function (global) {
   'use strict';
@@ -112,7 +118,11 @@
     face: '#ffe36a', face2: '#ffb02a', faceIn: '#fff6c4'
   };
   const RW = 92, RH = 92, ROY = 16, R_FEET = 73, R_FRAMES = 8;
-  const PUMP = { x: 58, y: 1 };
+  const PUMP = { x: 58, y: 1 };     // abóbora erguida na mão
+  const NECK = { x: 46, y: 13 };    // abóbora no lugar da cabeça (modo espada)
+  const SWORD_TIP = 90;             // ponta da espada no quadro do golpe (x do sprite)
+  const RIDER_MODES = ['pumpkin', 'swordUp', 'swordSwing', 'carry'];
+  const SW_C = { steel: '#cfd6e2', hi: '#ffffff', lo: '#6f7889', grip: '#3b2418' };
 
   function riderLeg(g, hx, hy, p, front, col) {
     const a = Math.sin(TAU * p), sw = Math.max(0, Math.cos(TAU * p));
@@ -126,7 +136,7 @@
     g.rect(Math.round(fx) - 1, Math.round(fy), Math.round(fx) + 1, Math.round(fy) + 1, H.horseLo);
   }
 
-  function drawRider(g, f, v) {
+  function drawRider(g, f, v, mode = 'pumpkin') {
     const ph = f / R_FRAMES;
     const b = Math.round(Math.sin(TAU * ph * 2) * 0.9);
     const w1 = Math.sin(TAU * ph), w2 = Math.sin(TAU * ph + 1.3), w3 = Math.sin(TAU * ph + 2.6);
@@ -192,9 +202,11 @@
     g.line(36, Y(31), 16, Y(31 + w3), H.capeHi, 0);
 
     // braço de trás (rédeas)
-    g.line(44, Y(26), 50, Y(33), H.coatLo, 1);
-    g.line(50, Y(33), 56, Y(36), H.coatLo, 1);
-    g.set(57, Y(36), H.boot); g.set(57, Y(37), H.boot);
+    if (mode !== 'carry') {
+      g.line(44, Y(26), 50, Y(33), H.coatLo, 1);
+      g.line(50, Y(33), 56, Y(36), H.coatLo, 1);
+      g.set(57, Y(36), H.boot); g.set(57, Y(37), H.boot);
+    }
 
     // perna do cavaleiro
     g.line(46, Y(43), 51, Y(49), H.coat, 1.4);
@@ -210,20 +222,60 @@
     g.set(48, Y(38), H.gold); g.set(48, Y(39), H.gold);
     g.set(47, Y(27), H.silver); g.set(47, Y(30), H.silver); g.set(47, Y(33), H.silver);
     g.poly([[39, Y(40)], [45, Y(40)], [44 + w1 * 0.6, Y(47)], [37 + w2, Y(46)]], H.coatLo);
-    // gola alta, sem cabeça
+    // gola alta
     g.poly([[41, Y(23)], [49, Y(23)], [50, Y(19)], [46, Y(18)], [41, Y(19)]], H.coatLo);
-    g.set(44, Y(19), '#3a0a12'); g.set(45, Y(19), '#3a0a12');
     g.ellipse(49, Y(25), 3, 2, H.silverLo); g.set(49, Y(24), H.silver);
 
-    // braço erguido com a abóbora
-    g.line(48, Y(25), 54, Y(16), H.coat, 1.3);
-    g.line(54, Y(16), 57, Y(8), H.coat, 1);
-    g.line(53, Y(17), 55, Y(12), H.coatHi, 0);
-    g.set(56, Y(10), H.silver); g.set(57, Y(10), H.silver);
-    g.ellipse(57, Y(7), 1.5, 1.5, H.boot);
+    if (mode === 'pumpkin') {
+      g.set(44, Y(19), '#3a0a12'); g.set(45, Y(19), '#3a0a12');
+      // braço erguido com a abóbora
+      g.line(48, Y(25), 54, Y(16), H.coat, 1.3);
+      g.line(54, Y(16), 57, Y(8), H.coat, 1);
+      g.line(53, Y(17), 55, Y(12), H.coatHi, 0);
+      g.set(56, Y(10), H.silver); g.set(57, Y(10), H.silver);
+      g.ellipse(57, Y(7), 1.5, 1.5, H.boot);
+      drawPumpkinHead(g, PUMP.x, Y(PUMP.y), v);
+    } else {
+      // modo espada: abóbora em chamas no lugar da cabeça
+      if (mode === 'carry') {
+        // braço de trás erguido com a cabeça do zumbi como troféu
+        g.line(42, Y(24), 37, Y(16), H.coatLo, 1.2);
+        g.line(37, Y(16), 33, Y(9), H.coatLo, 1);
+        drawHead({ set: (x, y, c) => g.set(33 + x, Y(y + 33 + 1), c) }, 0, false);
+        g.ellipse(33, Y(7), 1.5, 1.5, H.boot);
+        g.set(32, Y(8), Z.blood); g.set(34, Y(9), Z.blood);
+      }
+      drawPumpkinHead(g, NECK.x, Y(NECK.y), v);
+      const sword = (hx, hy, tx, ty, gx0, gy0, gx1, gy1) => {
+        g.line(hx, hy, tx, ty, SW_C.steel, 0.8);
+        g.line(hx + (tx > hx ? 1 : 0), hy - 1, tx, ty - 1, SW_C.hi, 0);
+        g.line(gx0, gy0, gx1, gy1, H.gold, 0);
+      };
+      if (mode === 'swordUp') {
+        g.line(48, Y(25), 53, Y(19), H.coat, 1.3);
+        g.line(53, Y(19), 55, Y(13), H.coat, 1);
+        g.line(55, Y(13), 54, Y(16), SW_C.grip, 0);
+        sword(56, Y(11), 62, Y(-8), 53, Y(12), 58, Y(11));
+        g.ellipse(55, Y(13), 1.4, 1.4, H.boot);
+      } else if (mode === 'swordSwing') {
+        g.line(48, Y(25), 56, Y(30), H.coat, 1.3);
+        g.line(56, Y(30), 60, Y(33), H.coat, 1);
+        sword(62, Y(34), SWORD_TIP, Y(35), 61, Y(31), 61, Y(37));
+        g.ellipse(60, Y(34), 1.4, 1.4, H.boot);
+      } else {
+        g.line(48, Y(25), 53, Y(31), H.coat, 1.3);
+        g.line(53, Y(31), 56, Y(34), H.coat, 1);
+        sword(57, Y(36), 70, Y(49), 55, Y(37), 58, Y(34));
+        g.ellipse(56, Y(34), 1.4, 1.4, H.boot);
+      }
+    }
 
-    // abóbora
-    const py = Y(PUMP.y), px = PUMP.x;
+    // rédeas por cima
+    if (mode !== 'carry') g.line(57, Y(36), 77, Y(37), H.leather, 0);
+    return b;
+  }
+
+  function drawPumpkinHead(g, px, py, v) {
     g.ellipse(px, py, 6.4, 5.2, H.pumpLo);
     g.ellipse(px, py, 5.4, 4.6, H.pump);
     g.line(px - 2, py - 4, px - 3, py - 1, H.pumpLo, 0);
@@ -234,10 +286,6 @@
     [[-3, 0], [-2, 0], [-2, -1], [2, -1], [2, 0], [3, 0], [0, 1]].forEach(([x, y]) => g.set(px + x, py + y, fc));
     [[-4, 3], [-3, 3], [-2, 4], [-1, 3], [0, 4], [1, 3], [2, 4], [3, 3], [4, 2]].forEach(([x, y]) => g.set(px + x, py + y, fc));
     g.set(px - 2, py, H.faceIn); g.set(px + 2, py, H.faceIn); g.set(px, py + 4, H.faceIn);
-
-    // rédeas por cima
-    g.line(57, Y(36), 77, Y(37), H.leather, 0);
-    return b;
   }
 
   // luz da lua: pixels com o topo exposto ganham um tom mais claro
@@ -249,15 +297,18 @@
   let riderFrames = null, riderBob = [];
   function buildRider() {
     if (riderFrames) return;
-    riderFrames = [];
-    for (let f = 0; f < R_FRAMES; f++) {
-      riderFrames[f] = [];
-      for (let v = 0; v < 2; v++) {
-        const g = new Grid(RW, RH, 0, ROY);
-        riderBob[f] = drawRider(g, f, v);
-        rimLight(g, { [H.horse]: H.horseHi, [H.coat]: H.coatHi, [H.cape]: H.capeHi, [H.mane]: H.maneHi, [H.far]: H.horse, [H.coatLo]: H.coat });
-        g.outline(OUTLINE);
-        riderFrames[f][v] = g.toCanvas();
+    riderFrames = {};
+    for (const mode of RIDER_MODES) {
+      riderFrames[mode] = [];
+      for (let f = 0; f < R_FRAMES; f++) {
+        riderFrames[mode][f] = [];
+        for (let v = 0; v < 2; v++) {
+          const g = new Grid(RW, RH, 0, ROY);
+          riderBob[f] = drawRider(g, f, v, mode);
+          rimLight(g, { [H.horse]: H.horseHi, [H.coat]: H.coatHi, [H.cape]: H.capeHi, [H.mane]: H.maneHi, [H.far]: H.horse, [H.coatLo]: H.coat });
+          g.outline(OUTLINE);
+          riderFrames[mode][f][v] = g.toCanvas();
+        }
       }
     }
   }
@@ -281,7 +332,8 @@
     R: ['111', '101', '110', '101', '101'],
     I: ['111', '010', '010', '010', '111'],
     P: ['111', '101', '111', '100', '100'],
-    '?': ['111', '001', '011', '000', '010']
+    '?': ['111', '001', '011', '000', '010'],
+    '!': ['010', '010', '010', '000', '010']
   };
   function glyph(g, ch, x, y, c) {
     GLYPH[ch].forEach((row, j) => [...row].forEach((b, i) => { if (b === '1') g.set(x + i, y + j, c); }));
@@ -347,8 +399,10 @@
   }
 
   // timeline do zumbi (segundos)
-  const ZT = { dur: 9.7 };
-  function zombiePose(t) {
+  const ZT = { dur: 9.7, durDecap: 11.6 };
+  function zombiePose(t, Z0) {
+    if (Z0 && Z0.variant === 'decap' && t >= 5.0) return decapPose(t, Z0.side);
+    if (Z0 && Z0.variant === 'horse' && t >= 5.0) return horsePose(t, Z0.side);
     const P = { rise: 0, R: 'up', L: 'hidden', mixR: 0, mixL: 0, head: 0, lean: 0, q: false, wiggle: 0, shake: false, scratch: false, upR: 6, upL: 6, duck: 3 };
     const up = Math.sin(t * 6) * 1.6;
     if (t < 0.9) { P.shake = true; }
@@ -375,7 +429,95 @@
     return P;
   }
 
+  // Variante: o Ceifador corta a cabeça; o zumbi procura, recoloca (de costas!) e volta pra cova.
+  // side = lado onde o Ceifador aparece (+1 direita, -1 esquerda); a cabeça voa para o lado oposto.
+  function decapPose(t, side) {
+    const dir = -side, j = Math.floor(t * 10) % 2;
+    const P = { rise: 1, R: 'hang', L: 'hang', mixR: 0, mixL: 0, head: 0, lean: 0, q: false, wiggle: 0,
+      upR: 0, upL: 0, duck: 0, headMode: 'on', headPos: [0, -33], headRot: 0, back: false, bang: false };
+    const ground = [dir * 14, -4];
+    if (t < 6.5) {
+      P.head = t < 5.6 ? 0 : side;
+      P.bang = t > 6.0;
+      P.lean = Math.sin(t * 3) * 0.6;
+    } else {
+      P.headMode = 'off';
+      if (t < 7.1) {
+        const k = (t - 6.5) / 0.6;
+        P.headPos = [lerp(0, ground[0], k), lerp(-33, ground[1], k) - 22 * 4 * k * (1 - k)];
+        P.headRot = Math.floor((t - 6.5) * 14) % 4;
+      } else {
+        const b = t < 7.25 ? Math.sin(Math.PI * (t - 7.1) / 0.15) * 3 : 0;
+        P.headPos = [ground[0], ground[1] - b];
+        P.headRot = 1;
+      }
+      if (t < 7.6) { P.R = [8 + j * 2, -34]; P.L = [-9 - j * 2, -34]; P.lean = Math.sin(t * 14) * 1.2; P.wiggle = 1 + j; }
+      else if (t < 8.2) { P.R = [2, -29 + j]; P.L = [-3, -29 + (1 - j)]; }
+      else if (t < 8.9) {
+        const k = ease((t - 8.2) / 0.7);
+        P.lean = dir * 5 * k;
+        const near = [lerp(dir * 7, ground[0], k), lerp(-15, ground[1] + 1, k)];
+        if (dir > 0) P.R = near; else P.L = near;
+      } else if (t < 9.5) {
+        const k = ease((t - 8.9) / 0.6);
+        P.lean = dir * 5 * (1 - k);
+        const hand = [lerp(ground[0], dir * 4, k), lerp(ground[1] + 1, -31, k)];
+        const other = [lerp(-dir * 7, -dir * 6, k), lerp(-15, -32, k)];
+        if (dir > 0) { P.R = hand; P.L = other; } else { P.L = hand; P.R = other; }
+        P.headMode = 'held';
+        P.headPos = [hand[0] - dir, hand[1] - 3];
+        P.headRot = k < 0.6 ? 1 : 0;
+      } else {
+        P.headMode = 'on';
+        if (t < 10.2) { P.back = true; P.R = [5, -33 + j]; P.L = [-6, -33 - j]; P.q = t > 9.7; }
+        else if (t < 10.5) { P.R = [5, -33]; P.L = [-6, -33]; P.head = t < 10.35 ? -1 : 1; }
+        else if (t < 10.8) { P.R = 'hang>flail'; P.L = 'hang>flail'; P.mixR = P.mixL = ease((t - 10.5) / 0.3); }
+        else { const k = clamp((t - 10.8) / 0.5, 0, 1); P.rise = 1 - k * k; P.R = P.L = 'flail'; }
+      }
+    }
+    return P;
+  }
+
+  // Variante "horse": o cavaleiro com espada passa, corta e leva a cabeça. Até 8.4s o zumbi está na cova;
+  // depois a perseguição (soloPose) é conduzida pela cena.
+  const HORSE_HIT = 6.6;
+  function horsePose(t, side) {
+    const ex = -side, j = Math.floor(t * 10) % 2;
+    const P = { rise: 1, R: 'hang', L: 'hang', mixR: 0, mixL: 0, head: 0, lean: 0, q: false, wiggle: 0, upR: 0, upL: 0, duck: 0, headMode: 'on' };
+    if (t < HORSE_HIT) { P.head = t < 5.5 ? 0 : side; P.bang = t > 6.0; P.lean = Math.sin(t * 3) * 0.6; return P; }
+    P.headMode = 'gone';
+    if (t < 7.5) { P.R = [8 + j * 2, -34]; P.L = [-9 - j * 2, -34]; P.lean = Math.sin(t * 14) * 1.2; P.wiggle = 1 + j; }
+    else if (t < 8.1) { P.R = [2, -29 + j]; P.L = [-3, -29 + (1 - j)]; }
+    else { const k = ease(clamp((t - 8.1) / 0.3, 0, 1)), pt = [ex * 12, -27]; if (ex > 0) P.R = [lerp(7, pt[0], k), lerp(-15, pt[1], k)]; else P.L = [lerp(-8, pt[0], k), lerp(-15, pt[1], k)]; P.lean = ex * k; }
+    return P;
+  }
+  // fora da cova: perseguindo, voltando com a cabeça debaixo do braço, recolocando
+  function soloPose(z) {
+    const j = Math.floor(z.pt * 10) % 2, base = { rise: 1, head: 0, lean: 0, wiggle: 0, upR: 0, upL: 0, duck: 0, mixR: 0, mixL: 0 };
+    if (z.phase === 'chase') {
+      const ex = z.ex;
+      return Object.assign(base, { outside: true, headMode: 'gone', walk: z.pt * 11, R: [ex * 10, -27 + j], L: [ex * 9, -26 - j], lean: ex * 2.5, wiggle: 1 + j });
+    }
+    if (z.phase === 'return') {
+      const w = z.wdir;
+      return Object.assign(base, { outside: true, headMode: 'held', headPos: [-8, -20], headFace: w, walk: z.pt * 7,
+        L: [-7, -18], R: [7 + Math.sin(z.pt * 7) * 2, -15], lean: w * 0.6 });
+    }
+    // recolocando (já de volta na cova)
+    const τ = z.pt;
+    if (τ < 0.6) {
+      const k = ease(τ / 0.6), L = [lerp(-7, -1, k), lerp(-18, -31, k)];
+      return Object.assign(base, { headMode: 'held', headPos: [L[0], L[1] - 2], L, R: 'hang' });
+    }
+    if (τ < 1.1) return Object.assign(base, { headMode: 'on', R: [5, -33 + j], L: [-6, -33 - j] });
+    if (τ < 1.7) return Object.assign(base, { headMode: 'on', R: 'hang', L: 'hang', head: τ < 1.4 ? -1 : 1 });
+    if (τ < 2.0) { const m = ease((τ - 1.7) / 0.3); return Object.assign(base, { headMode: 'on', R: 'hang>flail', L: 'hang>flail', mixR: m, mixL: m }); }
+    const k = clamp((τ - 2.0) / 0.5, 0, 1);
+    return Object.assign(base, { headMode: 'on', R: 'flail', L: 'flail', rise: 1 - k * k });
+  }
+
   function handTarget(name, side, P, offY) {
+    if (Array.isArray(name)) return name;
     const sx = side > 0 ? 4 : -5;
     const T = {
       hidden: [sx * 1.4, -30],
@@ -392,23 +534,27 @@
     return T[name];
   }
 
-  function drawZombie(g, P, t) {
+  function drawZombie(g, P, t, org) {
+    const ox = org ? org.x : GCX;
     const offY = (1 - P.rise) * 46;
-    const oy = GY - 2 + offY;
+    const oy = (org ? org.y : GY - 2) + offY;
     const lean = P.lean;
-    const tx = (x, y) => GCX + x + lean * (-y) / 38;
+    const tx = (x, y) => ox + x + lean * (-y) / 38;
     let T = {
       set: (x, y, c) => g.set(tx(x, y), oy + y, c),
       line: (x0, y0, x1, y1, c, r) => g.line(tx(x0, y0), oy + y0, tx(x1, y1), oy + y1, c, r),
       rect: (x0, y0, x1, y1, c) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) T.set(x, y, c); },
       ellipse: (cx, cy, rx, ry, c) => g.ellipse(tx(cx, cy), oy + cy, rx, ry, c)
     };
-    // pernas
-    T.line(-2, -13, -2, -2, Z.pants, 1);
-    T.line(2, -13, 3, -2, Z.pants, 1);
-    T.line(-3, -12, -3, -3, Z.pantsLo, 0);
-    T.set(3, -6, Z.skin); T.set(4, -5, Z.skinLo);
-    T.rect(-4, -1, -1, 0, Z.shoe); T.rect(2, -1, 5, 0, Z.shoe);
+    // pernas (P.walk = fase do passo, quando andando)
+    const wk = P.walk != null ? Math.sin(P.walk) : 0;
+    const fl = Math.round(-2 + wk * 3), fr = Math.round(3 - wk * 3);
+    const ll = wk > 0.4 ? 1 : 0, rl = wk < -0.4 ? 1 : 0;
+    T.line(-2, -13, fl, -2 - ll, Z.pants, 1);
+    T.line(2, -13, fr, -2 - rl, Z.pants, 1);
+    T.line(-3, -12, fl - 1, -3 - ll, Z.pantsLo, 0);
+    T.set(fr, -6, Z.skin); T.set(fr + 1, -5, Z.skinLo);
+    T.rect(fl - 2, -1 - ll, fl + 1, -ll, Z.shoe); T.rect(fr - 1, -1 - rl, fr + 2, -rl, Z.shoe);
     // tronco
     T.rect(-5, -27, 4, -25, Z.shirt);
     T.rect(-4, -24, 3, -14, Z.shirt);
@@ -422,8 +568,42 @@
     T.rect(-4, -14, 3, -14, Z.shoe); T.set(0, -14, Z.gold);
     // cabeça (abaixada enquanto escava: P.duck)
     const T0 = T, hd = Math.round(P.duck || 0);
-    T = { set: (x, y, c) => T0.set(x, y + hd, c), rect: (x0, y0, x1, y1, c) => T0.rect(x0, y0 + hd, x1, y1 + hd, c) };
-    const h = P.head, mx = x => (h < 0 ? -1 - x : x);
+    if (!P.headMode || P.headMode === 'on') {
+      drawHead({ set: (x, y, c) => T0.set(x, y + hd, c) }, P.head, P.back);
+    } else {
+      // pescoço cortado
+      T.set(-1, -28, Z.blood); T.set(0, -28, Z.blood); T.set(-1, -29, '#4a0b14'); T.set(0, -29, '#4a0b14');
+      if (P.headPos) {
+        const [px, py] = P.headPos, k = (((P.headRot || 0) % 4) + 4) % 4;
+        drawHead({ set: (x, y, c) => {
+          let dx = x, dy = y + 33;
+          for (let i = 0; i < k; i++) [dx, dy] = [-dy, dx];
+          g.set(ox + px + dx, oy + py + dy, c);
+        } }, P.headFace || 0, false);
+      }
+    }
+    // braços (o ombro "sobe" debaixo da terra enquanto a mão procura a superfície)
+    arm(T, 4, -25 - (P.upR || 0), ...handTarget(P.R, 1, P, offY), 1, P.wiggle);
+    arm(T, -5, -25 - (P.upL || 0), ...handTarget(P.L, -1, P, offY), -1, P.wiggle);
+    // interrogação / exclamação
+    const mark = P.q ? '?' : P.bang ? '!' : null;
+    if (mark) {
+      const qy = -48 + (Math.floor(t * 4) % 2);
+      glyph({ set: (x, y) => { T.set(x, y, mark === '!' ? '#ffd84a' : '#fff3c4'); } }, mark, 5, qy);
+    }
+  }
+
+  // cabeça do zumbi (coordenadas padrão: centro em 0,-33). h = olhar (-1, 0, 1); back = de costas
+  function drawHead(T, h, back) {
+    T.rect = (x0, y0, x1, y1, c) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) T.set(x, y, c); };
+    const mx = x => (h < 0 ? -1 - x : x);
+    if (back) {
+      T.rect(-4, -35, 3, -28, Z.skinLo);
+      T.set(-5, -31, Z.skinLo); T.set(4, -31, Z.skinLo);
+      T.set(-2, -32, '#3d5232'); T.set(-1, -31, '#3d5232'); T.set(0, -32, '#3d5232'); T.set(1, -31, '#3d5232');
+      T.rect(-4, -39, 3, -37, Z.cap); T.rect(-5, -38, 4, -37, Z.cap); T.rect(-5, -36, 4, -36, Z.capBand);
+      return;
+    }
     T.rect(-4, -35, 3, -28, Z.skin);
     for (let y = -34; y <= -28; y++) { T.set(mx(3), y, Z.skinLo); T.set(mx(-4), y, Z.skinHi); }
     if (h === 0) {
@@ -445,15 +625,6 @@
     T.set(-1, -39, '#24336a'); T.set(0, -39, '#24336a');
     if (h === 0) { T.rect(-5, -35, 4, -35, Z.visor); T.set(-1, -38, Z.gold); T.set(0, -38, Z.gold); T.set(-1, -37, Z.gold); }
     else { [[3, -35], [4, -35], [5, -35], [6, -35]].forEach(([x, y]) => T.set(mx(x), y, Z.visor)); T.set(mx(1), -38, Z.gold); T.set(mx(2), -38, Z.gold); }
-    T = T0;
-    // braços (o ombro "sobe" debaixo da terra enquanto a mão procura a superfície)
-    arm(T, 4, -25 - (P.upR || 0), ...handTarget(P.R, 1, P, offY), 1, P.wiggle);
-    arm(T, -5, -25 - (P.upL || 0), ...handTarget(P.L, -1, P, offY), -1, P.wiggle);
-    // interrogação
-    if (P.q) {
-      const qy = -48 + (Math.floor(t * 4) % 2);
-      glyph({ set: (x, y) => { T.set(x, y, '#fff3c4'); } }, '?', 5, qy, '#fff3c4');
-    }
   }
 
   function renderGrave(gr, P, t) {
@@ -463,7 +634,7 @@
     g.ellipse(GCX + jit, GY, 11, 2.6, Z.soil2);
     g.set(GCX - 6 + jit, GY - 2, Z.soil3); g.set(GCX + 4 + jit, GY - 2, Z.soil3);
     if (P && P.rise > 0.01) g.ellipse(GCX, GY - 1, 6, 1.3, Z.hole);
-    if (P && P.rise > 0.01) { g.clipY = GY; drawZombie(g, P, t); g.clipY = Infinity; }
+    if (P && P.rise > 0.01 && !P.outside) { g.clipY = GY; drawZombie(g, P, t); g.clipY = Infinity; }
     g.outline(OUTLINE);
     // chão da frente (sem contorno)
     for (let y = GY; y < GH; y++) for (let x = 0; x < GW; x++) {
@@ -478,6 +649,178 @@
       g.set(x, GY - 1, Z.grass); g.set(x + 1, GY - 2, Z.grass2); g.set(x + 2, GY - 1, Z.grass);
     }
     return g.toCanvas(gr.canvas);
+  }
+
+  /* ======================================================================
+   * Ceifador (personagem original): capuz, caveira de olhos roxos, foice
+   * ==================================================================== */
+  const C = {
+    robe: '#150f1e', robeHi: '#2c2140', robeLo: '#0a0710', trim: '#5b2d8a',
+    bone: '#e9e3d0', boneLo: '#b3aa92', eye: '#c27bff', voidC: '#030206',
+    wood: '#4a3424', woodHi: '#6a4a30', steel: '#c9d1e0', steelHi: '#ffffff', steelLo: '#7d869a'
+  };
+  const CW = 48, CH = 64, COY = 8, CBX = 16, CBOTTOM = 48;  // CBX = centro do corpo; CBOTTOM = barra do manto
+  const REAPER_HAND = { x: 24, y: 20 };                       // pivô do golpe (coordenadas do sprite)
+
+  function drawReaper(g, pose, tat) {
+    // manto
+    g.poly([[10, 15], [22, 15], [25, 30], [28, 47], [24, 44 + tat], [20, 48 - tat], [16, 45 + tat], [12, 48],
+      [8, 44 - tat], [5, 46], [7, 30]], C.robe);
+    g.line(9, 18, 6, 43, C.robeHi, 0);
+    g.line(14, 20, 12, 44, C.robeHi, 0);
+    g.line(23, 18, 26, 43, C.robeLo, 0);
+    [[12, 48], [20, 48 - tat], [5, 46], [28, 47]].forEach(([x, y]) => g.set(x, y - 1, C.trim));
+    // capuz
+    g.ellipse(16, 11, 7, 8, C.robeHi);
+    g.ellipse(15.5, 11.5, 6.4, 7.4, C.robe);
+    g.set(13, 3, C.robe); g.set(12, 4, C.robe);
+    g.ellipse(18.5, 12.5, 3.6, 4.6, C.voidC);
+    // caveira
+    g.rect(17, 10, 20, 15, C.bone);
+    g.line(20, 10, 20, 15, C.boneLo, 0);
+    g.set(17, 11, C.eye); g.set(19, 11, C.eye);
+    g.set(18, 13, C.voidC);
+    g.set(17, 15, C.voidC); g.set(19, 15, C.voidC);
+
+    const sleeve = (x0, y0, x1, y1) => g.line(x0, y0, x1, y1, C.robe, 1.4);
+    const hand = (x, y) => { g.set(x, y, C.bone); g.set(x + 1, y, C.bone); g.set(x, y + 1, C.boneLo); };
+    if (pose === 'windup') {
+      g.line(4, 6, 24, 30, C.wood, 0); g.line(5, 6, 25, 30, C.woodHi, 0);
+      g.poly([[5, 7], [1, 1], [3, -5], [7, -2], [6, 2], [9, 6]], C.steel);
+      g.line(2, 0, 3, -4, C.steelHi, 0); g.line(6, 2, 8, 5, C.steelLo, 0);
+      sleeve(20, 16, 14, 18); hand(13, 17);
+      sleeve(12, 18, 20, 25); hand(20, 25);
+    } else if (pose === 'slash') {
+      g.line(12, 22, 40, 18, C.wood, 0); g.line(12, 23, 40, 19, C.woodHi, 0);
+      g.poly([[39, 16], [43, 18], [45, 24], [44, 32], [41, 27], [39, 21]], C.steel);
+      g.line(44, 20, 44, 29, C.steelHi, 0); g.line(40, 20, 41, 25, C.steelLo, 0);
+      sleeve(20, 16, 22, 20); hand(22, 20);
+      sleeve(13, 19, 28, 20); hand(29, 19);
+    } else {
+      g.line(26, 4, 25, 47, C.wood, 0); g.line(27, 4, 26, 47, C.woodHi, 0);
+      g.poly([[26, 4], [31, 1], [37, 3], [41, 8], [37, 6], [31, 5], [26, 6]], C.steel);
+      g.line(31, 1, 38, 3, C.steelHi, 0); g.line(31, 5, 37, 6, C.steelLo, 0);
+      sleeve(20, 17, 24, 23); hand(24, 23);
+      sleeve(12, 18, 18, 30); g.line(18, 30, 23, 32, C.robe, 1); hand(24, 32);
+    }
+  }
+  let reaperFrames = null;
+  function buildReaper() {
+    if (reaperFrames) return;
+    reaperFrames = {};
+    [['idleA', 'idle', 0], ['idleB', 'idle', 2], ['windup', 'windup', 1], ['slash', 'slash', 1]].forEach(([name, pose, tat]) => {
+      const g = new Grid(CW, CH, 0, COY);
+      drawReaper(g, pose, tat);
+      g.outline(OUTLINE);
+      reaperFrames[name] = g.toCanvas();
+    });
+  }
+
+  /* ======================================================================
+   * "O Rebitado" — slasher original: ex-açougueiro de matadouro abandonado.
+   * Máscara de chapa de ferro rebitada (fenda única, um olho aceso), capuz de pano,
+   * camisa de trabalho, avental de couro manchado, galochas e cutelo enferrujado.
+   * ==================================================================== */
+  const K = {
+    hood: '#17141c', hoodHi: '#2a2531',
+    shirt: '#2c302a', shirtHi: '#40463c', shirtLo: '#1a1c18',
+    apron: '#3b151a', apronHi: '#57212a', apronLo: '#250b0f', stain: '#661019',
+    pants: '#1d1b23', boot: '#0f0f13', bootHi: '#2a2a31',
+    skin: '#8c7c70', skinLo: '#685a50',
+    mask: '#5f5049', maskHi: '#8c7a6c', maskLo: '#3b302b', rivet: '#c9b394', slit: '#0a0506',
+    eye: '#ffb030', eyeDim: '#7a2a10', rustSpot: '#8a3f1c',
+    steel: '#9aa0aa', steelHi: '#dfe4ec', steelLo: '#5a6068', rust: '#7a3a1e', handle: '#3b2618', buckle: '#8a7a5a'
+  };
+  const KW = 50, KH = 64, KOY = 8, KBX = 16, KFEET = 54;
+  const SLASHER_PIVOT = { x: 22, y: 21 };
+
+  function drawSlasher(g, pose, b, walk) {
+    const U = y => y + b;
+    // pernas e galochas
+    const legs = walk === 1 ? [[14, 9], [19, 24]] : walk === 2 ? [[14, 18], [19, 15]] : [[14, 13], [19, 20]];
+    legs.forEach(([hx, fx], i) => {
+      g.line(hx, 38, fx + 0.5, 49, i ? K.pants : '#16141b', 1.5);
+      g.rect(fx - 2, 50, fx + 3, 54, K.boot);
+      g.line(fx - 2, 50, fx + 2, 50, K.bootHi, 0);
+    });
+    // braço de trás
+    g.line(10, U(20), 8, U(29), K.shirtLo, 1.3);
+    g.line(8, U(29), 9, U(34), K.skinLo, 1);
+    // tronco largo, ombros curvados para frente
+    g.poly([[8, U(18)], [24, U(18)], [26, U(24)], [24, 38], [10, 38], [7, U(24)]], K.shirt);
+    g.line(8, U(19), 7, U(30), K.shirtHi, 0);
+    g.line(25, U(22), 24, 37, K.shirtLo, 0);
+    // avental de couro
+    g.poly([[11, U(22)], [21, U(22)], [23, 44], [9, 44]], K.apron);
+    g.line(11, U(23), 9, 43, K.apronHi, 0);
+    g.line(12, U(22), 14, U(17), K.apronLo, 0); g.line(20, U(22), 19, U(17), K.apronLo, 0);
+    [[14, 34], [15, 35], [18, 40], [19, 41], [13, 26], [20, 30]].forEach(([x, y]) => g.set(x, y < 30 ? U(y) : y, K.stain));
+    g.line(9, U(30), 24, U(30), K.apronLo, 0);
+    g.set(16, U(30), K.buckle); g.set(17, U(30), K.buckle);
+    // gancho de carne no cinto
+    g.line(9, U(31), 9, U(34), K.steelLo, 0); g.set(10, U(35), K.steel); g.set(11, U(34), K.steel);
+    const armFn = (sx, sy, ex, ey, hx, hy) => {
+      g.line(sx, sy, ex, ey, K.shirt, 1.4);
+      g.line(ex, ey, hx, hy, K.skin, 1);
+      g.set(ex, ey, K.shirtLo);
+      g.ellipse(hx, hy, 1.3, 1.3, K.skinLo);
+    };
+    const bladeFn = (pts, edge, hole) => {
+      g.poly(pts, K.steel);
+      g.line(edge[0], edge[1], edge[2], edge[3], K.steelHi, 0);
+      if (hole) g.set(hole[0], hole[1], K.slit);
+      g.set(pts[1][0] - 1, pts[1][1] + 1, K.rust); g.set(pts[1][0] - 2, pts[1][1] + 2, K.rust);
+    };
+    if (pose === 'windup') {
+      // cutelo erguido por trás do capuz
+      armFn(22, U(20), 15, U(10), 11, U(3));
+      g.line(11, U(3), 8, U(-1), K.handle, 1);
+      bladeFn([[8, U(-1)], [2, U(-6)], [6, U(-10)], [12, U(-4)]], [2, U(-6), 6, U(-10)], [6, U(-5)]);
+    }
+    // capuz + máscara de chapa rebitada
+    g.ellipse(17, U(12), 6.5, 7, K.hood);
+    g.set(11, U(15), K.hood); g.set(10, U(17), K.hood); g.set(12, U(18), K.hood);
+    g.line(12, U(8), 13, U(16), K.hoodHi, 0);
+    g.poly([[16, U(6)], [22, U(6)], [24, U(9)], [24, U(15)], [21, U(18)], [17, U(18)], [16, U(15)]], K.mask);
+    g.line(16, U(7), 16, U(15), K.maskHi, 0);
+    g.line(23, U(10), 23, U(15), K.maskLo, 0);
+    [[17, 7], [22, 7], [17, 16], [22, 16]].forEach(([x, y]) => g.set(x, U(y), K.rivet));
+    g.line(17, U(11), 23, U(11), K.slit, 0);
+    g.set(19, U(11), K.eye); g.set(22, U(11), K.eyeDim);
+    g.set(20, U(7), K.maskHi); g.set(20, U(8), K.maskHi); g.set(21, U(9), K.maskLo);
+    g.set(20, U(13), K.maskLo); g.set(21, U(14), K.maskLo); g.set(20, U(15), K.maskLo);
+    g.line(18, U(14), 19, U(14), K.slit, 0); g.line(18, U(16), 19, U(16), K.slit, 0);
+    [[23, 12], [17, 13], [22, 9], [18, 9], [22, 15], [21, 17]].forEach(([x, y]) => g.set(x, U(y), K.rustSpot));
+
+    // braço da frente + cutelo
+    const arm = armFn, blade = bladeFn;
+    if (pose === 'windup') {
+      g.line(23, U(19), 22, U(15), K.shirt, 1.2);   // ombro erguido aparece na frente do capuz
+    } else if (pose === 'chop') {
+      arm(22, U(20), 28, U(23), 33, U(24));
+      g.line(33, U(24), 37, U(24), K.handle, 1);
+      blade([[37, U(21)], [46, U(21)], [46, U(27)], [37, U(28)]], [46, U(21), 46, U(27)], [39, U(23)]);
+    } else if (pose === 'follow') {
+      arm(22, U(20), 26, U(27), 29, U(30));
+      g.line(29, U(30), 32, U(32), K.handle, 1);
+      blade([[32, U(30)], [38, U(34)], [35, U(39)], [29, U(35)]], [38, U(34), 35, U(39)], [32, U(33)]);
+    } else {
+      arm(22, U(20), 24, U(28), 24, U(34));
+      g.line(24, U(34), 24, U(37), K.handle, 1);
+      blade([[22, U(37)], [27, U(37)], [27, U(46)], [22, U(44)]], [22, U(38), 22, U(44)], [26, U(39)]);
+    }
+  }
+  let slasherFrames = null;
+  function buildSlasher() {
+    if (slasherFrames) return;
+    slasherFrames = {};
+    [['idleA', 'idle', 0, 0], ['idleB', 'idle', -1, 0], ['walkA', 'idle', 0, 1], ['walkB', 'idle', -1, 2],
+      ['windup', 'windup', -1, 0], ['chop', 'chop', 0, 0], ['follow', 'follow', 1, 0]].forEach(([name, pose, b, walk]) => {
+      const g = new Grid(KW, KH, 0, KOY);
+      drawSlasher(g, pose, b, walk);
+      g.outline(OUTLINE);
+      slasherFrames[name] = g.toCanvas();
+    });
   }
 
   /* ======================================================================
@@ -520,7 +863,7 @@
       layer.appendChild(this.canvas);
       this.ctx = this.canvas.getContext('2d');
       this.reduced = !!(global.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-      buildRider(); buildPumpkins();
+      buildRider(); buildPumpkins(); buildReaper(); buildSlasher();
       this.onResize = () => this.resize();
       this.onVis = () => { if (!document.hidden) this.kick(); };
       addEventListener('resize', this.onResize);
@@ -585,17 +928,41 @@
     },
 
     /* ---------- atores ---------- */
-    ride() {
+    ride(kind) {
       if (!this.canvas || this.rider) return;
+      if (this.zombie && this.zombie.variant === 'horse' && !this.zombie.phase) return;   // a vez é do cavaleiro de espada
+      const o = FX.opts || {};
+      if (kind === 'sword' || (kind !== 'pumpkin' && !this.zombie && this.graves.length && Math.random() < (o.swordChance != null ? o.swordChance : 0.35))) {
+        // o cavaleiro vem de espada: primeiro um zumbi levanta, depois ele chega para buscar a cabeça
+        if (!this.zombie && this.graves.length) { this.rise(null, 'horse'); return; }
+        if (kind === 'sword') return;
+      }
       const dir = Math.random() < 0.5 ? 1 : -1, sw = RW * this.s;
       const secs = clamp(this.W / 230, 6, 11);
-      this.rider = { dir, x: dir > 0 ? -sw : this.W, speed: (this.W + sw) / (secs * 1000), t: 0 };
+      this.rider = { dir, x: dir > 0 ? -sw : this.W, speed: (this.W + sw) / (secs * 1000), t: 0, f: 0, mode: 'pumpkin' };
       this.kick();
     },
-    rise(index) {
+    // cavaleiro de espada sincronizado para passar no pescoço do zumbi em HORSE_HIT
+    spawnSwordRider(z) {
+      const s = this.s, dir = -z.side, gc = z.grave.x + GCX * s;
+      const targetX = dir > 0 ? gc - SWORD_TIP * s : gc - (RW - SWORD_TIP) * s;
+      const x0 = dir > 0 ? -RW * s : this.W;
+      const dur = (HORSE_HIT - z.t) * 1000;
+      this.rider = { dir, x: x0, speed: Math.abs(targetX - x0) / dur, t: 0, f: 0, mode: 'swordUp', sword: true, z };
+    },
+    rise(index, variant) {
       if (!this.canvas || this.zombie || !this.graves.length) return;
       const gr = this.graves[index != null ? index % this.graves.length : Math.floor(Math.random() * this.graves.length)];
-      this.zombie = { grave: gr, t: 0, lastQ: -1, fired: {} };
+      const o = FX.opts || {};
+      if (!['classic', 'decap', 'horse'].includes(variant)) {
+        const r = Math.random(), hc = o.horseChance != null ? o.horseChance : 0.25, dc = o.decapChance || 0;
+        variant = r < hc ? 'horse' : r < hc + dc ? 'decap' : 'classic';
+      }
+      if (variant === 'horse' && this.rider) variant = 'classic';   // não interrompe um cavaleiro que já está passando
+      const side = gr.x + GW * this.s / 2 < this.W / 2 ? 1 : -1;   // o Ceifador vem do lado de dentro da tela
+      const pick = FX.opts ? FX.opts.killer : 'slasher';
+      const killer = pick === 'random' ? (Math.random() < 0.5 ? 'slasher' : 'reaper') : (pick || 'slasher');
+      this.zombie = { grave: gr, t: 0, lastQ: -1, fired: {}, variant, side, killer };
       this.kick();
     },
 
@@ -606,9 +973,18 @@
       if (r) {
         r.t += dt; r.x += r.dir * r.speed * dt;
         r.f = Math.floor(r.t / 75) % R_FRAMES;
+        if (r.sword) {
+          const zt = r.z && this.zombie === r.z ? r.z.t : Infinity;
+          r.mode = zt < HORSE_HIT - 0.3 ? 'swordUp' : zt < HORSE_HIT + 0.15 ? 'swordSwing' : 'carry';
+        }
         const sw = RW * s, top = this.ground - (R_FEET + ROY) * s;
-        const lx = r.dir > 0 ? PUMP.x : RW - PUMP.x;
-        const px = r.x + lx * s, py = top + (ROY + PUMP.y - 3 + riderBob[r.f]) * s;
+        const pp = r.mode === 'pumpkin' ? PUMP : NECK;
+        const lx = r.dir > 0 ? pp.x : RW - pp.x;
+        const px = r.x + lx * s, py = top + (ROY + pp.y - 3 + riderBob[r.f]) * s;
+        if (r.mode === 'carry' && Math.random() < 0.25) {
+          const hx = r.x + (r.dir > 0 ? 33 : RW - 33) * s;
+          this.blood(hx, top + (ROY + 8 + riderBob[r.f]) * s, 1, 0);
+        }
         r.px = px; r.py = py;
         for (let i = 0; i < 9; i++) {
           const spread = rand(-5, 5);
@@ -630,9 +1006,9 @@
       if (z) {
         z.t += dt / 1000;
         const tq = Math.floor(z.t * 12) / 12;
-        if (tq !== z.lastQ) {
+        if (tq !== z.lastQ && !z.phase) {
           z.lastQ = tq;
-          z.P = zombiePose(tq);
+          z.P = zombiePose(tq, z);
           renderGrave(z.grave, z.P, tq);
         }
         const gx = z.grave.x + GCX * s, gy = this.ground - (GH - GY) * s;
@@ -641,12 +1017,24 @@
         once('pop', 0.95, () => this.dirt(gx + 4 * s, gy, 14));
         once('pop2', 2.05, () => this.dirt(gx - 6 * s, gy, 8));
         once('out', 4.5, () => this.dirt(gx, gy, 10));
-        once('fall', 9.15, () => { this.dirt(gx, gy, 16); this.puff(gx, gy); });
+        const decap = z.variant === 'decap';
+        if (z.variant === 'horse') { this.updateHorseZombie(z, dt, gx, gy, once); return this.updateParts(dt); }
+        once('fall', decap ? 11.15 : 9.15, () => { this.dirt(gx, gy, 16); this.puff(gx, gy); });
         if (z.t > 2.8 && z.t < 4.4 && Math.random() < 0.08) this.dirt(gx, gy, 2);
-        if (z.t >= ZT.dur) { renderGrave(z.grave, null, 0); this.zombie = null; }
+        if (decap) {
+          const neckY = gy - 31 * s, dir = -z.side;
+          once('cut', 6.5, () => this.blood(gx, neckY, 18, dir));
+          if (z.t > 6.5 && z.t < 7.6 && Math.random() < 0.3) this.blood(gx, neckY, 1, 0);
+          once('land', 7.1, () => this.dirt(gx + dir * 14 * s, gy, 8));
+          once('grab', 8.9, () => this.dirt(gx + dir * 14 * s, gy, 4));
+          z.reaper = z.killer === 'reaper' ? this.reaperState(z, gx) : this.slasherState(z, gx);
+        }
+        if (z.t >= (decap ? ZT.durDecap : ZT.dur)) { renderGrave(z.grave, null, 0); this.zombie = null; }
       }
-      // partículas
-      const g = 0.0011 * s;
+      this.updateParts(dt);
+    },
+    updateParts(dt) {
+      const s = this.s, g = 0.0011 * s;
       this.parts = this.parts.filter(p => {
         p.life += dt;
         p.x += p.vx * dt; p.y += p.vy * dt;
@@ -661,6 +1049,90 @@
         k: 'dirt', x: x + rand(-6, 6) * s, y: y - s, vx: rand(-0.05, 0.05) * s, vy: -rand(0.06, 0.16) * s,
         life: 0, max: 1200, size: Math.random() < 0.3 ? 2 : 1, c: cols[i % cols.length], floor: y + s
       });
+    },
+    // zumbi da variante do cavaleiro: cova -> perseguição -> fora da tela -> volta -> recoloca -> cova
+    updateHorseZombie(z, dt, gx, gy, once) {
+      const s = this.s;
+      if (z.t < 0.9 && Math.random() < 0.25) this.dirt(gx, gy, 1);
+      once('pop', 0.95, () => this.dirt(gx + 4 * s, gy, 14));
+      once('pop2', 2.05, () => this.dirt(gx - 6 * s, gy, 8));
+      once('out', 4.5, () => this.dirt(gx, gy, 10));
+      if (z.t > 2.8 && z.t < 4.4 && Math.random() < 0.08) this.dirt(gx, gy, 2);
+      once('rider', 1.6, () => { if (!this.rider) this.spawnSwordRider(z); });
+      const neckY = gy - 31 * s, ex = -z.side;
+      once('cut', HORSE_HIT, () => this.blood(gx, neckY, 20, ex));
+      if (z.t > HORSE_HIT && z.t < 7.6 && Math.random() < 0.3) this.blood(gx, neckY, 1, 0);
+
+      if (!z.phase && z.t >= 8.4) { z.phase = 'chase'; z.pt = 0; z.ex = ex; z.wx = gx; this.dirt(gx, gy, 6); }
+      if (z.phase) {
+        z.pt += dt / 1000;
+        const edgeOut = 26 * s;
+        if (z.phase === 'chase') {
+          z.wx += z.ex * 26 * s * dt / 1000;
+          if (z.wx < -edgeOut || z.wx > this.W + edgeOut) { z.phase = 'away'; z.pt = 0; }
+        } else if (z.phase === 'away') {
+          if (z.pt > 3.2) { z.phase = 'return'; z.pt = 0; z.wdir = -z.ex; z.wx = z.ex < 0 ? -edgeOut : this.W + edgeOut; }
+        } else if (z.phase === 'return') {
+          z.wx += z.wdir * 16 * s * dt / 1000;
+          if ((z.wdir > 0 && z.wx >= gx) || (z.wdir < 0 && z.wx <= gx)) { z.wx = gx; z.phase = 'reattach'; z.pt = 0; }
+        } else if (z.phase === 'reattach') {
+          if (z.pt > 2.3 && !z.fired.sink) { z.fired.sink = 1; this.dirt(gx, gy, 16); this.puff(gx, gy); }
+          if (z.pt > 2.6) { renderGrave(z.grave, null, 0); this.zombie = null; z.solo = null; return; }
+        }
+        const q = Math.floor(z.pt * 12);
+        if (q !== z.lastSoloQ || z.phase !== z.lastPhase) {
+          z.lastSoloQ = q; z.lastPhase = z.phase;
+          if (z.phase === 'away') { z.solo = null; renderGrave(z.grave, { rise: 1, outside: true }, 0); }
+          else {
+            const P = soloPose(z);
+            if (P.outside) {
+              renderGrave(z.grave, { rise: 1, outside: true }, 0);
+              const g = new Grid(44, 64);
+              drawZombie(g, P, z.pt, { x: 22, y: 61 });
+              g.outline(OUTLINE);
+              z.solo = g.toCanvas(z.solo || undefined);
+            } else { z.solo = null; renderGrave(z.grave, P, z.pt); }
+          }
+        }
+      }
+    },
+    blood(x, y, n, dir) {
+      const s = this.s, cols = ['#7d1623', '#a3202e', '#5a0e18'];
+      for (let i = 0; i < n; i++) this.parts.push({
+        k: 'dirt', x: x + rand(-1, 1) * s, y, vx: (dir * rand(0.02, 0.09) + rand(-0.03, 0.03)) * s, vy: -rand(0.05, 0.14) * s,
+        life: 0, max: 1100, size: 1, c: cols[i % 3], floor: this.ground - (GH - GY) * s + s
+      });
+    },
+    // posição/quadro do Ceifador ao longo da cena de decapitação
+    reaperState(z, gx) {
+      const t = z.t, s = this.s, side = z.side;
+      if (t < 5.0 || t > 8.1) return null;
+      let off = 30, alpha = 1, lift = 0, frame;
+      if (t < 5.9) { const k = ease((t - 5.0) / 0.9); off = 30 + 16 * (1 - k); alpha = k; }
+      if (t > 7.3) { const k = ease((t - 7.3) / 0.8); off = 30 + 14 * k; alpha = 1 - k; lift = 8 * k; }
+      if (t < 6.1 || t > 7.3) frame = Math.floor(t * 4) % 2 ? 'idleB' : 'idleA';
+      else if (t < 6.42) frame = 'windup';
+      else frame = 'slash';
+      const bob = Math.round(Math.sin(t * 4) * 1.2);
+      return { cx: gx + side * off * s, alpha, frame, face: -side, top: this.ground - (3 + lift + CBOTTOM + COY) * s + bob * s,
+        arc: t >= 6.42 && t < 6.75 ? clamp((t - 6.42) / 0.16, 0, 1) : 0, arcFade: t >= 6.58 ? clamp(1 - (t - 6.58) / 0.17, 0, 1) : 1 };
+    },
+    // "O Rebitado": chega andando pesado, respira, golpe horizontal, vai embora sem pressa
+    slasherState(z, gx) {
+      const t = z.t, s = this.s, side = z.side;
+      if (t < 5.0 || t > 8.9) return null;
+      let off = 30, alpha = 1, frame, face = -side;
+      const step = Math.floor(t * 4.5) % 2 ? 'walkA' : 'walkB';
+      if (t < 5.9) { const k = (t - 5.0) / 0.9; off = 30 + 18 * (1 - k); alpha = clamp(k * 3, 0, 1); frame = step; }
+      else if (t < 6.12) frame = Math.floor(t * 2) % 2 ? 'idleB' : 'idleA';
+      else if (t < 6.42) frame = 'windup';
+      else if (t < 6.6) frame = 'chop';
+      else if (t < 7.4) frame = 'follow';
+      else if (t < 7.6) frame = 'idleA';
+      else { const k = (t - 7.6) / 1.3; off = 30 + 20 * k; alpha = clamp((1 - k) * 2.5, 0, 1); frame = step; face = side; }
+      const feet = this.ground - 9 * s;
+      return { kind: 'slasher', cx: gx + side * off * s, alpha, frame, face, top: feet - (KFEET + KOY + 1) * s,
+        arc: t >= 6.42 && t < 6.75 ? clamp((t - 6.42) / 0.14, 0, 1) : 0, arcFade: t >= 6.56 ? clamp(1 - (t - 6.56) / 0.19, 0, 1) : 1 };
     },
     puff(x, y) {
       const s = this.s;
@@ -683,16 +1155,51 @@
       // túmulos
       for (const gr of this.graves) c.drawImage(gr.canvas, gr.x, gy, GW * s, GH * s);
 
+      // zumbi fora da cova
+      const zz = this.zombie;
+      if (zz && zz.solo) {
+        const feetY = this.ground - GH * s + (GY - 2) * s;
+        c.drawImage(zz.solo, Math.round(zz.wx - 22 * s), feetY - 61 * s, 44 * s, 64 * s);
+      }
+      // assassino (Ceifador ou "O Rebitado")
+      const rp = this.zombie && this.zombie.reaper;
+      if (rp && rp.kind === 'slasher') this.drawSlasherActor(rp);
+      else if (rp) {
+        const w = CW * s, left = rp.face > 0 ? rp.cx - CBX * s : rp.cx - (CW - CBX) * s;
+        c.save();
+        c.globalAlpha = rp.alpha;
+        c.fillStyle = 'rgba(0,0,0,.3)';
+        c.beginPath(); c.ellipse(rp.cx, this.ground + s, 9 * s, 2 * s, 0, 0, TAU); c.fill();
+        const ex = rp.face > 0 ? left + 18 * s : left + w - 18 * s;
+        this.glow(ex, rp.top + (11 + COY) * s, 10 * s, 0.25 * rp.alpha, '170,90,255');
+        if (rp.face > 0) { c.translate(left, rp.top); } else { c.translate(left + w, rp.top); c.scale(-1, 1); }
+        c.drawImage(reaperFrames[rp.frame], 0, 0, w, CH * s);
+        c.restore();
+        // rastro do golpe
+        if (rp.arc > 0 && rp.arcFade > 0) {
+          const hx = rp.cx + rp.face * (REAPER_HAND.x - CBX) * s, hy = rp.top + (REAPER_HAND.y + COY) * s;
+          const a0 = -1.9, a1 = 0.75, steps = 26;
+          for (let i = 0; i <= steps * rp.arc; i++) {
+            const a = a0 + (a1 - a0) * (i / steps), age = rp.arc - i / steps;
+            for (let r = 21; r <= 23; r++) {
+              const px = hx + rp.face * Math.cos(a) * r * s, py = hy + Math.sin(a) * r * s;
+              c.fillStyle = `rgba(${age < 0.15 ? '255,255,255' : '200,170,255'},${(0.9 - age) * rp.arcFade})`;
+              c.fillRect(Math.round(px / s) * s, Math.round(py / s) * s, s, s);
+            }
+          }
+        }
+      }
+
       // cavaleiro
       const r = this.rider;
       if (r) {
         const sw = RW * s, top = this.ground - (R_FEET + ROY) * s;
         c.fillStyle = 'rgba(0,0,0,.35)';
         c.beginPath(); c.ellipse(r.x + sw * 0.5, this.ground + s, sw * 0.32, 3 * s, 0, 0, TAU); c.fill();
-        this.glow(r.px, r.py + 3 * s, 34 * s, 0.32 + this.flick * 0.1);
+        if (r.px != null) this.glow(r.px, r.py + 3 * s, 34 * s, 0.32 + this.flick * 0.1);
         c.save();
         if (r.dir < 0) { c.translate(r.x + sw, top); c.scale(-1, 1); } else c.translate(r.x, top);
-        c.drawImage(riderFrames[r.f][this.flick], 0, 0, sw, RH * s);
+        c.drawImage(riderFrames[r.mode || 'pumpkin'][r.f][this.flick], 0, 0, sw, RH * s);
         c.restore();
       }
       // partículas (quadradas, alinhadas à grade de pixel)
@@ -707,9 +1214,38 @@
         c.fillRect(Math.round(p.x / s) * s, Math.round(p.y / s) * s, sz, sz);
       }
     },
-    glow(x, y, r, a) {
-      const c = this.ctx, g = c.createRadialGradient(x, y, 0, x, y, r);
-      g.addColorStop(0, `rgba(255,150,50,${a})`); g.addColorStop(1, 'rgba(255,120,30,0)');
+    drawSlasherActor(rp) {
+      const c = this.ctx, s = this.s, w = KW * s;
+      const left = rp.face > 0 ? rp.cx - KBX * s : rp.cx - (KW - KBX) * s;
+      c.save();
+      c.globalAlpha = rp.alpha;
+      c.fillStyle = 'rgba(0,0,0,.4)';
+      c.beginPath(); c.ellipse(rp.cx + rp.face * 2 * s, rp.top + (KFEET + KOY + 1) * s, 9 * s, 1.6 * s, 0, 0, TAU); c.fill();
+      // olho aceso (pisca de vez em quando)
+      if (this.flick || Math.random() < 0.9) {
+        const ex = rp.face > 0 ? left + 19.5 * s : left + w - 19.5 * s;
+        const by = rp.frame === 'idleB' || rp.frame === 'walkB' || rp.frame === 'windup' ? -1 : rp.frame === 'follow' ? 1 : 0;
+        this.glow(ex, rp.top + (11.5 + KOY + by) * s, 7 * s, 0.35 * rp.alpha, '255,170,60');
+      }
+      if (rp.face > 0) c.translate(left, rp.top); else { c.translate(left + w, rp.top); c.scale(-1, 1); }
+      c.drawImage(slasherFrames[rp.frame], 0, 0, w, KH * s);
+      c.restore();
+      if (rp.arc > 0 && rp.arcFade > 0) {
+        const hx = rp.cx + rp.face * (SLASHER_PIVOT.x - KBX) * s, hy = rp.top + (SLASHER_PIVOT.y + KOY) * s;
+        const a0 = -1.1, a1 = 0.25, steps = 22;
+        for (let i = 0; i <= steps * rp.arc; i++) {
+          const a = a0 + (a1 - a0) * (i / steps), age = rp.arc - i / steps;
+          for (let r = 21; r <= 25; r++) {
+            const px = hx + rp.face * Math.cos(a) * r * s, py = hy + Math.sin(a) * r * s + 3 * s;
+            c.fillStyle = `rgba(${age < 0.2 ? '255,248,235' : '255,170,90'},${(0.95 - age) * rp.arcFade})`;
+            c.fillRect(Math.round(px / s) * s, Math.round(py / s) * s, s, s);
+          }
+        }
+      }
+    },
+    glow(x, y, r, a, rgbStr) {
+      const c = this.ctx, g = c.createRadialGradient(x, y, 0, x, y, r), col = rgbStr || '255,150,50';
+      g.addColorStop(0, `rgba(${col},${a})`); g.addColorStop(1, `rgba(${col},0)`);
       c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = g;
       c.fillRect(x - r, y - r, r * 2, r * 2); c.restore();
     }
@@ -837,7 +1373,7 @@
     enable(opts = {}) {
       if (this.enabled) return;
       this.enabled = true;
-      this.opts = Object.assign({ logo: null, riderEvery: [22, 45], zombieEvery: [14, 30], firstRider: 3, firstZombie: 7, mount: document.body }, opts);
+      this.opts = Object.assign({ logo: null, swordChance: 0.35, horseChance: 0.25, decapChance: 0, killer: 'reaper', riderEvery: [22, 45], zombieEvery: [14, 30], firstRider: 3, firstZombie: 7, mount: document.body }, opts);
       this.layer = buildLayer();
       this.opts.mount.prepend(this.layer);
       Scene.mount(this.layer);
@@ -862,11 +1398,11 @@
       if (this.layer) this.layer.remove();
       this.layer = null;
     },
-    ride() { Scene.ride(); },
-    zombie(i) { Scene.rise(i); },
+    ride(kind) { Scene.ride(kind); },
+    zombie(i, variant) { Scene.rise(i, variant); },
     refreshHat() { Hat.place(); }
   };
 
-  FX._debug = { Scene, renderGrave, zombiePose, GW, GH };
+  FX._debug = { Scene, renderGrave, zombiePose, GW, GH, sprites: () => ({ slasherFrames, riderFrames }) };
   global.HalloweenFX = FX;
 })(window);

@@ -80,7 +80,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const popupLogout = document.getElementById("popup-logout");
   const settingsAvatar = document.getElementById("settings-avatar");
   const settingsUsername = document.getElementById("settings-username");
-  const THEME_STORAGE_KEY = "policia_revoada_theme_mode";
+  // v2: reinicia a escolha de todos; o padrão agora é Halloween
+  const THEME_STORAGE_KEY = "policia_revoada_theme_mode_v2";
 
   const popupHalloweenToggle = document.getElementById("popup-halloween-toggle");
   let temaAtual = "dark";
@@ -127,7 +128,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  const themeSalvo = localStorage.getItem(THEME_STORAGE_KEY) || "dark";
+  const themeSalvo = localStorage.getItem(THEME_STORAGE_KEY) || "halloween";
   aplicarTema(themeSalvo);
 
   if (popupDarkToggle) {

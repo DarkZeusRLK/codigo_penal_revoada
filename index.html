@@ -8,10 +8,13 @@
   <script>
     /* Aplica o tema Halloween antes da pintura para evitar flash de cores */
     try {
-      if (localStorage.getItem("policia_revoada_theme_mode") === "halloween") {
+      var t = localStorage.getItem("policia_revoada_theme_mode_v2");
+      if (t === null || t === "halloween") {
         document.documentElement.setAttribute("data-theme", "halloween");
       }
-    } catch (e) {}
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "halloween");
+    }
   </script>
   <link id="theme-stylesheet" rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="halloween-theme.css">
