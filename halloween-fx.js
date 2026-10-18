@@ -267,10 +267,10 @@
         sword(56, Y(11), 62, Y(-8), 53, Y(12), 58, Y(11));
         g.ellipse(55, Y(13), 1.4, 1.4, H.boot);
       } else if (mode === 'swordSwing') {
-        g.line(48, Y(25), 56, Y(30), H.coat, 1.3);
-        g.line(56, Y(30), 60, Y(33), H.coat, 1);
-        sword(62, Y(34), SWORD_TIP, Y(35), 61, Y(31), 61, Y(37));
-        g.ellipse(60, Y(34), 1.4, 1.4, H.boot);
+        g.line(48, Y(25), 55, Y(34), H.coat, 1.3);
+        g.line(55, Y(34), 60, Y(42), H.coat, 1);
+        sword(62, Y(44), SWORD_TIP, Y(45), 61, Y(41), 61, Y(47));
+        g.ellipse(60, Y(43), 1.4, 1.4, H.boot);
       } else {
         g.line(48, Y(25), 53, Y(31), H.coat, 1.3);
         g.line(53, Y(31), 56, Y(34), H.coat, 1);
@@ -642,18 +642,18 @@
     const g = new Grid(GW, GH);
     drawStone(g, gr.type, gr.seed);
     const jit = P && P.shake ? (Math.floor(t * 20) % 2 ? 1 : -1) : 0;
-    g.ellipse(GCX + jit, GY, 11, 2.6, Z.soil2);
-    g.set(GCX - 6 + jit, GY - 2, Z.soil3); g.set(GCX + 4 + jit, GY - 2, Z.soil3);
-    if (P && P.rise > 0.01) g.ellipse(GCX, GY - 1, 6, 1.3, Z.hole);
-    if (P && P.rise > 0.01 && !P.outside) { g.clipY = GY; drawZombie(g, P, t); g.clipY = Infinity; }
+    const active = P && P.rise > 0.01;
+    if (active) g.ellipse(GCX, GY - 1, 6, 1.3, Z.hole);
+    if (active && !P.outside) { g.clipY = GY; drawZombie(g, P, t); g.clipY = Infinity; }
     g.outline(OUTLINE);
-    // chão da frente (sem contorno)
-    for (let y = GY; y < GH; y++) for (let x = 0; x < GW; x++) {
-      const n = (x * 31 + y * 17 + gr.seed) % 11;
-      g.set(x, y, n === 0 ? Z.soil3 : n < 3 ? Z.soil2 : Z.soil);
-    }
-    g.ellipse(GCX + jit, GY, 11, 2.6, Z.soil2, GY);
-    g.ellipse(GCX + jit, GY + 1, 9, 1.4, Z.soil3, GY + 1);
+    // o chão em si vem do cenário de fundo (mesma linha e mesma textura); aqui só limpa abaixo da superfície
+    for (let y = GY; y < GH; y++) for (let x = 0; x < GW; x++) g.d[y * GW + x] = null;
+    // terra remexida da cova, rente ao chão (só uma linha acima da superfície)
+    const patch = (x, y, c) => { if (x >= 0 && x < GW && y >= 0 && y < GH && !g.d[y * GW + x]) g.d[y * GW + x] = c; };
+    for (let x = -9; x <= 9; x++) patch(GCX + jit + x, GY - 1, Math.abs(x) > 7 ? Z.soil : (x * 7 + gr.seed) % 5 === 0 ? Z.soil3 : Z.soil2);
+    for (let y = GY; y <= GY + 2; y++) for (let x = -10 + (y - GY); x <= 10 - (y - GY); x++)
+      patch(GCX + jit + x, y, (x * 13 + y * 7 + gr.seed) % 6 === 0 ? Z.soil3 : Z.soil2);
+    if (active) for (let x = -5; x <= 5; x++) { g.d[(GY - 1) * GW + GCX + x] = g.d[(GY - 1) * GW + GCX + x] || Z.hole; }
     for (let i = 0; i < 7; i++) {
       const x = (gr.seed * 5 + i * 9) % GW;
       if (Math.abs(x - GCX) < 13) continue;
@@ -1142,6 +1142,7 @@
       this.W = W; this.H = Hh; this.dpr = dpr;
       this.s = clamp(Math.floor(Hh / 320), 2, 4);
       this.ground = Hh - Math.round(this.s * 3);
+      this.surface = this.ground - (GH - GY) * this.s;   // linha da grama (onde tudo pisa)
       this.canvas.width = Math.round(W * dpr); this.canvas.height = Math.round(Hh * dpr);
       this.canvas.style.width = W + 'px'; this.canvas.style.height = Hh + 'px';
       this.front.width = this.canvas.width; this.front.height = this.canvas.height;
@@ -1160,7 +1161,7 @@
       this.graves = [];
       this.props = [];
       for (let side = 0; side < 2; side++) for (let i = 0; i < perSide; i++) {
-        const x = side === 0 ? 4 + i * (gw * 0.82) : W - gw - 4 - i * (gw * 0.82);
+        const x = Math.round((side === 0 ? 4 + i * (gw * 0.82) : W - gw - 4 - i * (gw * 0.82)) / s) * s;   // alinhado à grade do cenário
         const k = side * 2 + i;
         const prev = old[k];
         const gr = { x, type: prev ? prev.type : types[(k + (side ? 1 : 0)) % 3], seed: prev ? prev.seed : 3 + k * 7, canvas: document.createElement('canvas') };
@@ -1281,7 +1282,7 @@
           const zt = r.z && this.zombie === r.z ? r.z.t : Infinity;
           r.mode = zt < HORSE_HIT - 0.3 ? 'swordUp' : zt < HORSE_HIT + 0.15 ? 'swordSwing' : 'carry';
         }
-        const sw = RW * s, top = this.ground - (R_FEET + ROY) * s;
+        const sw = RW * s, top = this.surface - (R_FEET + ROY + 1) * s;
         const pp = r.mode === 'pumpkin' ? PUMP : NECK;
         const lx = r.dir > 0 ? pp.x : RW - pp.x;
         const px = r.x + lx * s, py = top + (ROY + pp.y - 3 + riderBob[r.f]) * s;
@@ -1301,7 +1302,7 @@
         if (Math.random() < 0.15) this.parts.push({ k: 'ember', x: px + rand(-3, 3) * s, y: py, vx: rand(-0.03, 0.03) * s, vy: -rand(0.02, 0.05) * s, life: 0, max: rand(900, 1600), size: 1 });
         if ((r.f === 1 || r.f === 5) && Math.random() < 0.6) {
           const hx = r.x + (r.dir > 0 ? rand(30, 62) : RW - rand(30, 62)) * s;
-          this.parts.push({ k: 'dust', x: hx, y: this.ground - s, vx: -r.dir * rand(0.01, 0.05) * s, vy: -rand(0.005, 0.02) * s, life: 0, max: rand(400, 800), size: 2 });
+          this.parts.push({ k: 'dust', x: hx, y: this.surface - s, vx: -r.dir * rand(0.01, 0.05) * s, vy: -rand(0.005, 0.02) * s, life: 0, max: rand(400, 800), size: 2 });
         }
         if ((r.dir > 0 && r.x > this.W) || (r.dir < 0 && r.x < -sw)) this.rider = null;
       }
@@ -1571,7 +1572,7 @@
 
       // abóboras dos túmulos (com brilho)
       for (const p of this.props) {
-        const pw = 18 * s, ph = 16 * s, y = this.ground - ph + 2 * s;
+        const pw = 18 * s, ph = 16 * s, y = this.surface - 15 * s;
         this.glow(p.x + pw / 2, y + ph * 0.55, pw * 1.3, 0.22 + this.flick * 0.08);
         c.drawImage(pumpkinFrames[(this.flick + p.ph) % 2], p.x, y, pw, ph);
       }
@@ -1644,9 +1645,9 @@
       // cavaleiro
       const r = this.rider;
       if (r) {
-        const sw = RW * s, top = this.ground - (R_FEET + ROY) * s;
+        const sw = RW * s, top = this.surface - (R_FEET + ROY + 1) * s;
         c.fillStyle = 'rgba(0,0,0,.35)';
-        c.beginPath(); c.ellipse(r.x + sw * 0.5, this.ground + s, sw * 0.32, 3 * s, 0, 0, TAU); c.fill();
+        c.beginPath(); c.ellipse(r.x + sw * 0.5, this.surface + s, sw * 0.32, 2.5 * s, 0, 0, TAU); c.fill();
         if (r.px != null) this.glow(r.px, r.py + 3 * s, 34 * s, 0.32 + this.flick * 0.1);
         c.save();
         if (r.dir < 0) { c.translate(r.x + sw, top); c.scale(-1, 1); } else c.translate(r.x, top);
