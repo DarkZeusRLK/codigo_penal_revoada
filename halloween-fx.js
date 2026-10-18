@@ -7,6 +7,11 @@
  *    do braço, recoloca e entra na cova.
  *  - Túmulos nas laterais; de vez em quando um zumbi policial sai da cova, olha em volta,
  *    coça a cabeça e cai de volta.
+ *  - Corvo pousado num túmulo: segue o mouse com a cabeça, grasna, voa quando assustado e volta
+ *  - Fantasma que atravessa a tela por cima dos painéis (sem bloquear cliques); dá um "BU!" se o mouse chegar perto
+ *  - Bruxa na vassoura passando na frente da lua, com rastro de faíscas
+ *  - Cenário de fundo: chão contínuo, cerca de ferro, lápides distantes, árvores secas e um mausoléu
+ *    no centro com vitrais acesos (às vezes um vulto passa pela janela)
  *  - Chapéu de bruxa sobre o "R" da logo, teias com aranhas, morcegos, lua, névoa, abóboras
  *
  * API:
@@ -16,7 +21,11 @@
  *   HalloweenFX.ride('sword')  // força a cena da espada | ride('pumpkin') força a abóbora na mão
  *   HalloweenFX.zombie()       // zumbi (sorteia clássico ou cena do cavaleiro)
  *   HalloweenFX.zombie(0, 'classic' | 'horse' | 'decap')
- * Opções do enable: swordChance (0.35), horseChance (0.25), decapChance (0), killer ('reaper' | 'slasher')
+ *   HalloweenFX.ghost() / HalloweenFX.witch() / HalloweenFX.crow()  // fantasma, bruxa, assustar o corvo
+ * Opções do enable: eventGap ([25, 50] s entre eventos), firstEvent (6 s),
+ *   weights ({ ride, zombie, ghost, witch }), swordChance (0.35), horseChance (0.25),
+ *   decapChance (0), killer ('reaper' | 'slasher')
+ * Só um evento grande acontece por vez; corvo, vitrais e enfeites são ambientes.
  */
 (function (global) {
   'use strict';
@@ -333,7 +342,9 @@
     I: ['111', '010', '010', '010', '111'],
     P: ['111', '101', '111', '100', '100'],
     '?': ['111', '001', '011', '000', '010'],
-    '!': ['010', '010', '010', '000', '010']
+    '!': ['010', '010', '010', '000', '010'],
+    B: ['110', '101', '110', '101', '110'],
+    U: ['101', '101', '101', '101', '111']
   };
   function glyph(g, ch, x, y, c) {
     GLYPH[ch].forEach((row, j) => [...row].forEach((b, i) => { if (b === '1') g.set(x + i, y + j, c); }));
@@ -824,6 +835,237 @@
   }
 
   /* ======================================================================
+   * Corvo, fantasma e bruxa
+   * ==================================================================== */
+  const CR = { body: '#0e0b13', hi: '#2f2840', beak: '#3c3842', leg: '#4a4650', eye: '#ffd84a' };
+  const CRW = 20, CRH = 14, CR_FEET = 13, CR_CX = 9;
+  const CROW_PERCH = { rip: 27, cross: 24, tall: 15 };
+  let crowFrames = null;
+  function buildCrow() {
+    if (crowFrames) return;
+    crowFrames = {};
+    const sitBase = g => {
+      g.poly([[5, 9], [1, 11], [2, 12], [6, 11]], CR.body);
+      g.ellipse(9, 9, 4, 3, CR.body);
+      g.line(6, 8, 11, 9, CR.hi, 0);
+      [[8, 12], [8, 13], [10, 12], [10, 13], [11, 13], [7, 13]].forEach(([x, y]) => g.set(x, y, CR.leg));
+    };
+    const defs = {
+      sit: g => { sitBase(g); g.ellipse(13, 5, 2.5, 2.2, CR.body); g.line(15, 5, 17, 6, CR.beak, 0); g.set(13, 4, CR.eye); },
+      blink: g => { sitBase(g); g.ellipse(13, 5, 2.5, 2.2, CR.body); g.line(15, 5, 17, 6, CR.beak, 0); },
+      up: g => { sitBase(g); g.ellipse(13, 4, 2.5, 2.2, CR.body); g.line(15, 3, 17, 2, CR.beak, 0); g.set(13, 3, CR.eye); },
+      caw: g => { sitBase(g); g.ellipse(13, 5, 2.5, 2.2, CR.body); g.line(15, 4, 17, 2, CR.beak, 0); g.line(15, 6, 17, 7, CR.beak, 0); g.set(13, 4, CR.eye); },
+      fly1: g => {
+        g.poly([[6, 8], [1, 9], [2, 10], [6, 10]], CR.body); g.ellipse(10, 8, 4, 2.4, CR.body);
+        g.ellipse(14, 7, 2.2, 2, CR.body); g.line(16, 7, 18, 8, CR.beak, 0); g.set(14, 6, CR.eye);
+        g.poly([[8, 7], [12, 7], [8, 0], [4, 1]], CR.body); g.line(8, 6, 6, 1, CR.hi, 0);
+      },
+      fly2: g => {
+        g.poly([[6, 8], [1, 9], [2, 10], [6, 10]], CR.body); g.ellipse(10, 8, 4, 2.4, CR.body);
+        g.ellipse(14, 7, 2.2, 2, CR.body); g.line(16, 7, 18, 8, CR.beak, 0); g.set(14, 6, CR.eye);
+        g.poly([[8, 9], [12, 9], [9, 13], [5, 12]], CR.body); g.line(9, 10, 7, 12, CR.hi, 0);
+      }
+    };
+    for (const k in defs) { const g = new Grid(CRW, CRH); defs[k](g); g.outline(OUTLINE); crowFrames[k] = g.toCanvas(); }
+  }
+
+  const GHW = 28, GHH = 31;
+  let ghostFrames = null, booCanvas = null;
+  function buildGhost() {
+    if (ghostFrames) return;
+    const G = { a: '#efeaff', b: '#c9bff0', eye: '#1b1430', mouth: '#2a1f45', ol: '#5b4c94' };
+    ghostFrames = {};
+    ['idleA', 'idleB', 'boo'].forEach(name => {
+      const g = new Grid(GHW, GHH), ph = name === 'idleB' ? 3 : 0, boo = name === 'boo';
+      if (boo) { g.line(5, 15, 1, 8, G.a, 1); g.line(22, 15, 26, 8, G.a, 1); }
+      else { g.rect(3, 16, 4, 18, G.a); g.rect(23, 16, 24, 18, G.a); }
+      g.ellipse(14, 11, 9, 9, G.a);
+      g.rect(5, 11, 23, 24, G.a);
+      for (let x = 5; x <= 23; x++) if ((x + ph) % 6 < 3) g.rect(x, 25, x, 26, G.a);
+      g.line(21, 7, 22, 25, G.b, 0.6);
+      g.set(9, 5, '#ffffff'); g.set(10, 4, '#ffffff');
+      if (boo) { g.rect(8, 9, 11, 13, G.eye); g.rect(17, 9, 20, 13, G.eye); g.ellipse(14, 18.5, 3, 3.5, G.mouth); }
+      else { g.rect(9, 10, 10, 13, G.eye); g.rect(17, 10, 18, 13, G.eye); g.ellipse(14, 17, 1.2, 1.6, G.mouth); }
+      g.outline(G.ol);
+      ghostFrames[name] = g.toCanvas();
+    });
+    const t = new Grid(14, 7);
+    glyph(t, 'B', 1, 1, '#fff6d0'); glyph(t, 'U', 5, 1, '#fff6d0'); glyph(t, '!', 9, 1, '#fff6d0');
+    t.d = t.d.map(v => v && '#fff6d0'); t.outline('#2a1f45');
+    booCanvas = t.toCanvas();
+  }
+
+  const WW = 46, WH = 36, WOY = 12;
+  const WITCH_STRAW = { x: 2, y: 17 };
+  let witchFrames = null;
+  function buildWitch() {
+    if (witchFrames) return;
+    const C2 = { cloak: '#140c1e', hi: '#2a1c3a', skin: '#5f8a4c', hair: '#d2602a', hat: '#1a0f28', band: '#7a3cc0',
+      stick: '#3a2616', straw: '#7a5a2a', strawLo: '#4e3818', boot: '#0b0810', eye: '#ffd84a' };
+    witchFrames = [0, 1].map(f => {
+      const g = new Grid(WW, WH, 0, WOY), w = f ? 1 : -1;
+      // vassoura
+      g.line(4, 16, 42, 12, C2.stick, 0); g.line(4, 17, 42, 13, C2.stick, 0);
+      g.poly([[0, 12 + w], [8, 14], [8, 19], [0, 22 - w]], C2.straw);
+      g.line(1, 14, 7, 15, C2.strawLo, 0); g.line(1, 19, 7, 17, C2.strawLo, 0);
+      g.line(8, 14, 8, 19, '#2a1a10', 0);
+      // capa esvoaçando
+      g.poly([[18, 4], [10, 3 + w], [4, 6 - w], [9, 9], [17, 11]], C2.cloak);
+      g.line(17, 5, 9, 5 + w, C2.hi, 0);
+      // corpo, perna, braço
+      g.poly([[17, 4], [24, 4], [27, 12], [26, 15], [16, 15]], C2.cloak);
+      g.line(18, 5, 17, 14, C2.hi, 0);
+      g.line(24, 14, 29, 16, C2.cloak, 1); g.set(30, 16, C2.boot); g.set(31, 16, C2.boot); g.set(31, 15, C2.boot);
+      g.line(23, 7, 28, 12, C2.cloak, 1); g.set(29, 12, C2.skin); g.set(29, 13, C2.skin);
+      // cabeça, cabelo
+      g.line(21, 1, 16, 6 + w, C2.hair, 1); g.line(21, 3, 17, 8 - w, C2.hair, 0.8);
+      g.ellipse(23, 1, 2.6, 2.6, C2.skin);
+      g.set(26, 1, C2.skin); g.set(27, 2, C2.skin); g.set(25, 3, C2.skin); g.set(24, 0, C2.eye);
+      // chapéu
+      g.line(17, -2, 29, -2, C2.hat, 0); g.line(18, -1, 28, -1, C2.hat, 0);
+      g.poly([[19, -2], [27, -2], [24, -8], [18, -12]], C2.hat);
+      g.line(20, -3, 26, -3, C2.band, 0);
+      g.outline(OUTLINE);
+      return g.toCanvas();
+    });
+  }
+
+  /* ======================================================================
+   * Cenário de fundo: cemitério contínuo + mausoléu no centro
+   * (renderizado uma vez por redimensionamento; só as janelas são animadas)
+   * ==================================================================== */
+  const BD = {
+    hill: '#120b1c', backStone: '#221b2e', backHi: '#2d2540', tree: '#1a1124',
+    fence: '#1b1526', fenceHi: '#352c45',
+    stone: '#3b3549', stoneHi: '#544c68', stoneLo: '#28233a', inner: '#2f293d', col: '#4a4360',
+    door: '#0a0610', plank: '#191120', band: '#2a2236', knob: '#8a7040',
+    win: '#ff9a3c', winHi: '#ffd27a', bar: '#2a1a10', ivy: '#2b4a2c', ivy2: '#3c6234', web: '#6d6680'
+  };
+  const BH = 112, B_GROUND = BH - 11;   // linha do chão no grid do cenário (= linha do chão dos túmulos)
+
+  function prng(seed) { let x = seed | 0 || 1; return () => ((x = (x * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff); }
+
+  function drawTree(g, x, base, h, dir, rnd) {
+    g.line(x, base, x + dir * 2, base - h * 0.55, BD.tree, 2);
+    const br = (x0, y0, ang, len, d) => {
+      const x1 = x0 + Math.cos(ang) * len, y1 = y0 + Math.sin(ang) * len;
+      g.line(x0, y0, x1, y1, BD.tree, Math.max(0, d * 0.45));
+      if (d <= 0) return;
+      br(x1, y1, ang - 0.45 - rnd() * 0.35, len * (0.62 + rnd() * 0.15), d - 1);
+      br(x1, y1, ang + 0.4 + rnd() * 0.35, len * (0.6 + rnd() * 0.15), d - 1);
+    };
+    const tx = x + dir * 2, ty = base - h * 0.55;
+    br(tx, ty, -Math.PI / 2 - 0.15 * dir, h * 0.3, 4);
+    br(tx, ty + 6, -Math.PI / 2 + 0.9 * dir, h * 0.22, 3);
+    br(tx, ty + 10, -Math.PI / 2 - 1.0 * dir, h * 0.18, 2);
+  }
+
+  // mausoléu desenhado num grid próprio (com contorno) e colado no cenário
+  function drawMausoleum() {
+    const m = new Grid(96, 96), cx = 48, B = 94;
+    const C = BD;
+    m.rect(cx - 44, B - 3, cx + 43, B - 1, C.stoneLo); m.line(cx - 44, B - 3, cx + 43, B - 3, C.stone, 0);
+    m.rect(cx - 40, B - 6, cx + 39, B - 4, C.stone); m.line(cx - 40, B - 6, cx + 39, B - 6, C.stoneHi, 0);
+    m.rect(cx - 36, B - 50, cx + 35, B - 7, C.stone);
+    m.line(cx - 36, B - 49, cx - 36, B - 7, C.stoneHi, 0);
+    m.rect(cx + 34, B - 49, cx + 35, B - 7, C.stoneLo);
+    // colunas
+    [-34, -24, 23, 33].forEach(o => {
+      const x = cx + o;
+      m.rect(x - 1, B - 48, x + 2, B - 8, C.col); m.line(x + 2, B - 48, x + 2, B - 8, C.stoneLo, 0); m.line(x - 1, B - 48, x - 1, B - 8, C.stoneHi, 0);
+      m.rect(x - 2, B - 50, x + 3, B - 48, C.stoneHi); m.rect(x - 2, B - 9, x + 3, B - 7, C.stoneHi);
+    });
+    // entablamento + inscrição
+    m.rect(cx - 39, B - 55, cx + 38, B - 50, C.stone); m.line(cx - 39, B - 55, cx + 38, B - 55, C.stoneHi, 0);
+    glyph(m, 'R', cx - 6, B - 55 + 0, C.stoneLo); glyph(m, 'I', cx - 2, B - 55, C.stoneLo); glyph(m, 'P', cx + 2, B - 55, C.stoneLo);
+    // frontão
+    m.poly([[cx - 41, B - 55], [cx + 41, B - 55], [cx, B - 76]], C.stone);
+    m.poly([[cx - 32, B - 57], [cx + 32, B - 57], [cx, B - 72]], C.inner);
+    m.line(cx - 41, B - 55, cx, B - 76, C.stoneHi, 0);
+    m.ellipse(cx, B - 63, 4, 4, C.win); m.line(cx, B - 67, cx, B - 59, C.bar, 0); m.line(cx - 4, B - 63, cx + 4, B - 63, C.bar, 0);
+    // cruz
+    m.rect(cx - 1, B - 92, cx + 1, B - 76, C.stone); m.rect(cx - 6, B - 88, cx + 5, B - 86, C.stone);
+    m.line(cx - 1, B - 92, cx - 1, B - 77, C.stoneHi, 0);
+    // porta em arco
+    m.ellipse(cx, B - 30, 9, 6, C.door); m.rect(cx - 9, B - 30, cx + 8, B - 7, C.door);
+    [cx - 4, cx, cx + 4].forEach(x => m.line(x, B - 32, x, B - 8, C.plank, 0));
+    m.line(cx - 9, B - 25, cx + 8, B - 25, C.band, 0); m.line(cx - 9, B - 14, cx + 8, B - 14, C.band, 0);
+    m.set(cx + 5, B - 19, C.knob);
+    m.line(cx - 10, B - 30, cx - 10, B - 7, C.stoneHi, 0);
+    // janelas em arco (vitrais)
+    [-16, 16].forEach(o => {
+      const x = cx + o;
+      m.ellipse(x, B - 40, 3.4, 3.4, C.win); m.rect(x - 3, B - 40, x + 3, B - 26, C.win);
+      m.line(x, B - 43, x, B - 26, C.bar, 0); m.line(x - 3, B - 34, x + 3, B - 34, C.bar, 0);
+      m.set(x - 2, B - 39, C.winHi); m.set(x - 2, B - 38, C.winHi);
+      m.line(x - 4, B - 25, x + 4, B - 25, C.stoneHi, 0);
+    });
+    // rachaduras, hera, teia
+    m.line(cx + 26, B - 49, cx + 29, B - 40, C.stoneLo, 0); m.line(cx + 29, B - 40, cx + 27, B - 33, C.stoneLo, 0);
+    m.line(cx - 30, B - 20, cx - 27, B - 14, C.stoneLo, 0);
+    const r = prng(7);
+    for (let i = 0; i < 40; i++) {
+      const y = B - 6 - Math.floor(r() * 46), x = cx - 37 + Math.floor(r() * 6 + (B - y) * 0.08);
+      m.set(x, y, r() < 0.5 ? C.ivy : C.ivy2);
+    }
+    for (let i = 0; i < 18; i++) m.set(cx + 30 + Math.floor(r() * 7), B - 8 - Math.floor(r() * 14), r() < 0.5 ? C.ivy : C.ivy2);
+    m.line(cx + 8, B - 33, cx + 4, B - 33, C.web, 0); m.line(cx + 8, B - 33, cx + 8, B - 29, C.web, 0); m.line(cx + 8, B - 33, cx + 5, B - 30, C.web, 0);
+    m.outline(OUTLINE);
+    return { m, cx, B,
+      windows: [-16, 16].map(o => ({ x0: cx + o - 3, x1: cx + o + 3, y0: B - 43, y1: B - 26 })).concat([{ x0: cx - 4, x1: cx + 4, y0: B - 67, y1: B - 59, round: true }]),
+      doorX: cx + 8, doorY0: B - 34, doorY1: B - 8 };
+  }
+
+  function buildBackdrop(W, s) {
+    const GWd = Math.ceil(W / s) + 2, g = new Grid(GWd, BH), G = B_GROUND, rnd = prng(GWd);
+    // colinas distantes
+    for (let x = 0; x < GWd; x++) {
+      const h = Math.round(7 + 4 * Math.sin(x / 37) + 3 * Math.sin(x / 13 + 1));
+      g.rect(x, G - h, x, G - 1, BD.hill);
+    }
+    // lápides distantes
+    for (let x = 4; x < GWd; x += 10 + Math.floor(rnd() * 22)) {
+      const kind = rnd(), y = G - 1;
+      if (kind < 0.55) { g.rect(x, y - 5, x + 3, y, BD.backStone); g.rect(x + 1, y - 6, x + 2, y - 6, BD.backStone); g.set(x, y - 5, BD.backHi); }
+      else if (kind < 0.85) { g.rect(x + 1, y - 7, x + 1, y, BD.backStone); g.rect(x, y - 5, x + 2, y - 5, BD.backStone); }
+      else { g.rect(x, y - 9, x + 2, y, BD.backStone); g.set(x + 1, y - 10, BD.backStone); }
+    }
+    // árvores secas (nas margens, entre os túmulos e o conteúdo)
+    const t1 = Math.round(GWd * 0.17), t2 = Math.round(GWd * 0.83);
+    drawTree(g, t1, G - 1, 64, 1, prng(11));
+    drawTree(g, t2, G - 1, 58, -1, prng(23));
+    // mausoléu no centro
+    const M = drawMausoleum(), mx = Math.round(GWd / 2) - M.cx, my = G - 1 - M.B;
+    // cerca de ferro (com portão aberto na frente do mausoléu)
+    const gate0 = mx + M.cx - 50, gate1 = mx + M.cx + 49;
+    g.line(0, G - 15, gate0, G - 15, BD.fence, 0); g.line(gate1, G - 15, GWd, G - 15, BD.fence, 0);
+    g.line(0, G - 6, gate0, G - 6, BD.fence, 0); g.line(gate1, G - 6, GWd, G - 6, BD.fence, 0);
+    for (let x = 2; x < GWd; x += 6) {
+      if (x > gate0 - 2 && x < gate1 + 2) continue;
+      if (rnd() < 0.08) continue;                     // grade faltando
+      const bend = rnd() < 0.12 ? (rnd() < 0.5 ? -1 : 1) : 0;
+      g.line(x, G - 1, x + bend, G - 17, BD.fence, 0);
+      g.set(x + bend, G - 18, BD.fenceHi); g.set(x + bend - 1, G - 17, BD.fence); g.set(x + bend + 1, G - 17, BD.fence);
+    }
+    [gate0, gate1].forEach(x => {
+      g.rect(x - 2, G - 22, x + 2, G - 1, BD.stone); g.line(x - 2, G - 22, x - 2, G - 1, BD.stoneHi, 0);
+      g.ellipse(x, G - 24, 2.5, 2.5, BD.stoneHi);
+    });
+    // cola o mausoléu
+    for (let y = 0; y < M.m.h; y++) for (let x = 0; x < M.m.w; x++) {
+      const v = M.m.d[y * M.m.w + x]; if (v) g.set(mx + x, my + y, v);
+    }
+    // chão contínuo
+    for (let y = G; y < BH; y++) for (let x = 0; x < GWd; x++) {
+      const n = (x * 31 + y * 17 + 5) % 11;
+      g.set(x, y, n === 0 ? Z.soil3 : n < 3 ? Z.soil2 : Z.soil);
+    }
+    for (let x = 1; x < GWd; x += 3 + Math.floor(rnd() * 6)) { g.set(x, G - 1, Z.grass); g.set(x + 1, G - 2, Z.grass2); }
+    const off = v => ({ x0: mx + v.x0, x1: mx + v.x1, y0: my + v.y0, y1: my + v.y1, round: v.round });
+    return { canvas: g.toCanvas(), windows: M.windows.map(off), door: { x: mx + M.doorX, y0: my + M.doorY0, y1: my + M.doorY1 } };
+  }
+
+  /* ======================================================================
    * Abóbora pixel (enfeite dos túmulos)
    * ==================================================================== */
   let pumpkinFrames = null;
@@ -863,8 +1105,20 @@
       layer.appendChild(this.canvas);
       this.ctx = this.canvas.getContext('2d');
       this.reduced = !!(global.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-      buildRider(); buildPumpkins(); buildReaper(); buildSlasher();
+      buildRider(); buildPumpkins(); buildReaper(); buildSlasher(); buildCrow(); buildGhost(); buildWitch();
+      // canvas da frente (fantasma passa por cima do conteúdo, sem bloquear cliques)
+      this.front = document.createElement('canvas');
+      this.front.className = 'hw-front';
+      this.front.setAttribute('aria-hidden', 'true');
+      this.front.style.cssText = 'position:fixed;inset:0;z-index:30;pointer-events:none;image-rendering:pixelated';
+      document.body.appendChild(this.front);
+      this.fctx = this.front.getContext('2d');
+      this.mx = this.my = -9999;
+      this.onMove = e => { this.mx = e.clientX; this.my = e.clientY; };
+      addEventListener('pointermove', this.onMove, { passive: true });
       this.onResize = () => this.resize();
+      this.onScroll = () => { this.coverDirty = true; };
+      addEventListener('scroll', this.onScroll, { passive: true, capture: true });
       this.onVis = () => { if (!document.hidden) this.kick(); };
       addEventListener('resize', this.onResize);
       document.addEventListener('visibilitychange', this.onVis);
@@ -873,8 +1127,12 @@
     unmount() {
       cancelAnimationFrame(this.raf); this.raf = 0;
       removeEventListener('resize', this.onResize);
+      removeEventListener('scroll', this.onScroll, { capture: true });
       document.removeEventListener('visibilitychange', this.onVis);
-      this.timers.forEach(clearTimeout); this.timers = [];
+      removeEventListener('pointermove', this.onMove);
+      if (this.front) this.front.remove();
+      this.front = null; this.crow = this.ghost = this.witch = null;
+      this.timers.forEach(t => { clearTimeout(t); clearInterval(t); }); this.timers = [];
       this.rider = this.zombie = null; this.parts = [];
       if (this.canvas) this.canvas.remove();
       this.canvas = null;
@@ -886,10 +1144,15 @@
       this.ground = Hh - Math.round(this.s * 3);
       this.canvas.width = Math.round(W * dpr); this.canvas.height = Math.round(Hh * dpr);
       this.canvas.style.width = W + 'px'; this.canvas.style.height = Hh + 'px';
+      this.front.width = this.canvas.width; this.front.height = this.canvas.height;
+      this.front.style.width = W + 'px'; this.front.style.height = Hh + 'px';
       this.layout();
       this.kick();
     },
     layout() {
+      this.backdrop = buildBackdrop(this.W, this.s);
+      this.backdropTop = this.H - BH * this.s;
+      this.coverDirty = true;
       const s = this.s, gw = GW * s, W = this.W;
       const perSide = W >= 1700 ? 2 : W >= 900 ? 1 : 0;
       const types = ['rip', 'cross', 'tall'];
@@ -910,6 +1173,15 @@
         this.props.push({ x: this.graves[perSide].x - pw * 0.55 - (perSide === 2 ? gw * 0.82 : 0), ph: 1 });
       }
       if (this.zombie && !this.graves.includes(this.zombie.grave)) this.zombie = null;
+      // corvo pousado num túmulo (prefere a lápide arredondada)
+      if (!this.graves.length) this.crow = null;
+      else {
+        let gi = this.graves.findIndex(g => g.type === 'rip');
+        if (gi < 0) gi = 0;
+        if (!this.crow || this.crow.gi >= this.graves.length) this.crow = { gi, state: 'sit', face: 1, nextCaw: 0, cawUntil: 0, blinkUntil: 0, t: 0 };
+        else this.crow.gi = gi;
+        if (this.crow.state === 'sit') Object.assign(this.crow, this.perch());
+      }
     },
 
     kick() { if (!this.raf && this.canvas) { this.last = performance.now(); this.raf = requestAnimationFrame(t => this.loop(t)); } },
@@ -917,12 +1189,14 @@
       this.raf = 0;
       if (!this.canvas || document.hidden) return;
       const dt = Math.min(50, now - this.last); this.last = now;
-      const active = this.rider || this.zombie || this.parts.length;
+      const active = this.rider || this.zombie || this.parts.length || this.ghost || this.witch ||
+        (this.crow && this.crow.state !== 'sit' && this.crow.state !== 'gone');
       this.idleAcc += dt;
       if (active || this.idleAcc > 120) {
         if (this.idleAcc > 120) { this.idleAcc = 0; this.flick = Math.random() < 0.35 ? 1 : 0; }
         this.update(dt, now);
         this.draw(now);
+        this.drawFront();
       }
       if (!this.reduced || active) this.raf = requestAnimationFrame(t => this.loop(t));
     },
@@ -940,6 +1214,35 @@
       const dir = Math.random() < 0.5 ? 1 : -1, sw = RW * this.s;
       const secs = clamp(this.W / 230, 6, 11);
       this.rider = { dir, x: dir > 0 ? -sw : this.W, speed: (this.W + sw) / (secs * 1000), t: 0, f: 0, mode: 'pumpkin' };
+      this.kick();
+    },
+    busy() { return !!(this.rider || this.zombie || this.ghost || this.witch); },
+    perch() {
+      const s = this.s, gr = this.graves[this.crow.gi];
+      return { x: gr.x + GCX * s, y: this.ground - GH * s + (CROW_PERCH[gr.type] || 27) * s };
+    },
+    scareCrow(fromX) {
+      const cr = this.crow;
+      if (!cr || cr.state !== 'sit') return;
+      cr.state = 'fly'; cr.t = 0;
+      const away = fromX == null ? (cr.x < this.W / 2 ? -1 : 1) : (cr.x >= fromX ? 1 : -1);
+      cr.face = away; cr.vx = away * 0.11 * this.s; cr.vy = -0.07 * this.s;
+      this.kick();
+    },
+    ghostPass() {
+      if (!this.front || this.ghost) return;
+      const dir = Math.random() < 0.5 ? 1 : -1, size = GHW * this.s * 1.3;
+      this.ghost = { dir, x: dir > 0 ? -size : this.W + size, baseY: this.H * rand(0.22, 0.62), t: 0,
+        speed: (this.W + size * 2) / 15000, booT: -1, flee: 0, size };
+      this.kick();
+    },
+    witchPass() {
+      if (this.witch) return;
+      const moon = this.canvas && this.canvas.parentElement && this.canvas.parentElement.querySelector('.hw-moon');
+      const r = moon && moon.getBoundingClientRect();
+      const my = r && r.height ? r.top + r.height / 2 : this.H * 0.14;
+      const dir = Math.random() < 0.5 ? 1 : -1, ww = WW * this.s;
+      this.witch = { dir, x: dir > 0 ? -ww : this.W + ww, y: my - (WOY + 6) * this.s, t: 0, speed: (this.W + ww * 2) / 8000 };
       this.kick();
     },
     // cavaleiro de espada sincronizado para passar no pescoço do zumbi em HORSE_HIT
@@ -968,6 +1271,7 @@
 
     update(dt) {
       const s = this.s;
+      this.updateExtras(dt);
       // cavaleiro
       const r = this.rider;
       if (r) {
@@ -1033,6 +1337,71 @@
       }
       this.updateParts(dt);
     },
+    updateExtras(dt) {
+      const s = this.s, now = performance.now();
+      // vulto passando numa janela do mausoléu
+      if (!this.shade && this.backdrop && Math.random() < dt / 30000) this.shade = { wi: Math.random() < 0.5 ? 0 : 1, t: 0, dir: Math.random() < 0.5 ? 1 : -1 };
+      if (this.shade) { this.shade.t += dt; if (this.shade.t > 1600) this.shade = null; }
+      this.coverAcc = (this.coverAcc || 0) + dt;
+      if (this.coverAcc > 1000) { this.coverAcc = 0; this.coverDirty = true; }
+      // corvo
+      const cr = this.crow;
+      if (cr) {
+        cr.t += dt;
+        if (cr.state === 'sit') {
+          Object.assign(cr, this.perch());
+          cr.face = this.mx < -9000 ? cr.face : (this.mx < cr.x ? -1 : 1);
+          cr.look = this.my < cr.y - 220 ? 'up' : null;
+          if (!cr.nextCaw) cr.nextCaw = now + rand(4000, 11000);
+          if (now > cr.nextCaw) { cr.cawUntil = now + 500; cr.nextCaw = now + rand(5000, 13000); }
+          if (Math.random() < dt / 3000) cr.blinkUntil = now + 130;
+          const near = Math.hypot(this.mx - cr.x, this.my - (cr.y - 6 * s)) < 70;
+          const z = this.zombie, r = this.rider;
+          const zNear = z && z.t < 1.2 && z.t > 0.7 && Math.abs(z.grave.x + GCX * s - cr.x) < this.W / 2;
+          const rNear = r && Math.abs(r.x + RW * s / 2 - cr.x) < 230;
+          if (near) this.scareCrow(this.mx);
+          else if (zNear) this.scareCrow(z.grave.x + GCX * s);
+          else if (rNear) this.scareCrow(r.x + RW * s / 2);
+        } else if (cr.state === 'fly') {
+          cr.vy -= 0.00006 * s * dt; cr.x += cr.vx * dt; cr.y += cr.vy * dt;
+          if (cr.x < -40 * s || cr.x > this.W + 40 * s || cr.y < -30 * s) { cr.state = 'gone'; cr.t = 0; cr.wait = rand(9000, 17000); }
+        } else if (cr.state === 'gone') {
+          if (cr.t > cr.wait) {
+            const pp = this.perch(), from = pp.x < this.W / 2 ? -1 : 1;
+            cr.state = 'return'; cr.t = 0; cr.x = from < 0 ? -20 * s : this.W + 20 * s; cr.y = pp.y - 120 * s; cr.face = -from;
+          }
+        } else if (cr.state === 'return') {
+          const pp = this.perch(), dx = pp.x - cr.x, dy = pp.y - cr.y, d = Math.hypot(dx, dy), sp = 0.09 * s * dt;
+          if (d <= sp) { cr.state = 'sit'; cr.t = 0; cr.x = pp.x; cr.y = pp.y; }
+          else { cr.x += dx / d * sp; cr.y += dy / d * sp; cr.face = dx < 0 ? -1 : 1; }
+        }
+      }
+      // fantasma
+      const gh = this.ghost;
+      if (gh) {
+        gh.t += dt;
+        const cx = gh.x, cy = gh.baseY + Math.sin(gh.t / 700) * 10 * s / 3;
+        gh.cy = cy;
+        if (gh.booT >= 0 && !gh.flee) { gh.booT += dt; if (gh.booT > 1100) gh.flee = 1; }
+        else gh.x += gh.dir * gh.speed * (gh.flee ? 4 : 1) * dt;
+        if (gh.flee) gh.flee += dt;
+        if (gh.booT < 0 && cx > 0 && cx < this.W && Math.hypot(this.mx - cx, this.my - cy) < 150) gh.booT = 0;
+        if (gh.x < -gh.size * 2 || gh.x > this.W + gh.size * 2 || gh.flee > 900) this.ghost = null;
+      }
+      // bruxa
+      const wi = this.witch;
+      if (wi) {
+        wi.t += dt; wi.x += wi.dir * wi.speed * dt;
+        wi.f = Math.floor(wi.t / 160) % 2;
+        wi.yy = wi.y + Math.sin(wi.t / 420) * 5 * s;
+        const sx = wi.x + (wi.dir > 0 ? WITCH_STRAW.x : WW - WITCH_STRAW.x) * s, sy = wi.yy + (WITCH_STRAW.y + WOY) * s;
+        const cols = ['#b86bff', '#7dff9a', '#ffd166', '#ff8af0'];
+        for (let i = 0; i < 2; i++) this.parts.push({ k: 'spark', x: sx + rand(-2, 2) * s, y: sy + rand(-3, 3) * s,
+          vx: -wi.dir * rand(0.01, 0.04) * s, vy: rand(-0.005, 0.02) * s, life: 0, max: rand(450, 900), size: 1, c: cols[(Math.random() * 4) | 0] });
+        const ww = WW * s;
+        if ((wi.dir > 0 && wi.x > this.W + ww) || (wi.dir < 0 && wi.x < -ww * 2)) this.witch = null;
+      }
+    },
     updateParts(dt) {
       const s = this.s, g = 0.0011 * s;
       this.parts = this.parts.filter(p => {
@@ -1096,6 +1465,30 @@
         }
       }
     },
+    // Se um painel do site estiver por cima de uma janela/porta do mausoléu, apaga o brilho dela.
+    // (o canvas tem pointer-events: none, então elementFromPoint devolve o que está por cima)
+    checkCover() {
+      const bd = this.backdrop, s = this.s, top = this.backdropTop;
+      // conta como "coberto" só se algum elemento com fundo visível (painel, card, modal) estiver na frente;
+      // wrappers transparentes que ocupam a página inteira não contam
+      const opaque = el => {
+        for (let e = el; e && e !== document.body && e !== document.documentElement; e = e.parentElement) {
+          const cs = getComputedStyle(e), m = cs.backgroundColor.match(/[\d.]+/g);
+          const alpha = m ? (m.length > 3 ? +m[3] : 1) : 0;
+          if (alpha > 0.15 || (cs.backgroundImage && cs.backgroundImage !== 'none')) return true;
+        }
+        return false;
+      };
+      const isContent = (x, y) => {
+        const el = document.elementFromPoint(x, y);
+        return !!el && !el.closest('#hw-layer') && opaque(el);
+      };
+      bd.windows.forEach(w => {
+        const cx = (w.x0 + w.x1 + 1) / 2 * s, cy = top + (w.y0 + w.y1 + 1) / 2 * s, r = 16 * s;
+        w.covered = [[0, 0], [-r, 0], [r, 0], [0, -r], [0, r]].some(([dx, dy]) => isContent(cx + dx, cy + dy));
+      });
+      bd.doorCovered = isContent(bd.door.x * s, top + (bd.door.y0 + bd.door.y1) / 2 * s);
+    },
     blood(x, y, n, dir) {
       const s = this.s, cols = ['#7d1623', '#a3202e', '#5a0e18'];
       for (let i = 0; i < n; i++) this.parts.push({
@@ -1146,6 +1539,36 @@
       c.imageSmoothingEnabled = false;
       const gy = this.ground - GH * s;
 
+      // cenário: cemitério contínuo + mausoléu
+      const bd = this.backdrop;
+      if (bd && this.coverDirty) { this.coverDirty = false; this.checkCover(); }
+      if (bd) {
+        const top = this.backdropTop;
+        c.drawImage(bd.canvas, 0, top, bd.canvas.width * s, bd.canvas.height * s);
+        const t = performance.now();
+        bd.windows.forEach((w, i) => {
+          const wx = (w.x0 + w.x1 + 1) / 2 * s, wy = top + (w.y0 + w.y1 + 1) / 2 * s;
+          const fl = 0.22 + 0.08 * Math.sin(t / (260 + i * 70)) + this.flick * 0.06;
+          if (!w.covered) this.glow(wx, wy, (w.round ? 12 : 18) * s, fl);
+        });
+        // vulto atravessando o vitral
+        const sh = this.shade;
+        if (sh && !bd.windows[sh.wi].covered) {
+          const w = bd.windows[sh.wi], k = sh.t / 1600;
+          const x0 = w.x0 * s, x1 = (w.x1 + 1) * s, y0 = top + w.y0 * s, y1 = top + (w.y1 + 1) * s;
+          c.save(); c.beginPath(); c.rect(x0, y0, x1 - x0, y1 - y0); c.clip();
+          const fx = sh.dir > 0 ? lerp(x0 - 4 * s, x1 + 2 * s, k) : lerp(x1 + 2 * s, x0 - 4 * s, k);
+          c.fillStyle = '#1a0a08';
+          c.fillRect(Math.round(fx / s) * s, y0 + 4 * s, 2 * s, 2 * s);
+          c.fillRect(Math.round(fx / s) * s - s, y0 + 6 * s, 4 * s, 12 * s);
+          c.restore();
+        }
+        // luz pela fresta da porta
+        const dA = bd.doorCovered ? 0 : 0.25 + 0.25 * Math.abs(Math.sin(t / 900)) + this.flick * 0.15;
+        c.fillStyle = `rgba(255,150,60,${dA})`;
+        c.fillRect(bd.door.x * s, top + bd.door.y0 * s, s, (bd.door.y1 - bd.door.y0) * s);
+      }
+
       // abóboras dos túmulos (com brilho)
       for (const p of this.props) {
         const pw = 18 * s, ph = 16 * s, y = this.ground - ph + 2 * s;
@@ -1154,6 +1577,34 @@
       }
       // túmulos
       for (const gr of this.graves) c.drawImage(gr.canvas, gr.x, gy, GW * s, GH * s);
+
+      // corvo
+      const cr = this.crow;
+      if (cr && cr.state !== 'gone' && cr.x != null) {
+        const now = performance.now();
+        let fr;
+        if (cr.state === 'sit') fr = now < cr.cawUntil ? 'caw' : now < cr.blinkUntil ? 'blink' : cr.look || 'sit';
+        else fr = Math.floor(cr.t / 90) % 2 ? 'fly1' : 'fly2';
+        const w = CRW * s, top = cr.y - CR_FEET * s - s;
+        c.save();
+        if (cr.face < 0) { c.translate(cr.x + CR_CX * s, top); c.scale(-1, 1); } else c.translate(cr.x - CR_CX * s, top);
+        c.drawImage(crowFrames[fr], 0, 0, w, CRH * s);
+        c.restore();
+        if (fr === 'caw') {
+          c.fillStyle = 'rgba(255,255,255,.55)';
+          const bx = cr.x + cr.face * 10 * s, by = top + 3 * s;
+          [[0, 0], [1, -1], [2, -2], [1, 1], [2, 2]].forEach(([a, b2]) => c.fillRect(Math.round((bx + cr.face * a * s) / s) * s, Math.round((by + b2 * s) / s) * s, s, s));
+        }
+      }
+      // bruxa (passa na frente da lua)
+      const wi = this.witch;
+      if (wi && wi.yy != null) {
+        const w = WW * s;
+        c.save();
+        if (wi.dir < 0) { c.translate(wi.x + w, wi.yy); c.scale(-1, 1); } else c.translate(wi.x, wi.yy);
+        c.drawImage(witchFrames[wi.f || 0], 0, 0, w, WH * s);
+        c.restore();
+      }
 
       // zumbi fora da cova
       const zz = this.zombie;
@@ -1209,10 +1660,41 @@
         if (p.k === 'fire') col = k < 0.12 ? '#fff6c8' : k < 0.3 ? '#ffd23f' : k < 0.55 ? '#ff8a1c' : k < 0.78 ? '#e2401a' : 'rgba(80,28,40,.55)';
         else if (p.k === 'ember') col = (Math.floor(p.life / 90) % 2) ? '#ffb02a' : '#ff6a1a';
         else if (p.k === 'dust') col = `rgba(120,100,140,${0.45 * (1 - k)})`;
+        else if (p.k === 'spark') { if (Math.random() < 0.25) continue; col = p.c; }
         else { col = p.c; if (p.y > p.floor && p.vy > 0) { p.y = p.floor; p.vy *= -0.25; p.vx *= 0.5; } }
         c.fillStyle = col;
         c.fillRect(Math.round(p.x / s) * s, Math.round(p.y / s) * s, sz, sz);
       }
+    },
+    drawFront() {
+      const f = this.fctx;
+      if (!f) return;
+      const gh = this.ghost;
+      if (!gh && !this.frontDirty) return;
+      f.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+      f.clearRect(0, 0, this.W, this.H);
+      f.imageSmoothingEnabled = false;
+      this.frontDirty = !!gh;
+      if (!gh || gh.cy == null) return;
+      const s = this.s, booing = gh.booT >= 0 && !gh.flee;
+      const scale = 1.3 * (booing ? 1 + 0.3 * clamp(gh.booT / 150, 0, 1) : 1);
+      const w = GHW * s * scale, h = GHH * s * scale;
+      const edge = clamp(Math.min(gh.x + w, this.W - gh.x + w) / 200, 0, 1);
+      let a = (booing ? 0.85 : 0.5) * edge;
+      if (gh.flee) a *= clamp(1 - gh.flee / 900, 0, 1);
+      f.save();
+      f.globalAlpha = a;
+      const gr = f.createRadialGradient(gh.x, gh.cy, 0, gh.x, gh.cy, w);
+      gr.addColorStop(0, 'rgba(200,185,255,.35)'); gr.addColorStop(1, 'rgba(200,185,255,0)');
+      f.fillStyle = gr; f.fillRect(gh.x - w, gh.cy - w, w * 2, w * 2);
+      const fr = booing ? 'boo' : Math.floor(gh.t / 300) % 2 ? 'idleB' : 'idleA';
+      f.drawImage(ghostFrames[fr], Math.round(gh.x - w / 2), Math.round(gh.cy - h / 2), w, h);
+      if (booing) {
+        f.globalAlpha = Math.min(1, a + 0.15);
+        const bw = 14 * s * 1.4, bh = 7 * s * 1.4, j = Math.floor(gh.booT / 60) % 2;
+        f.drawImage(booCanvas, Math.round(gh.x - bw / 2 + j * s), Math.round(gh.cy - h / 2 - bh - 2 * s), bw, bh);
+      }
+      f.restore();
     },
     drawSlasherActor(rp) {
       const c = this.ctx, s = this.s, w = KW * s;
@@ -1373,15 +1855,37 @@
     enable(opts = {}) {
       if (this.enabled) return;
       this.enabled = true;
-      this.opts = Object.assign({ logo: null, swordChance: 0.35, horseChance: 0.25, decapChance: 0, killer: 'reaper', riderEvery: [22, 45], zombieEvery: [14, 30], firstRider: 3, firstZombie: 7, mount: document.body }, opts);
+      this.opts = Object.assign({ logo: null, swordChance: 0.35, horseChance: 0.25, decapChance: 0, killer: 'reaper', eventGap: [25, 50], firstEvent: 6,
+        weights: { ride: 0.35, zombie: 0.3, ghost: 0.2, witch: 0.15 }, mount: document.body }, opts);
+      this.opts.weights = Object.assign({ ride: 0.35, zombie: 0.3, ghost: 0.2, witch: 0.15 }, opts.weights || {});
       this.layer = buildLayer();
       this.opts.mount.prepend(this.layer);
       Scene.mount(this.layer);
       if (this.opts.logo) Hat.mount(this.opts.logo);
-      if (!Scene.reduced) {
-        this.loopActor('ride', this.opts.firstRider, this.opts.riderEvery);
-        this.loopActor('rise', this.opts.firstZombie, this.opts.zombieEvery);
-      }
+      if (!Scene.reduced) this.director();
+    },
+    // "Diretor": só um evento grande por vez (cavaleiro, zumbi, fantasma ou bruxa) e uma pausa
+    // aleatória (eventGap) depois que o anterior termina. Nunca repete o mesmo evento em seguida.
+    director() {
+      const o = this.opts, events = [['ride', o.weights.ride], ['rise', o.weights.zombie], ['ghostPass', o.weights.ghost], ['witchPass', o.weights.witch]];
+      let lastEnd = performance.now() - (o.eventGap[0] - o.firstEvent) * 1000, gap = o.eventGap[0], last = null;
+      const pick = () => {
+        const pool = events.filter(([n, w]) => w > 0 && n !== last);
+        let r = Math.random() * pool.reduce((a, [, w]) => a + w, 0);
+        for (const [n, w] of pool) { if ((r -= w) <= 0) return n; }
+        return pool[0][0];
+      };
+      const id = setInterval(() => {
+        if (!this.enabled) return;
+        const now = performance.now();
+        if (Scene.busy()) { lastEnd = now; return; }
+        if (document.hidden || now - lastEnd < gap * 1000) return;
+        last = pick();
+        Scene[last]();
+        lastEnd = now;
+        gap = rand(o.eventGap[0], o.eventGap[1]);
+      }, 500);
+      Scene.timers.push(id);
     },
     loopActor(fn, first, [a, b]) {
       const go = delay => Scene.timers.push(setTimeout(() => {
@@ -1400,6 +1904,9 @@
     },
     ride(kind) { Scene.ride(kind); },
     zombie(i, variant) { Scene.rise(i, variant); },
+    ghost() { Scene.ghostPass(); },
+    witch() { Scene.witchPass(); },
+    crow() { Scene.scareCrow(); },
     refreshHat() { Hat.place(); }
   };
 

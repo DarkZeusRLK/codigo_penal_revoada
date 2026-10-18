@@ -279,5 +279,6 @@
 :root[data-theme="halloween"] #patch-notes-content h4 { color: var(--hw-accent-2); }
 :root[data-theme="halloween"] .btn-confirmar { color: #fff; }
 
-/* A lua desce um pouco para não ficar atrás do "Oficial Responsável" / engrenagem */
-:root[data-theme="halloween"] #hw-layer .hw-moon { top: 17vh; right: 3vw; opacity: 0.75; }
+/* A lua fica na faixa do cabeçalho (a bruxa cruza na altura dela). O "Oficial Responsável"
+   ganha fundo próprio para continuar legível quando passa sobre a lua. */
+:root[data-theme="halloween"] .user-info { background: rgba(14, 7, 22, 0.88); border-color: var(--hw-border); }
